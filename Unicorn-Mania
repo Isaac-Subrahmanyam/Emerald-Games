@@ -1,0 +1,2338 @@
+
+/**
+    
+    INSTRUCTIONS:
+    1) [UP] arrow to JUMP
+    2) [SPACE] to BOOST
+    
+    If the mountains are really BIG, be sure to JUMP in the air, and BOOST to your destination!
+
+*/
+
+
+/*
+    1) Press the SAVE ICON (below your score stats) to get your Save File
+    2) Copy, paste, and replace the ENTIRE Save File into this Array
+    3) Save as a Spin-off, this is YOUR profile now.
+*/
+
+var Save_File = [true, false, false, false, false, false, false, false, true, false, false, "default", "default", color(225, 0, 255, 100), color(125, 0, 0), 0, 0, false];
+
+
+
+/**
+ * 
+ * UNICORN MANIA
+ * Isaac Emerald
+ * March 20 2018
+ * 
+*/
+
+
+
+
+
+
+
+
+
+// default scene
+var scene = "home";
+
+// unicorn store assets
+var unicornStore
+= {
+    
+    type: ["default", "pink", "brown", "blue", "gold", "red", "negro", "galaxy"],
+    money: [0, 20, 40, 60, 100, 150, 250, 300],
+    state: [Save_File[0], Save_File[1], Save_File[2], Save_File[3], Save_File[4], Save_File[5], Save_File[6], Save_File[7]],
+    switchScene: 0,
+};
+
+// backdrop store assets
+var backdropStore
+= {
+    
+    type: ["default", "darkforest", "planety"],
+    money: [0, 300, 500],
+    state: [Save_File[8], Save_File[9], Save_File[10]],
+    switchScene: 0,
+    
+    colorGem: [color(225, 0, 255, 100), color(255, 255, 255, 100), color(15, 255, 239, 150)],
+    colorButton: [color(125, 0, 0), color(1, 56, 3), color(50, 2, 56)],
+};
+
+// current color scemes
+var currentGemSceme = Save_File[13];
+var currentButtonSceme = Save_File[14];
+
+// current unicorn type
+var currentUnicornType = Save_File[11];
+var currentBackdrop = Save_File[12];
+
+// backdrop colors
+var backdropColors = {
+    island: 0,
+    gem: 0,
+};
+
+// current coin amount
+var coins = Save_File[15];
+
+// gem stuff
+var gem = {
+    
+    x: -20, y: 0,
+    w: 20, h: 25
+    
+};
+
+// trans variables
+var trans = 0, transState = "shrink", nextPage = "menu";
+
+// player variables
+var player
+= {
+    x: 52, y: 2,
+    w: 94, h: 59,
+    grav: 5,
+    
+    zoom: 0, zoomDelay: 0,
+    zoomState: false, zoomState2: false,
+    
+    dead: false, excel: 0,
+};
+
+// score and best score
+var score = 0, bestScore = Save_File[16];
+
+// game started?
+var gameStarted = Save_File[17];
+
+// key control
+var keys = [],
+    keyPressed = function()
+    {
+        keys[keyCode] = true;
+        
+        if(keys[32] && !player.zoomState && !player.zoomState2 && !player.dead)
+        {
+            player.zoomState = true;
+            player.zoomState2 = true;
+        }
+    },
+    keyReleased = function()
+    {
+        keys[keyCode] = false;
+    };
+
+// clicked state
+var clicked = false,
+    
+    mouseClicked = function()
+    {
+        clicked = true;
+    };
+
+var gameLink = "FILL THIS OUT";
+
+/** Main unicorn function*/
+var unicorn = function(x, y, s, uncironType)
+{
+    // different unicorn colors
+    var unicornColors;
+    
+    switch(uncironType)
+    {
+        case "button":
+            unicornColors = {
+                
+                body: currentButtonSceme,
+                backleg: currentButtonSceme,
+                eye: currentButtonSceme,
+                pupil: currentButtonSceme,
+                fhoof: currentButtonSceme,
+                bhoof: currentButtonSceme,
+                
+                main: {
+                   s1: currentButtonSceme,
+                   s2: currentButtonSceme,
+                   s3: currentButtonSceme,
+                   s4: currentButtonSceme,
+                   s5: currentButtonSceme,
+                   s6: currentButtonSceme,
+                   s7: currentButtonSceme,
+                },
+            };
+            break;
+        
+        case "default":
+            unicornColors = {
+                
+                body: color(255, 255, 255),
+                backleg: color(224, 224, 224),
+                eye: color(209, 209, 209),
+                pupil: color(20, 20, 20),
+                fhoof: color(178, 84, 255),
+                bhoof: color(155, 52, 245),
+                
+                main: {
+                   s1: color(255, 0, 0, 150),
+                   s2: color(255, 136, 0, 150),
+                   s3: color(255, 242, 0, 150),
+                   s4: color(34, 255, 0, 150),
+                   s5: color(0, 179, 255, 150),
+                   s6: color(0, 72, 255, 150),
+                   s7: color(162, 0, 255, 150),
+                },
+            };
+            break;
+            
+        case "negro":
+            unicornColors = {
+                
+                body: color(10, 10, 10),
+                backleg: color(0, 0, 0),
+                eye: color(128, 4, 4),
+                pupil: color(199, 2, 2),
+                fhoof: color(189, 10, 10),
+                bhoof: color(153, 0, 0),
+                
+                main: {
+                   s1: color(0, 0, 0, 150),
+                   s2: color(255, 0, 0, 150),
+                   s3: color(0, 0, 0, 150),
+                   s4: color(255, 0, 0, 150),
+                   s5: color(0, 0, 0, 150),
+                   s6: color(255, 0, 0, 150),
+                   s7: color(0, 0, 0, 150),
+                },
+            };
+            break;
+            
+        case "brown":
+            unicornColors = {
+                
+                body: color(112, 40, 4),
+                backleg: color(89, 16, 0),
+                eye: color(214, 214, 214),
+                pupil: color(0, 0, 0),
+                fhoof: color(0, 0, 0),
+                bhoof: color(15, 15, 15),
+                
+                main: {
+                   s1: color(87, 22, 0, 200),
+                   s2: color(250, 108, 0, 150),
+                   s3: color(87, 22, 0, 200),
+                   s4: color(250, 108, 0, 150),
+                   s5: color(87, 22, 0, 200),
+                   s6: color(250, 108, 0, 150),
+                   s7: color(87, 22, 0, 200),
+                },
+            };
+            break;
+            
+        case "gold":
+            unicornColors = {
+                
+                body: color(242, 255, 94),
+                backleg: color(235, 232, 73),
+                eye: color(255, 200, 0),
+                pupil: color(255, 255, 0),
+                fhoof: color(251, 255, 0),
+                bhoof: color(224, 202, 7),
+                
+                main: {
+                   s1: color(255, 242, 0, 200),
+                   s2: color(255, 162, 0, 200),
+                   s3: color(255, 242, 0, 200),
+                   s4: color(255, 162, 0, 200),
+                   s5: color(255, 242, 0, 200),
+                   s6: color(255, 162, 0, 200),
+                   s7: color(255, 242, 0, 200),
+                },
+            };
+            break;
+            
+        case "pink":
+            unicornColors = {
+                
+                body: color(252, 169, 251),
+                backleg: color(252, 148, 249),
+                eye: color(208, 35, 235),
+                pupil: color(138, 0, 143),
+                fhoof: color(110, 8, 161),
+                bhoof: color(154, 15, 209),
+                
+                main: {
+                   s1: color(236, 153, 247, 200),
+                   s2: color(208, 0, 255, 100),
+                   s3: color(236, 153, 247, 200),
+                   s4: color(208, 0, 255, 100),
+                   s5: color(236, 153, 247, 200),
+                   s6: color(208, 0, 255, 100),
+                   s7: color(236, 153, 247, 200),
+                },
+            };
+            break;
+            
+        case "blue":
+            unicornColors = {
+                
+                body: color(115, 187, 245),
+                backleg: color(23, 166, 214),
+                eye: color(255, 255, 255),
+                pupil: color(224, 224, 224),
+                fhoof: color(255, 255, 255),
+                bhoof: color(194, 194, 194),
+                
+                main: {
+                   s1: color(255, 255, 255, 200),
+                   s2: color(255, 255, 255, 100),
+                   s3: color(255, 255, 255, 200),
+                   s4: color(255, 255, 255, 100),
+                   s5: color(255, 255, 255, 200),
+                   s6: color(255, 255, 255, 100),
+                   s7: color(255, 255, 255, 200),
+                },
+            };
+            break;
+            
+        case "galaxy":
+            unicornColors = {
+                
+                body: color(0, 0, 0),
+                backleg: color(28, 0, 28),
+                eye: color(130, 0, 130),
+                pupil: color(255, 130, 255),
+                fhoof: color(255, 255, 255),
+                bhoof: color(232, 183, 232),
+                
+                main: {
+                   s1: color(227, 0, 227, 200),
+                   s2: color(0, 131, 212, 100),
+                   s3: color(0, 148, 207, 200),
+                   s4: color(255, 255, 255, 100),
+                   s5: color(255, 255, 255, 200),
+                   s6: color(255, 255, 255, 100),
+                   s7: color(255, 255, 255, 200),
+                },
+            };
+            break;
+            
+        case "red":
+            unicornColors = {
+                
+                body: color(217, 3, 3),
+                backleg: color(186, 2, 2),
+                eye: color(252, 121, 121),
+                pupil: color(173, 0, 0),
+                fhoof: color(201, 0, 0),
+                bhoof: color(153, 2, 2),
+                
+                main: {
+                   s1: color(252, 0, 0, 200),
+                   s2: color(212, 0, 0, 100),
+                   s3: color(255, 105, 110, 200),
+                   s4: color(204, 4, 4, 100),
+                   s5: color(181, 6, 23, 200),
+                   s6: color(252, 88, 88, 100),
+                   s7: color(140, 0, 0, 200),
+                },
+            };
+            break;
+    }
+    
+    if(player.zoom)
+    {
+        
+        fill(unicornColors.main.s1);
+        rect(0, player.y + 18, 60, 5);
+        fill(unicornColors.main.s2);
+        rect(0, player.y + 21, 60, 5);
+        fill(unicornColors.main.s3);
+        rect(0, player.y + 24, 60, 5);
+        fill(unicornColors.main.s4);
+        rect(0, player.y + 27, 60, 5);
+        fill(unicornColors.main.s5);
+        rect(0, player.y + 30, 60, 5);
+        fill(unicornColors.main.s6);
+        rect(0, player.y + 33, 60, 5);
+    }
+    
+    pushMatrix();
+    translate(x, y);
+    scale(s / 100);
+    
+    if(player.dead && scene === "game")
+    {
+        rotate(sin(frameCount * 2) * 5);
+    } else
+    {
+        rotate(0);
+    }
+    
+    var mainRotate;
+    var legRotate;
+    
+    if(scene === "game" || scene === "store")
+    {
+        if(player.grav === 0)
+        {
+            mainRotate = -5 + sin(frameCount * 6) * 5;
+            legRotate = sin(frameCount * 11) * 10;
+        }
+    }
+    else
+    {
+        mainRotate = 0;
+        legRotate = -7; 
+    }
+    
+    /** Mane and/or hair */
+    var mainFlow = {
+        p1: 5 + sin(frameCount * 3) * 8,
+        p2: 5 + cos(frameCount * 3) * 4
+    };
+    
+    noStroke();
+    fill(unicornColors.main.s1);
+    arc(299, 171, 20, 50, 130, 153);
+    fill(unicornColors.main.s2);
+    arc(299, 171, 14, 33, 130, 153);
+    fill(unicornColors.main.s3);
+    arc(299, 171, 11, 28, 130, 153);
+    fill(unicornColors.main.s4);
+    arc(299, 171, 8, 19, 130, 153);
+    fill(unicornColors.main.s5);
+    arc(299, 171, 4, 11, 130, 153);
+    
+    noFill();
+    strokeWeight(3);
+    stroke(unicornColors.main.s1);
+    bezier(246, 186 + mainFlow.p1, 264, 179 + mainFlow.p2, 271, 190, 285, 182);
+    stroke(unicornColors.main.s2);
+    bezier(242, 189 + mainFlow.p1, 264, 180 + mainFlow.p2, 271, 193, 285, 184);
+    stroke(unicornColors.main.s3);
+    bezier(246, 190 + mainFlow.p1, 264, 183 + mainFlow.p2, 271, 193, 285, 188);
+    stroke(unicornColors.main.s4);
+    bezier(250, 191 + mainFlow.p1, 264, 186 + mainFlow.p2, 271, 193, 285, 193);
+    stroke(unicornColors.main.s5);
+    bezier(248, 193 + mainFlow.p1, 264, 187 + mainFlow.p2, 271, 193, 285, 200);
+    stroke(unicornColors.main.s6);
+    bezier(252, 194 + mainFlow.p1, 264, 190 + mainFlow.p2, 271, 194, 285, 205);
+    stroke(unicornColors.main.s7);
+    bezier(251, 196 + mainFlow.p1, 264, 192 + mainFlow.p2, 271, 194, 285, 213);
+    
+    /** Tail */
+    
+    var mainFlow = {
+        p1: 11 + sin(frameCount * 2) * 5,
+        p2: 18 + cos(frameCount * 2) * 2
+    };
+    noFill();
+    strokeWeight(3);
+    stroke(unicornColors.main.s1);
+    bezier(173, 196 + mainFlow.p1 * 1.5, 180, 192 + mainFlow.p2, 196, 198, 212, 205);
+    stroke(unicornColors.main.s2);
+    bezier(168, 201 + mainFlow.p1 * 1.5, 180, 195 + mainFlow.p2, 196, 198, 212, 207);
+    stroke(unicornColors.main.s3);
+    bezier(170, 202 + mainFlow.p1 * 1.5, 180, 198 + mainFlow.p2, 196, 198, 212, 207);
+    stroke(unicornColors.main.s4);
+    bezier(171, 204 + mainFlow.p1 * 1.5, 180, 198 + mainFlow.p2, 196, 198, 212, 207);
+    stroke(unicornColors.main.s5);
+    bezier(168, 211 + mainFlow.p1 * 1.5, 180, 198 + mainFlow.p2, 196, 198, 212, 207);
+    stroke(unicornColors.main.s6);
+    bezier(172, 209 + mainFlow.p1 * 1.5, 180, 198 + mainFlow.p2, 196, 198, 212, 207);
+    stroke(unicornColors.main.s7);
+    bezier(172, 214 + mainFlow.p1 * 1.5, 180, 198 + mainFlow.p2, 196, 198, 212, 207);
+    
+    
+    noStroke();
+    
+    /** Back Legs */
+    pushMatrix();
+    
+    translate(273, 220);
+    rotate(-legRotate);
+    
+    // hoof
+    fill(unicornColors.bhoof);
+    arc(1, 40, 15, 43, -174, -108);
+    
+    // leg
+    fill(unicornColors.backleg);
+    arc(0, 0, 16, 34, 0, 180);
+    rect(-6, 0, 6, 34, 10);
+    
+    popMatrix();
+    
+    
+    // back leg in front
+    pushMatrix();
+    
+    translate(221, 220);
+    rotate(legRotate);
+    
+    // hoof
+    fill(unicornColors.bhoof);
+    arc(1, 40, 15, 43, -174, -108);
+    
+    // leg
+    fill(unicornColors.backleg);
+    arc(0, 0, 16, 36, 0, 180);
+    rect(-6, 0, 6, 34, 10);
+    
+    popMatrix();
+    
+    
+    /** Body */
+    fill(unicornColors.body);
+    //rect(200, 200, 95, 31, 20);
+    arc(289, 218, 46, 72, -180, -90);
+    
+    rect(207, 200, 26, 30, 15);
+    rect(257, 200, 32, 30, 15);
+    rect(213, 200 + 3, 71, 23 - 3, 15);
+    arc(228, 227, 20, 20, 172, 336);
+    arc(263, 227, 20, 20, 206, 333);
+    arc(226, 201, 39, 42, 12, 145);
+    arc(266, 201, 39, 42, 12, 168);
+    
+    /** Front Legs*/
+    pushMatrix();
+    
+    translate(215, 220);
+    rotate(-legRotate);
+    
+    // hoof
+    fill(unicornColors.fhoof);
+    arc(1, 40, 14, 43, -174, -108);
+    
+    // leg
+    fill(unicornColors.body);
+    arc(0, 0, 16, 36, 0, 180);
+    rect(-6, 0, 6, 34, 10);
+    
+    popMatrix();
+    
+    
+    // front leg in front
+    pushMatrix();
+    
+    translate(278 - 2, 220);
+    rotate(legRotate);
+    
+    // hoof
+    fill(unicornColors.fhoof);
+    arc(1, 40, 15, 43, -174, -108);
+    
+    // leg
+    fill(unicornColors.body);
+    arc(0, 0, 16, 34, 0, 180);
+    rect(-6, 0, 6, 34, 10);
+    
+    popMatrix();
+    
+    
+    /** Nose/Ear/Eye */
+    pushMatrix();
+    translate(288, 181);
+    rotate(22);
+    rect(13, 0, 16, 18, 20);
+    rect(-1, 0, 30, 11, 20);
+    arc(-2, 13, 45, 50, -16, 12);
+    arc(7, 3, 20, 20, -217, -139);
+    fill(unicornColors.eye);
+    arc(13, 3, 10, 10, -339, -191);
+    fill(unicornColors.pupil);
+    arc(13, 3, 10, 10, -365, -258);
+    popMatrix();
+    
+    popMatrix();
+
+};
+
+
+// star array for default background
+var stars
+= {
+    x: [],
+    y: [],
+    s: [],
+    amount: 300
+};
+
+
+/** block array */
+var blockPos
+= {
+    x: [0, 120, 240, 360, 800, -300, -300],
+    y: [280, 280, 280, 280, 280, 280, 280],
+    w: [120, 120, 120, 120, 120, 120, 120]
+};
+
+
+/** backdrop */
+var misticDarkBackdrop = function(x, y, s) {
+    pushMatrix();
+    translate(x, y);
+    scale(s);
+    
+    background(103, 152, 191);
+    
+    /** Stars*/
+    noStroke();
+    for (var i = 0; i < 600; i++)
+    {
+        //generates stars
+        
+        var s = random(5, 10);
+        
+        var r = random(0, 500);
+        
+        fill(255, 255, 255, s * 16);
+        
+        var starSize = s / 5;
+        
+        ellipse(i, r, starSize, starSize);
+
+    }
+    
+    /** Moon */
+    fill(255, 255, 255, 20);
+    ellipse(215, 207, 118, 119);
+    ellipse(215, 207, 126, 125);
+    ellipse(215, 207, 143, 141);
+    
+    fill(255, 186, 255);
+    ellipse(215, 207, 112, 112);
+    fill(255, 255, 255, 50);
+    ellipse(215, 207, 109, 108);
+    fill(255, 255, 255, 30);
+    ellipse(215, 207, 94, 97);
+    ellipse(215, 207, 76, 82);
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [247,241,236,231,225,221,218,209,200,199,201,205,211,214,216,223,225,225,227,231,234,240,240,243,245,247,246,242,242,245,252,252,248,248,249,248,245];
+    var shapeY = [169,167,168,165,165,169,172,173,181,186,188,197,204,214,220,214,207,203,201,202,208,206,211,218,219,216,209,197,192,190,195,188,181,177,177,172,169];
+    fill(78, 0, 99, 10);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [228,220,217,210,203,200,198,189,189,181,180,159,161,166,176,190,207,223,238,245,237,226];
+    var shapeY = [166,169,174,174,178,194,187,185,184,190,188,205,193,180,169,157,152,151,156,162,169,167];
+    fill(250, 196, 255);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [194,192,191,192,193,193,193,191,182,181,178,178,179,175,169,167,163,161,161,161,163,168,174,183,192];
+    var shapeY = [180,185,194,203,206,209,213,216,217,220,227,234,240,241,236,232,228,221,214,208,202,195,189,187,178];
+    fill(255, 204, 255);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    /** Sky shade */
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [255,244,236,223,215,212,206,200,196,190,186,184,180,175,168,164,160,152,148,140,126,118,112,111,103,96,88,80,74,68,64,60,56,50,44,40,36,32,26,20,16,7,2,1,273,259,257,256,255];
+    var shapeY = [252,252,252,250,249,248,250,251,248,248,247,244,241,243,244,242,238,239,242,247,246,244,244,247,251,251,252,253,251,249,249,251,256,256,254,252,252,248,248,248,242,243,247,284,285,266,260,253,252];
+    fill(245, 191, 245);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [254,247,237,232,228,224,222,220,216,210,204,197,192,188,183,179,176,170,168,162,156,150,148,144,136,132,126,120,115,109,104,100,96,93,88,81,73,64,56,49,43,37,32,26,20,16,12,8,3,1,2,300,294,289,287,281,272,260,254];
+    var shapeY = [261,261,261,260,256,255,257,260,259,261,264,267,264,263,262,262,264,266,267,268,268,268,272,276,277,277,276,275,272,269,267,264,265,267,267,268,270,273,277,279,278,275,275,276,272,269,269,267,266,265,312,313,288,280,275,272,270,267,262];
+    fill(247, 178, 247);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+
+    /** Mountain 3 */
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [69,81,95,100,110,123,136,144,157,166,174,181,191,195,204,210,220,226,233,240,245,252,262,276,283,289,294,299,302,307,308,325,333,336,342,348,353,358,364,367,368,369];
+    var shapeY = [313,307,301,300,297,293,291,288,283,281,281,278,278,278,278,278,276,276,274,273,275,273,275,274,274,275,276,275,275,277,280,292,292,294,298,300,300,301,304,307,309,312];
+    fill(222, 22, 45);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    // shade
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [232,216,196,185,176,169,163,148,144,144,148,157,164,170,179,185,193,203];
+    var shapeY = [284,288,296,300,306,308,311,312,312,308,303,299,301,299,295,295,290,288];
+    fill(0, 0, 0, 30);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [172,161,152,141,129,123,116,109,110,108,105,104,96,87,80,73,88,95,103,108,116,123,137,144,151,161,172,180,196,208,216,221,227,204,193,185,180,178,173,171];
+    var shapeY = [288,289,293,296,300,303,307,311,306,303,306,305,308,310,312,312,305,301,300,298,295,293,291,289,284,281,282,278,279,278,277,278,278,281,282,284,287,288,288,288];
+    fill(255, 97, 97, 100);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    /** Mountain 2 */
+    // mountain 
+    var shapeXpos = 0;
+    var shapeYpos = -1;
+    var shapeX = [373,357,344,332,320,301,292,276,252,240,227,217,203,200,199,196,192,187,180,173,168,167,164,162,160,156,156];
+    var shapeY = [309,296,291,286,283,279,279,277,277,277,280,282,288,288,290,291,292,295,298,301,303,305,306,306,307,309,312];
+    fill(196, 8, 33);
+    
+    // shade
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = -2;
+    var shapeX = [254,244,240,229,217,212,205,200,194,188,203,211,220,232,242,246,251,274];
+    var shapeY = [288,289,289,292,299,299,299,301,306,311,312,312,311,304,300,298,294,289];
+    fill(0, 0, 0, 20);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = -2;
+    var shapeX = [260,245,238,232,224,216,210,204,199,204,207,211,213,216,224,227,232,235,240,242,247,251,256,258,260];
+    var shapeY = [283,284,285,287,288,289,290,292,292,289,287,286,284,282,282,281,280,280,279,278,278,279,280,280,282];
+    fill(255, 97, 97, 100);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = -7;
+    var shapeYpos = 1;
+    var shapeX = [188,185,181,175,173,167,162,168,174,180,184];
+    var shapeY = [296,300,305,308,310,310,310,304,301,300,298];
+    fill(255, 97, 97, 100);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    /** Mountain 1 */
+    var shapeXpos = 0;
+    var shapeYpos = -3;
+    var shapeX = [359,356,348,340,332,319,308,298,284,268,257,250,242,236,226,220,213,212,209,206];
+    var shapeY = [312,304,300,298,294,287,284,284,284,288,292,296,299,299,303,306,308,311,312,312];
+    fill(245, 27, 52);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    // shade
+    var shapeXpos = -6;
+    var shapeYpos = -6;
+    var shapeX = [261,272,280,288,296,303,307,316,327,338,344,352,351,340,333,330,320,311,302,296,291,291,285,290,293,287,280,280,273,266];
+    var shapeY = [296,299,300,301,306,308,311,312,312,312,310,306,302,298,295,292,288,287,287,285,288,289,289,293,297,293,292,296,296,296];
+    fill(0, 0, 0, 30);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 4;
+    var shapeYpos = 0;
+    var shapeX = [302,298,302,306,312,315,319,319,316];
+    var shapeY = [282,286,291,292,292,295,291,288,285];
+    fill(0, 0, 0, 50);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = -4;
+    var shapeYpos = -4;
+    var shapeX = [263,255,241,238,220,217,216,222,231,239,246,252,256,274,284];
+    var shapeY = [298,302,307,312,312,312,312,306,303,300,300,298,296,288,288];
+    fill(255, 97, 97, 100);
+    
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    /** Tree */
+    // trunk
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [296,293,291,292,292,294,298,301,302,306,304,300,298,301,297,297,292,294,296,292,290,288,286,287,288,284,281,278,277,280,282,285,286,286,281];
+    var shapeY = [284,281,276,271,268,263,262,262,262,261,258,260,261,257,256,259,262,258,254,257,261,254,256,261,266,261,257,256,260,262,263,267,273,281,284];
+    fill(150, 60, 0);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [306,290,288,290,290,291,291,290,292,293,293];
+    var shapeY = [283,284,276,268,265,263,270,274,278,281,282];
+    fill(186, 96, 0);
+    
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    // main leaves
+    var shapeXpos = 5;
+    var shapeYpos = 2;
+    var shapeX = [294,297,298,300,301,304,306,306,305,303,302,298,301,306,315,317,320,317,316,316,317,315,314,315,315,316,316,318,313,316,316,316,310,307,298,286,276,269,262,255,252,250,252,254,254,253,254,257,258,258,260,260,260,260,261,262,262,264,264,266,268,268,271,270,267,270,274,278,283,290,296];
+    var shapeY = [256,256,258,259,259,262,263,268,274,278,281,284,286,286,288,288,289,285,282,277,274,269,264,262,258,255,250,246,242,240,236,229,224,219,213,210,208,211,217,227,236,248,256,264,274,284,290,280,271,267,263,268,276,283,287,282,274,267,263,270,275,278,273,268,265,258,256,255,253,255,257];
+    fill(194, 30, 209);
+
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    // shade light
+    var shapeXpos = 1;
+    var shapeYpos = 0;
+    var shapeX = [290,286,282,282,280,276,278,278,278,280,276,273,272,270,268,271,271,274,276,263,261,265,270,279,285,295,293,289,288,289];
+    var shapeY = [232,231,235,237,236,237,240,243,245,246,250,255,262,255,248,239,234,230,226,244,236,228,223,219,215,218,220,224,227,231];
+    fill(235, 17, 242, 200);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+
+    // shade lighter
+    var shapeXpos = 2;
+    var shapeYpos = 0;
+    var shapeX = [276,272,271,268,268,264,265,260,257,255,252,254,256,260,264,270,277,285,292,299,303,304,295,284,279,277,276,276];
+    var shapeY = [231,235,240,244,248,252,257,260,267,260,252,240,229,224,217,212,208,212,211,213,216,218,216,218,220,224,228,230];
+    fill(234, 79, 255);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    // shade darker
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [308,310,310,308,308,311,306,308,308,302,304,300,295,301,306,307,305,308,309,307,300,295,291,295,298,302,310,313,312,314,314,313,312,316,316,316,315,312,311];
+    var shapeY = [285,276,268,262,258,252,254,249,245,243,238,234,232,230,233,236,239,237,232,227,224,223,222,220,219,220,224,229,234,232,237,240,242,244,247,251,256,259,265];
+    fill(112, 0, 173, 80);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    // shade even darker
+    var shapeXpos = 5;
+    var shapeYpos = 2;
+    var shapeX = [312,315,316,317,316,312,315,317,316,316,316,317,317,319,314,312,312,312,312,309,309,309,311,307,302,297,293,300,307,312];
+    var shapeY = [224,227,232,236,239,242,244,248,255,260,268,277,281,284,285,275,266,260,256,252,245,239,231,227,219,216,211,214,219,224];
+    fill(154, 23, 166);
+    
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    popMatrix();
+    
+};
+
+var darkForestBackdrop = function(){
+    
+    background(33, 33, 33);
+    
+
+    noStroke();
+
+    var mountain = function(x, y, w, h)
+    {
+        pushMatrix();
+        translate(x, y);
+        scale(w / 100, h / 100);
+        /** Mountain 3 */
+        var shapeXpos = 0;
+        var shapeYpos = 0;
+        var shapeX = [69,81,95,100,110,123,136,144,157,166,174,181,191,195,204,210,220,226,233,240,245,252,262,276,283,289,294,299,302,307,308,325,333,336,342,348,353,358,364,367,368,369];
+        var shapeY = [313,307,301,300,297,293,291,288,283,281,281,278,278,278,278,278,276,276,274,273,275,273,275,274,274,275,276,275,275,277,280,292,292,294,298,300,300,301,304,307,309,312];
+        fill(15, 74, 0);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        // shade
+        var shapeXpos = 0;
+        var shapeYpos = 0;
+        var shapeX = [232,216,196,185,176,169,163,148,144,144,148,157,164,170,179,185,193,203];
+        var shapeY = [284,288,296,300,306,308,311,312,312,308,303,299,301,299,295,295,290,288];
+        fill(0, 0, 0, 30);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        var shapeXpos = 0;
+        var shapeYpos = 0;
+        var shapeX = [172,161,152,141,129,123,116,109,110,108,105,104,96,87,80,73,88,95,103,108,116,123,137,144,151,161,172,180,196,208,216,221,227,204,193,185,180,178,173,171];
+        var shapeY = [288,289,293,296,300,303,307,311,306,303,306,305,308,310,312,312,305,301,300,298,295,293,291,289,284,281,282,278,279,278,277,278,278,281,282,284,287,288,288,288];
+        fill(12, 107, 0, 100);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        /** Mountain 2 */
+        // mountain 
+        var shapeXpos = 0;
+        var shapeYpos = -1;
+        var shapeX = [373,357,344,332,320,301,292,276,252,240,227,217,203,200,199,196,192,187,180,173,168,167,164,162,160,156,156];
+        var shapeY = [309,296,291,286,283,279,279,277,277,277,280,282,288,288,290,291,292,295,298,301,303,305,306,306,307,309,312];
+        fill(3, 61, 0);
+        
+        // shade
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        var shapeXpos = 0;
+        var shapeYpos = -2;
+        var shapeX = [254,244,240,229,217,212,205,200,194,188,203,211,220,232,242,246,251,274];
+        var shapeY = [288,289,289,292,299,299,299,301,306,311,312,312,311,304,300,298,294,289];
+        fill(0, 0, 0, 20);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        var shapeXpos = 0;
+        var shapeYpos = -2;
+        var shapeX = [260,245,238,232,224,216,210,204,199,204,207,211,213,216,224,227,232,235,240,242,247,251,256,258,260];
+        var shapeY = [283,284,285,287,288,289,290,292,292,289,287,286,284,282,282,281,280,280,279,278,278,279,280,280,282];
+        fill(3, 107, 12, 100);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        var shapeXpos = -7;
+        var shapeYpos = 1;
+        var shapeX = [188,185,181,175,173,167,162,168,174,180,184];
+        var shapeY = [296,300,305,308,310,310,310,304,301,300,298];
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        /** Mountain 1 */
+        var shapeXpos = 0;
+        var shapeYpos = -3;
+        var shapeX = [359,356,348,340,332,319,308,298,284,268,257,250,242,236,226,220,213,212,209,206];
+        var shapeY = [312,304,300,298,294,287,284,284,284,288,292,296,299,299,303,306,308,311,312,312];
+        fill(4, 36, 0);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        // shade
+        var shapeXpos = -6;
+        var shapeYpos = -6;
+        var shapeX = [261,272,280,288,296,303,307,316,327,338,344,352,351,340,333,330,320,311,302,296,291,291,285,290,293,287,280,280,273,266];
+        var shapeY = [296,299,300,301,306,308,311,312,312,312,310,306,302,298,295,292,288,287,287,285,288,289,289,293,297,293,292,296,296,296];
+        fill(0, 0, 0, 30);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        var shapeXpos = 4;
+        var shapeYpos = 0;
+        var shapeX = [302,298,302,306,312,315,319,319,316];
+        var shapeY = [282,286,291,292,292,295,291,288,285];
+        fill(0, 0, 0, 50);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        var shapeXpos = -4;
+        var shapeYpos = -4;
+        var shapeX = [263,255,241,238,220,217,216,222,231,239,246,252,256,274,284];
+        var shapeY = [298,302,307,312,312,312,312,306,303,300,300,298,296,288,288];
+        fill(0, 54, 5, 100);
+        
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        popMatrix();
+    
+    };
+
+    /**  Moon  */
+    fill(255, 255, 255, 5);
+    for(var i = 0; i < 16; ++i)
+    {
+        ellipse(215, 207, 118 + i * 30, 119 + i * 30);
+    }
+    
+    fill(255, 255, 255);
+    ellipse(215, 207, 112, 112);
+    fill(255, 255, 255, 50);
+    ellipse(215, 207, 109, 108);
+    fill(255, 255, 255, 30);
+    ellipse(215, 207, 94, 97);
+    ellipse(215, 207, 76, 82);
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [247,241,236,231,225,221,218,209,200,199,201,205,211,214,216,223,225,225,227,231,234,240,240,243,245,247,246,242,242,245,252,252,248,248,249,248,245];
+    var shapeY = [169,167,168,165,165,169,172,173,181,186,188,197,204,214,220,214,207,203,201,202,208,206,211,218,219,216,209,197,192,190,195,188,181,177,177,172,169];
+    fill(0, 0, 0, 15);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [228,220,217,210,203,200,198,189,189,181,180,159,161,166,176,190,207,223,238,245,237,226];
+    var shapeY = [166,169,174,174,178,194,187,185,184,190,188,205,193,180,169,157,152,151,156,162,169,167];
+    fill(224, 224, 224);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [194,192,191,192,193,193,193,191,182,181,178,178,179,175,169,167,163,161,161,161,163,168,174,183,192];
+    var shapeY = [180,185,194,203,206,209,213,216,217,220,227,234,240,241,236,232,228,221,214,208,202,195,189,187,178];
+    fill(217, 217, 217);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    /**  Ground  */
+    mountain(-248, -703, 201, 379);
+    mountain(-373, -613, 201, 379);
+    mountain(-74, -470, 201, 316);
+
+/**  Tree  */
+    pushMatrix();
+    
+    // tree
+    scale(1.6, 1.4);
+    var shapeX = [100,111,125,132,148,163,171,188,203,218,241,255,260,264,270,272,273,269,262,253,240,225,210,202,189,168,159,170,187,197,200,209,222,239,250,246,235,228,219,217,230,235,239,251,263,275,282,279,272,259,251,237,226,206,207,222,239,258,269,274,285,290,300,313,323,333,339,328,328,339,351,353,366,377,383,388,381,387,370,371,368,357,354,359,361,355,357,360,360,369,374,377,379,388,398,398,392,382,374,365,365,371,374,370,364,347,322,280,279,283,291,292,297,297,300,307,314,314,328,335,340,339,322,322,323,326,313,305,302,310,300,299,297,283,273,265,256,245,235,218,205,191,183,166,147,130,114,98,106,119,129,135,145,155,169,177,180,195,210,220,225,235,248,258,264,267,245,229,229,219,205,179,160,141,119,98,75,102,115,137,153,164,168,180,192,201,209,215,208,191,179,167,155,142,131,119,99,81,60,49,35,19,23,31,43,40,27,17,10,3,12,24,35,50,76,88,99];
+    var shapeY = [32,41,44,51,61,62,67,79,88,92,113,129,164,181,193,212,228,244,270,291,299,305,315,321,335,346,356,356,349,346,338,330,321,313,311,323,328,336,346,360,358,348,345,339,328,323,323,332,344,362,367,368,373,379,386,386,386,383,372,357,352,345,339,337,346,351,342,336,328,328,334,335,337,337,345,337,322,317,308,289,279,269,251,236,221,207,188,168,166,148,131,110,96,86,72,59,64,75,86,88,77,68,54,40,33,24,15,3,9,19,16,26,30,30,34,29,29,37,44,50,64,77,69,58,50,47,47,56,65,69,71,77,92,76,60,47,34,27,24,19,19,19,12,9,9,5,5,3,9,13,13,17,17,23,22,25,31,33,39,36,39,42,50,67,81,91,84,79,67,61,52,44,36,35,24,15,9,23,29,42,46,47,52,52,60,66,66,73,79,67,65,58,53,50,41,34,27,23,19,5,8,5,13,14,16,20,21,23,28,39,32,25,25,30,29,33,31];
+    
+    var shapeXpos = 8;
+    var shapeYpos = -22;
+    fill(84, 38, 0);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 2;
+    var shapeX = [284,287,294,307,312,319,322];
+    var shapeY = [235,228,219,211,211,217,229];
+    stroke(0, 0, 0, 100);
+    noFill();
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [319,309,299,292];
+    var shapeY = [247,254,251,241];
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [315,316,318,315,309];
+    var shapeY = [230,231,239,243,244];
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [309,301,305,310];
+    var shapeY = [240,231,225,224];
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 4;
+    var shapeX = [299,295,297,300];
+    var shapeY = [239,230,224,217];
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 3;
+    var shapeYpos = -7;
+    var shapeX = [287,298,310,317,322,324,318,309,295,292,285];
+    var shapeY = [224,216,216,219,233,245,257,263,264,258,250];
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    noStroke();
+    var shapeXpos = 8;
+    var shapeYpos = -20;
+    var shapeX = [252,238,225,208,197,170,159,167,188,210,225,242,249,260,267,275,270,262,257,240,219,242,243,260,279,279,279,286,291,297,299,299,299,299,298,285,276,266,250];
+    var shapeY = [311,310,319,333,345,353,355,344,334,313,304,295,293,269,252,227,190,177,129,110,90,100,100,108,126,136,146,155,169,183,201,220,237,237,258,285,291,309,309];
+    fill(102, 44, 10, 100);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    
+    var shapeXpos = 9;
+    var shapeYpos = -19;
+    var shapeX = [279,263,255,250,246,238,230,227,236,250,262,280];
+    var shapeY = [320,319,324,330,332,338,345,358,344,339,326,322];
+    
+    fill(59, 23, 0, 100);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 9;
+    var shapeYpos = -21;
+    var shapeX = [297,288,281,273,265,254,232,206,230,248,257,269,273,283,301,314,303,296];
+    var shapeY = [332,340,348,350,365,376,379,386,386,386,384,372,356,352,339,335,334,334];
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 8;
+    var shapeYpos = -19;
+    var shapeX = [341,337,331,330,330,329,328,328,329,330,331,335,341,346,351,356,359,364,364,375,389,398,399,388,379,379,375,373,369,366,360,359,354,362,359,352,357,368,370,369,387,380,389,382,378,367,356,340];
+    var shapeY = [328,321,303,289,272,243,229,217,192,166,158,147,118,98,87,82,79,79,85,84,64,59,71,84,94,108,128,137,147,154,162,171,206,220,235,249,266,278,289,306,316,321,335,347,337,337,337,329];
+    fill(59, 23, 0, 40);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 10;
+    var shapeYpos = -22;
+    var shapeX = [358,339,331,321,312,299,291,287,277,270,284,297,299,305,312,319,322,328,334,335,341,353,359,341,330,323,315,306,305,295,289,279,275,266,262,254,260,273,281,291,300,309,316,325,337,341,349,353,359,369,377,361,351,361,363,355,343,356,366,368,368,361,358,349,344,338,337,342,335,330,323,316,311,300,296,290];
+    var shapeY = [221,218,208,212,204,206,198,200,197,193,184,185,180,182,178,178,169,172,168,168,168,164,166,150,142,148,144,142,134,140,136,139,135,131,135,135,119,110,115,104,109,109,108,113,108,114,114,112,107,105,107,94,84,79,79,69,65,58,56,46,37,40,45,44,51,51,39,27,23,19,28,32,15,32,6,17];
+    noFill();
+    stroke(82, 30, 2);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 8;
+    var shapeYpos = -22;
+    var shapeX = [289,290,289,281,271,266,266,275,263,260,251,249,243,234,234,223,214,209,206,201,189,179,178,177,162,156,143,130,122,111];
+    var shapeY = [111,96,85,87,83,85,69,67,53,54,54,39,25,27,34,38,28,21,28,35,23,13,20,25,10,23,7,14,6,12];
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 8;
+    var shapeYpos = -22;
+    var shapeX = [256,256,261,259,261,256,255,248,244,239,234,230,230,222,214,207,204,199,192,188,186,185,173,165,145,145,126,117,109,99,77,64,49,49,49,41,39,29,15];
+    var shapeY = [129,119,115,108,104,97,90,92,99,99,103,85,80,82,88,85,77,77,79,74,70,67,67,59,58,53,44,34,39,28,31,21,29,19,5,19,22,20,29];
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    popMatrix();
+    
+};
+
+var planetBackdrop = function() {
+    
+    // planet
+    var planet = function(x, y, s, c, c2, c3, c4)
+    {
+        noStroke();
+        
+        pushMatrix();
+        translate(x, y);
+        scale(s / 100);
+        fill(255, 255, 255, 20);
+        ellipse(215, 207, 118, 119);
+        ellipse(215, 207, 126, 125);
+        ellipse(215, 207, 143, 141);
+        
+        fill(c);
+        ellipse(215, 207, 112, 112);
+        fill(255, 255, 255, 50);
+        ellipse(215, 207, 109, 108);
+        fill(255, 255, 255, 30);
+        ellipse(215, 207, 94, 97);
+        ellipse(215, 207, 76, 82);
+        
+        var shapeXpos = 0;
+        var shapeYpos = 0;
+        var shapeX = [247,241,236,231,225,221,218,209,200,199,201,205,211,214,216,223,225,225,227,231,234,240,240,243,245,247,246,242,242,245,252,252,248,248,249,248,245];
+        var shapeY = [169,167,168,165,165,169,172,173,181,186,188,197,204,214,220,214,207,203,201,202,208,206,211,218,219,216,209,197,192,190,195,188,181,177,177,172,169];
+        fill(c2);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        var shapeXpos = 0;
+        var shapeYpos = 0;
+        var shapeX = [228,220,217,210,203,200,198,189,189,181,180,159,161,166,176,190,207,223,238,245,237,226];
+        var shapeY = [166,169,174,174,178,194,187,185,184,190,188,205,193,180,169,157,152,151,156,162,169,167];
+        fill(c4);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        
+        var shapeXpos = 0;
+        var shapeYpos = 0;
+        var shapeX = [194,192,191,192,193,193,193,191,182,181,178,178,179,175,169,167,163,161,161,161,163,168,174,183,192];
+        var shapeY = [180,185,194,203,206,209,213,216,217,220,227,234,240,241,236,232,228,221,214,208,202,195,189,187,178];
+        fill(c3);
+        beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+        popMatrix();
+    };
+    
+    // lerp color
+    noStroke();
+    
+    var colorA = color(31, 4, 31);
+    var colorB = color(84, 1, 102);
+    
+    strokeWeight(4);
+    
+    for (var i = 0; i < 604; i+=4)
+    {
+        stroke( lerpColor(colorA, colorB, i / 600) );
+        line(i, 0, i, 600); //gradient background
+    }
+    
+    planet(311, 0, 72, color(255, 112, 112), color(255, 150, 150), color(242, 119, 119), color(235, 91, 91));
+    
+    
+    // stars
+    noStroke();
+    
+    for (var i = 0; i < 600; i++)
+    {
+        //generates stars
+        
+        var s = random(5, 30);
+        
+        var r = random(0, 500);
+        
+        fill(0, 123, 205, s * 5);
+        
+        var starSize = s / 6;
+        
+        ellipse(i, r, starSize, starSize);
+    
+    }
+    
+    planet(0, 0, 100, color(125, 134, 255), color(202, 220, 247), color(222, 246, 255), color(255, 255, 255));
+    
+    for (var i = 0; i < 600; i++)
+    {
+        //generates stars
+        
+        var s = random(5, 30);
+        
+        var r = random(0, 500);
+        
+        fill(155, 0, 255, s * 4);
+        
+        var starSize = s / 5;
+        
+        ellipse(i, r, starSize, starSize);
+    
+    }
+    
+    for (var i = 0; i < 600; i++)
+    {
+        //generates stars
+        
+        var s = random(5, 10);
+        
+        var r = random(0, 500);
+        
+        fill(255, 255, 255, s * 16);
+        
+        var starSize = s / 5;
+        
+        ellipse(i, r, starSize, starSize);
+    
+    }
+    
+    for (var i = 0; i < 600; i++)
+    {
+        //generates stars
+        
+        var s = random(5, 10);
+        
+        var r = random(0, 500);
+        
+        fill(255, 255, 255, s * 16);
+        
+        var starSize = s / 5;
+        
+        ellipse(i, r, starSize, starSize);
+    
+    }
+    
+    for (var i = 0; i < 600; i+=2)
+    {
+        //generates stars
+        
+        var s = random(5, 10);
+        
+        var r = random(0, 500);
+        
+        fill(255, 255, 255, s * 10);
+        
+        var starSize = s / 2;
+        
+        ellipse(i, r, starSize, starSize);
+    
+    }
+    
+    for (var i = 0; i < 600; i+=2)
+    {
+        //generates stars
+        
+        var s = random(5, 10);
+        
+        var r = random(200, 300);
+        
+        fill(255, 255, 255, s * 10);
+        
+        var starSize = s / 2;
+        
+        ellipse(i, r, starSize, starSize);
+        ellipse(i, r + 20, starSize, starSize);
+        ellipse(i, r + 50, starSize, starSize);
+    
+    }
+    
+    for (var i = 0; i < 600; i+=5)
+    {
+        //generates stars
+        
+        var s = random(5, 20);
+        
+        var r = random(0, 500);
+        
+        fill(255, 255, 255, s / 1.1);
+        
+        var starSize = s;
+        
+        ellipse(i, r, starSize, starSize);
+        ellipse(i, r, starSize / 1.5, starSize / 1.5);
+        ellipse(i, r, starSize / 3, starSize / 3);
+    
+    }
+    
+    for (var i = 0; i < 600; i+=30)
+    {
+        //generates stars
+        
+        var s = random(5, 25);
+        
+        var r = random(100, 400);
+        
+        fill(255, 255, 255, s * 1.5);
+        
+        var starSize = s;
+        
+        ellipse(i, r, starSize, starSize);
+        ellipse(i, r, starSize / 1.5, starSize / 1.5);
+        ellipse(i, r, starSize / 3, starSize / 3);
+    
+    }
+    
+    for (var i = 0; i < 600; i++)
+    {
+        //generates stars
+        
+        var s = random(5, 400);
+        
+        var r = random(100, 400);
+        
+        fill(10, 91, 191, s / 100);
+        
+        var starSize = s / 3;
+        
+        ellipse(i, r, starSize, starSize);
+    
+    }
+    
+    planet(121, 43, 168, color(104, 255, 99), color(127, 240, 138), color(111, 232, 109), color(97, 212, 89));
+
+};
+
+var islandShape = function(c, c2, c3, c4, c5, c6, c7) {
+    
+    noStroke();
+    
+    // light pink shade
+    fill(c);
+    triangle(101, 218, 100, 250, 89, 217);
+    triangle(300, 221, 284, 232, 270, 224);
+    triangle(300, 221, 301, 240, 312, 217);
+    triangle(161, 316, 156, 337, 154, 316);
+    triangle(240, 338, 256, 304, 232, 333);
+    // darker pink shade x2
+    fill(c2);
+    triangle(117, 224, 99, 252, 101, 222);
+    triangle(141, 254, 131, 282, 157, 283);
+    triangle(157, 282, 143, 316, 131, 281);
+    triangle(144, 316, 131, 280, 131, 302);
+    triangle(241, 336, 235, 356, 220, 339);
+    triangle(242, 336, 219, 340, 232, 332);
+    triangle(229, 296, 198, 321, 211, 274);
+    triangle(259, 282, 235, 292, 241, 272);
+    triangle(207, 372, 192, 334, 180, 352);
+    triangle(182, 266, 154, 283, 185, 290);
+    triangle(230, 251, 214, 261, 222, 227);
+    triangle(228, 252, 223, 229, 252, 228);
+    triangle(276, 237, 253, 254, 253, 228);
+    triangle(275, 237, 252, 229, 271, 224);
+    triangle(155, 226, 142, 258, 110, 220);
+    
+    // darker pink shade x3
+    fill(c3);
+    triangle(152, 232, 142, 253, 181, 266);
+    triangle(195, 247, 212, 275, 220, 238);
+    triangle(211, 275, 199, 320, 183, 287);
+    triangle(212, 275, 182, 266, 183, 288);
+    triangle(282, 254, 274, 238, 257, 250);
+    triangle(228, 293, 200, 319, 219, 339);
+    triangle(192, 340, 180, 352, 160, 316);
+    triangle(161, 317, 155, 335, 180, 351);
+    triangle(219, 340, 193, 340, 208, 374);
+    triangle(242, 272, 234, 302, 211, 275);
+    triangle(243, 273, 210, 276, 216, 257);
+    triangle(253, 223, 229, 251, 256, 281);
+    triangle(141, 254, 117, 224, 116, 270);
+    triangle(143, 252, 116, 269, 133, 284);
+    
+    // darker pink shade x4
+    fill(c4);
+    triangle(182, 288, 161, 316, 141, 316);
+    triangle(182, 289, 157, 282, 142, 316);
+    triangle(220, 340, 199, 317, 190, 340);
+    triangle(232, 333, 256, 303, 228, 294);
+    triangle(255, 304, 255, 283, 228, 295);
+    triangle(220, 337, 207, 373, 236, 355);
+    triangle(213, 276, 196, 247, 179, 267);
+    triangle(220, 238, 194, 248, 170, 226);
+    triangle(218, 239, 175, 228, 228, 226);
+    triangle(116, 270, 99, 251, 117, 224);
+    triangle(302, 239, 281, 255, 267, 224);
+    
+    // darker pink shade x5
+    fill(c5);
+    triangle(183, 285, 159, 316, 192, 340);
+    triangle(183, 286, 191, 340, 200, 319);
+    triangle(229, 251, 216, 259, 256, 280);
+    triangle(181, 266, 157, 283, 139, 251);
+    triangle(234, 331, 218, 341, 228, 293);
+    triangle(196, 247, 181, 266, 148, 228);
+    triangle(195, 247, 148, 228, 176, 227);
+    triangle(282, 253, 255, 303, 254, 248);
+    triangle(301, 240, 300, 220, 284, 232);
+    
+    var shapeXpos = 0;
+    var shapeYpos = 0;
+    var shapeX = [312,299,270,248,224,191,177,166,151,143,130,120,108,95,88,105,127,141,159,178,200,223,244,259,276,291,303,311];
+    var shapeY = [217,224,228,231,231,231,233,232,232,240,232,225,226,220,218,213,211,211,210,210,210,209,208,208,211,212,214,216];
+    fill(c6);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+    var shapeXpos = 0;
+    var shapeYpos = 8;
+    var shapeX = [267,253,238,216,200,178,164,152,139,152,163,174,184,202,205,218,228,237,252,263];
+    var shapeY = [210,208,208,206,206,209,208,212,213,219,217,216,217,219,218,217,215,217,216,212];
+    fill(c7);
+    beginShape();for(var i =0;i<shapeX.length;++i){vertex(shapeX[i] + shapeXpos, shapeY[i] + shapeYpos);}endShape();
+    
+};
+
+/** landscapeing */
+var landScapes
+= {
+    
+    misticDark: function(){
+        noStroke();
+        misticDarkBackdrop(-3, 0, 1.62);
+        filter(BLUR, 1);
+        return get(0, 0, width, height);
+    },
+    
+    planety: function(){
+        noStroke();
+        planetBackdrop();
+        filter(BLUR, 1.2);
+        return get(0, 0, width, height);
+    },
+    
+    darkForest: function(){
+        noStroke();
+        darkForestBackdrop();
+        filter(BLUR, 2);
+        return get(0, 0, width, height);
+    },
+    
+    island: function(){
+        
+        islandShape(color(255, 156, 156), color(255, 120, 120), color(250, 87, 87), color(255, 54, 54), color(237, 23, 23), color(255, 181, 181), color(255, 150, 150));
+        return get(88, 208, 224, 165);
+            
+    },
+    
+    islandGreen: function(){
+        
+        
+        islandShape(color(43, 204, 14), color(3, 150, 3), color(4, 122, 8), color(10, 105, 3), color(5, 102, 1), color(4, 209, 18), color(8, 153, 0));
+        
+        return get(88, 208, 224, 165);
+            
+    },
+    
+    islandPurple: function(){
+        
+        
+        islandShape(color(238, 17, 242), color(191, 6, 191), color(161, 8, 158), color(127, 7, 140), color(138, 7, 136), color(237, 5, 233), color(169, 2, 184));
+        
+        return get(88, 208, 224, 165);
+            
+    },
+};
+
+
+/** colored islands */
+var floatingIsland = function(x, y, w, h)
+{
+    
+    pushMatrix();
+    
+    translate(x - w / 2, y - h * 1.4);
+    
+    scale(w / 200, h / 150);
+    
+    translate(88, 209);
+    
+    switch(currentBackdrop)
+    {
+        case "default":
+        image(landScapes.island, 0, 0);
+            break;
+            
+        case "darkforest":
+        image(landScapes.islandGreen, 0, 0);
+            break;
+            
+        case "planety":
+        image(landScapes.islandPurple, 0, 0);
+            break;
+    }
+    
+    popMatrix();
+};
+
+
+/** load laggy images */
+var loadImages = function()
+{
+// Load all images in first frame
+    for(var i in landScapes){
+        if (typeof landScapes[i] !== "object")
+        {
+            colorMode(RGB, 255);
+            background(0, 0, 0, 0);
+            landScapes[i] = landScapes[i]();
+        }
+    }
+};
+
+
+/** compile player */
+var unicornPlayer = function()
+{
+    // player
+    unicorn(player.x - 162, player.y - 148, 82, currentUnicornType);
+    
+    // gravity
+    player.grav += 0.3;
+    player.y += player.grav;
+    
+    // zoom
+    if(player.zoomState)
+    {
+        player.zoom = 7;
+        player.zoomDelay += 1;
+        player.grav = 0;
+    }
+    
+    if(player.zoomDelay >= 30)
+    {
+        player.zoomState = false;
+        player.zoom = 0;
+    }
+    
+    if(!player.zoomState)
+    {
+        player.zoomDelay -= 1;
+    }
+    
+    if(player.zoomDelay <= 0)
+    {
+        player.zoomDelay = 0;
+        player.zoomState = false;
+        player.zoomState2 = false;
+    }
+};
+
+
+/** gem stuff */
+var
+    emeraldGem = function(x, y, s, c) {
+    
+    //stroke
+    stroke(255, 255, 255, 35);
+    strokeWeight(s / 25);
+    
+    //base
+    fill(c);
+    beginShape();
+    vertex(x - s, y - s / 2);
+    vertex(x - s / 2, y - s);
+    vertex(x + s / 2, y - s);
+    vertex(x + s, y - s / 2);
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s, y + s);
+    vertex(x - s, y - s / 2);
+    endShape();
+    
+    //1
+    fill(255, 255, 255, 75);
+    noStroke();
+    beginShape();
+    vertex(x - s, y - s / 2);
+    vertex(x - s / 2, y - s);
+    vertex(x - s / 3, y - s / 2);
+    vertex(x - s / 2, y - s / 3);
+    endShape();
+    
+    //2
+    fill(0, 0, 0, 30);
+    beginShape();
+    vertex(x - s / 2, y - s);
+    vertex(x - s / 3, y - s / 2);
+    vertex(x + s / 3, y - s / 2);
+    vertex(x + s / 2, y - s);
+    endShape();
+    
+    //3
+    beginShape();
+    fill(0, 0, 0, 50);
+    vertex(x + s / 2, y - s);
+    vertex(x + s, y - s / 2);
+    vertex(x + s / 2, y - s / 3);
+    vertex(x + s / 3, y - s / 2);
+    endShape();
+    
+    //4
+    fill(0, 0, 0, 60);
+    beginShape();
+    vertex(x + s, y - s / 2);
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s / 1.1);
+    vertex(x + s / 2, y - s / 3);
+    endShape();
+    
+    //5
+    fill(0, 0, 0, 70);
+    beginShape();
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s / 1.2);
+    endShape();
+    
+    //6
+    fill(0, 0, 0, 40);
+    beginShape();
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s / 3, y + s);
+    endShape();
+    
+    //7
+    fill(0, 0, 0, 25);
+    beginShape();
+    vertex(x - s, y + s);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s / 3, y + s);
+    vertex(x - s / 2, y + s / 1.2);
+    endShape();
+    
+    //8
+    fill(255, 255, 255, 20);
+    beginShape();
+    vertex(x - s, y + s);
+    vertex(x - s / 2, y + s / 1.2);
+    vertex(x - s / 2, y - s / 3);
+    vertex(x - s, y - s / 2);
+    endShape();
+    
+    //shade
+    fill(0, 0, 0, 4);
+    beginShape();
+    vertex(x + s / 2.3, y - s / 2.3);
+    vertex(x + s / 2, y - s / 3);
+    vertex(x + s / 2, y + s / 1.2);
+    vertex(x + s / 3, y + s);
+    vertex(x - s / 3, y + s);
+    vertex(x - s / 2.3, y + s / 1.1);
+    endShape();
+    
+    //shade 2
+    fill(0, 0, 0, 5);
+    beginShape();
+    vertex(x + s / 6, y + s);
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s / 1.2);
+    vertex(x + s / 2, y + s / 1.5);
+    endShape();
+
+},
+    gemCompile = function() {
+    
+    var shineAnim = 22 + sin(frameCount * 5) * 5;
+    
+    fill(currentGemSceme);
+    ellipse(gem.x + gem.w / 2, gem.y + gem.h / 2.1, shineAnim, shineAnim * 1.2);
+    
+    
+    emeraldGem(gem.x + gem.w / 2, gem.y + gem.h / 2.7, gem.w / 2, currentGemSceme);
+    
+    if(player.x >= gem.x - player.w + 18 &&
+    player.x <= gem.x + gem.w &&
+    player.y >= gem.y - player.h && 
+    player.y <= gem.y + gem.h && !player.dead)
+    {
+        coins ++;
+        gem.y = random(180, 240);
+        gem.x = random(width, width + 300);
+    }
+    
+    if(gem.x < -20)
+    {
+        gem.y = random(180, 220);
+        gem.x = random(width, width + 300);
+    }
+    
+    if(!player.dead)
+    {
+        gem.x -= 3 + player.zoom + player.excel;
+    }
+    
+};
+
+
+/** backdrop selction */
+var backdropSelection = function() {
+    
+    switch(currentBackdrop)
+    {
+        case "default":
+            image(landScapes.misticDark, 0, 0);
+            break;
+            
+        case "darkforest":
+            image(landScapes.darkForest, 0, 0);
+            break;
+            
+        case "planety":
+            image(landScapes.planety, 0, 0);
+            break;
+    }
+};
+
+
+/** collisions */
+var
+    blockTopCol = function(x, y, w, h){
+    fill(0, 0, 0);
+    
+    if(player.x >= x - player.w + 18 &&
+    player.x <= x + w &&
+    player.y >= y - player.h - 2 && 
+    player.y <= y + h - 60 && !player.dead)
+    {
+        fill(255, 0, 0);
+        player.y = y - player.h - 2;
+        player.grav = 0;
+        
+        if(keys[UP])
+        {
+            player.grav -= 10;
+        }
+    }
+    
+    //rect(x, y, w, h);
+},
+    
+    blockDeathCol = function(x, y, w, h){
+    fill(0, 0, 0);
+    
+    if(player.x >= x - player.w + 18  &&
+    player.x <= x + w &&
+    player.y >= y - player.h && 
+    player.y <= y + h && !player.dead)
+    {
+        player.dead = true;
+        player.grav = -5;
+    }
+    
+    //rect(x, y, w, h);
+},
+    
+    gemUPCol = function(x, y, w, h){
+    if(gem.x >= x - gem.w &&
+    gem.x <= x + w &&
+    gem.y >= y - gem.h && 
+    gem.y <= y + h)
+    {
+        gem.y -= 2;
+    }
+};
+
+
+/** button */
+var button = function(x, y, d, sceneSwitch) {
+    
+    if(dist(mouseX, mouseY, x, y) < d / 2 && width >= 600)
+    {
+        d += 5;
+        cursor(HAND);
+        
+        if(clicked && sceneSwitch !== "save") // switch scene
+        {
+            nextPage = sceneSwitch;
+            transState = "grow";
+        }
+        
+        if(clicked && sceneSwitch === "save")
+        {
+            println("var Save_File = [" + unicornStore.state + "," + backdropStore.state + ", '" + currentUnicornType + "', '" + currentBackdrop + "', color(" + currentGemSceme + "), color(" + currentButtonSceme  + "), " + coins + ", " + floor(bestScore) + ", " + gameStarted + "];");
+        }
+    }
+    
+    // button graphic
+    floatingIsland(x - d / 1.7, y - d / 2.3,
+        d * 1.2, d / 1.1);
+    
+    // button emoticons 
+    switch(sceneSwitch)
+    {
+        case "game":
+            
+            fill(currentButtonSceme);
+            triangle(x + d / 4.2, y,   x - d / 12, y - d / 5.9,    x - d / 12, y + d / 5.2);
+            
+            break;
+            
+        case "home":
+            
+            fill(currentButtonSceme);
+            triangle(x - d / 7, y,   x + d / 12, y - d / 5.9,    x + d / 12, y + d / 6.3);
+            
+            break;
+            
+        case "unicornstore":
+            
+            unicorn(x - d * 1.17, y -d * 1.1, d / 2, "button");
+            
+            break;
+            
+        case "backdropstore":
+            
+            fill(currentButtonSceme);
+            rect(x - d / 5.5, y - d / 5.5, d / 2.5, d / 2.5);
+            
+            break;
+            
+        case "how":
+            
+            fill(currentButtonSceme);
+            textSize(d / 1.6);
+            text("?", x, y);
+            text("?", x + d / 27.7, y);
+            
+            break;
+            
+        case "save":
+            
+            fill(currentButtonSceme);
+            rect(x - d / 5.5, y - d / 4.3, d / 2.5, d / 12.6);    
+            rect(x - d / 5.5, y - d / 13.9, d / 2.5, d / 12.6);    
+            rect(x - d / 5.5, y - d / 4.4, d / 9.3, d / 2.4);    
+            rect(x + d / 5.5, y - d / 4.4, d / 9.3, d / 2.4);    
+            rect(x - d / 18.0, y + d / 13.0, d / 9.3, d / 10.0);    
+            
+            break;
+            
+        case "store":
+            
+            fill(currentButtonSceme);
+            textSize(d / 1.6);
+            text("$", x, y);
+            text("$", x + d / 34.1, y);
+            
+            break;
+    }
+};
+
+/** button plug in for the different stores */
+var storeButtonPluIn = function(store, whatToSwitch) {
+    
+    
+        // gem stats
+        emeraldGem(21, 473 - 450, 15, currentGemSceme);
+        fill(currentGemSceme);
+        textAlign(0, 0);
+        text(coins, 40, 492 - 450);
+        textAlign(CENTER, CENTER);
+        
+        // main store loop
+        for(var i = 0; i < store.type.length; ++i)
+        {
+            noFill();
+            stroke(201, 2, 2);
+            
+            // hand over button
+            if(mouseX > 256 + i * 600 - store.switchScene * 600 && 
+            mouseX < 256 + 100 + i * 600 - store.switchScene * 600 &&
+            mouseY > 354 && mouseY < 354 + 50)
+            {
+                cursor(HAND);
+                
+                fill(255, 247, 247, 100);
+                
+                // bought
+                if(clicked && coins >= store.money[i] && !store.state[i])
+                {
+                    coins -= store.money[i];
+                    store.state[i] = true;
+                    whatToSwitch = store.type[i];
+                    
+                    if(scene === "backdropstore")
+                    {
+                        currentGemSceme = backdropStore.colorGem[i];
+                        currentButtonSceme = backdropStore.colorButton[i];
+                    }
+                }
+                
+                // select
+                if(clicked && store.state[i])
+                {
+                    whatToSwitch = store.type[i];
+                    
+                    if(scene === "backdropstore")
+                    {
+                        currentGemSceme = backdropStore.colorGem[i];
+                        currentButtonSceme = backdropStore.colorButton[i];
+                    }
+                }
+                
+            }
+            
+            
+            // buton rect
+            // stroke size for buttons
+            strokeWeight(3);
+            rect(256 + i * 600 - store.switchScene * 600, 354, 100, 50);
+            
+            
+            textSize(17);
+            
+            // show price
+            if(!store.state[i])
+            {
+                emeraldGem(282 + i * 600 - store.switchScene * 600, 526 - 150, 15, currentGemSceme);
+                textAlign(0, 0);
+                textSize(30);
+                fill(201, 2, 2);
+                text(store.money[i], 302 + i * 600 - store.switchScene * 600, 390);
+                textAlign(CENTER, CENTER);
+                
+            }
+            
+            // show if selected
+            else if(store.state[i] && whatToSwitch === store.type[i])
+            {
+                fill(201, 2, 2);
+                text("SELECTED", 306 + i * 600 - store.switchScene * 600, 379);
+            }
+            // show if purchased
+            else
+            {
+                fill(201, 2, 2);
+                text("PURCHASED", 306 + i * 600 - store.switchScene * 600, 379);
+            }
+        }
+        
+        stroke(209, 0, 0);
+        
+        /** Back and fourth buttons*/
+        
+        // back button
+        if(store.switchScene > 0)
+        {
+            noFill();
+            strokeWeight(3);
+            if(mouseX > 52 && mouseX < 52 + 50 &&
+            mouseY > 200 && mouseY < 200 + 50)
+            {
+                fill(255, 255, 255, 100);
+                
+                cursor(HAND);
+                
+                if(clicked)
+                {
+                    store.switchScene -= 1;
+                }
+            }
+            rect(52, 200, 50, 50);
+            triangle(62, 226, 92, 208, 92, 240);
+        }
+        
+        // forward button
+        if(store.switchScene < store.type.length - 1)
+        {
+            noFill();
+            strokeWeight(3);
+            if(mouseX > 496 && mouseX < 496 + 50 &&
+            mouseY > 200 && mouseY < 200 + 50)
+            {
+                fill(255, 255, 255, 100);
+                
+                cursor(HAND);
+                
+                if(clicked)
+                {
+                    store.switchScene += 1;
+                }
+            }
+            rect(496, 200, 50, 50);
+            triangle(538, 226, 506, 208, 506, 240);
+        }
+        
+        if(scene === "unicornstore")
+        {
+            currentUnicornType = whatToSwitch;
+        }
+        
+        if(scene === "backdropstore")
+        {
+            currentBackdrop = whatToSwitch;
+        }
+};
+
+/** pages */
+var
+    gamePage = function() {
+        // game gets faster as played
+        player.excel += 0.0008;
+        
+        if(player.excel >= 4)
+        {
+            player.excel = 4;
+        }
+        
+        for(var i = 0; i < blockPos.x.length; ++i)
+        {
+            /** Main looped island*/
+            floatingIsland(blockPos.x[i], blockPos.y[i], blockPos.w[i], 73);
+            
+            /** Collision to weird island shape xD */
+            blockDeathCol(
+            blockPos.x[i] - blockPos.w[i] / 41.0,
+            blockPos.y[i] + 13,
+            blockPos.w[i] / 1.00, 12);
+            
+            blockDeathCol(
+            blockPos.x[i] + blockPos.w[i] / 18.4,
+            blockPos.y[i] + 24,
+            blockPos.w[i] / 1.23, 10);
+            
+            blockDeathCol(
+            blockPos.x[i] + blockPos.w[i] / 6.5,
+            blockPos.y[i] + 34,
+            blockPos.w[i] / 1.49, 18);
+            
+            
+            blockDeathCol(
+            blockPos.x[i] + blockPos.w[i] / 3.7,
+            blockPos.y[i] + 52,
+            blockPos.w[i] / 2.10, 8);
+            
+            blockDeathCol(
+            blockPos.x[i] + blockPos.w[i] / 3.3,
+            blockPos.y[i] + 60,
+            blockPos.w[i] / 2.53, 8);
+            
+            blockDeathCol(
+            blockPos.x[i] + blockPos.w[i] / 2.6,
+            blockPos.y[i] + 68,
+            blockPos.w[i] / 3.51, 5);
+            
+            blockDeathCol(
+            blockPos.x[i] + blockPos.w[i] / 2.1,
+            blockPos.y[i] + 73,
+            blockPos.w[i] / 5.56, 5);
+            
+            blockTopCol(
+                blockPos.x[i] - blockPos.w[i] / 26.5,
+                blockPos.y[i],
+                blockPos.w[i] * 1.1, 14);
+            
+            // move gem up of touching block
+            gemUPCol(blockPos.x[i], blockPos.y[i], blockPos.w[i], 73);
+            
+            // move blocks if player isn't dead
+            if(!player.dead)
+            {
+                blockPos.x[i] -= 3 + player.zoom + player.excel;
+            }
+            
+            // rest block once off screen
+            if(blockPos.x[i] <= -blockPos.w[i])
+            {
+               blockPos.x[i] = random(width, width + 500);
+               blockPos.y[i] = random(180, 340);
+               blockPos.w[i] = random(50, 200);
+            }
+        }
+        
+        gemCompile(blockPos.x[i], blockPos.y[i], blockPos.w[i], 73);
+        
+        // kill player once off the screen
+        if(player.y >= 500)
+        {
+            player.dead = true;
+            transState = "grow";
+            nextPage = "home";
+        }
+        
+        // add up score if player isn't dead
+        if(!player.dead)
+        {
+            score += 0.05;
+            
+            if(score >= 50)
+            {
+                score += 0.02;
+            }
+            
+            if(score >= 100)
+            {
+                score += 0.02;
+            }
+            
+            if(score >= 150)
+            {
+                score += 0.02;
+            }
+        }
+        
+        // call player
+        unicornPlayer();
+        
+        // score
+        textSize(35);
+        fill(255, 255, 255, 100);
+        text(floor(score), 300, 29);
+        
+        // gems
+        textSize(43);
+        emeraldGem(21, 473, 15, currentGemSceme);
+        fill(currentGemSceme);
+        textAlign(0, 0);
+        text(coins, 40, 492);
+        textAlign(CENTER, CENTER);
+        
+    },
+    
+    menuPage = function() {
+        
+        pushMatrix();
+        
+        if(gameStarted)
+        {
+            translate(-154, 0);
+        }
+        
+        // unicorn in menu
+        unicorn(-421, -464, 289, "default");
+        // title
+        fill(22, 153, 201);
+        textSize(49);
+        text("UNICORN", 298, 142);
+        textSize(28);
+        text("MANIA", 364, 171);
+        popMatrix();
+        
+        // show stats once started game
+        if(gameStarted)
+        {
+            // score and top score
+            fill(255, 255, 255, 200);
+            textSize(43);
+            text("SCORE " + floor(score), 468, 108);
+            text("TOP " + floor(bestScore), 468, 150);
+            
+            // game stats
+            emeraldGem(21, 473, 15, currentGemSceme);
+            fill(currentGemSceme);
+            textAlign(0, 0);
+            text(coins, 40, 492);
+            textAlign(CENTER, CENTER);
+            
+            // save button
+            button(468, 198, 60, "save");
+            
+            // update top score
+            if(score > bestScore)
+            {
+                bestScore = score;
+            }
+        }
+        
+        // menu butons
+        button(300, 310 + 50 + sin(frameCount * 1.5) * 3, 132, "game");
+        button(186, 339 + 50 - sin(frameCount * 1) * 3, 70, "store");
+        button(408, 339 + 50 - sin(frameCount * 1.3) * 3, 70, "how");
+        
+    },
+    
+    howPage = function() {
+        // how to text
+        textSize(35);
+        fill(186, 0, 0);
+        text("1) Press the [UP] arrow to JUMP\n2) Press [SPACE] key to BOOST\n3) Collect gems and buy unicorns!\n4) Don't die! xD", 300, 246);
+        
+        // back button
+        button(40, 466, 50, "home");
+        
+    },
+    
+    storePage = function() {
+        
+        
+        button(300 - 100, 250 - sin(frameCount * 1) * 5, 130,"unicornstore");
+        
+        button(300 + 100, 250 - sin(frameCount * 1.5) * 5, 130,"backdropstore");
+        
+        // home button
+        button(40, 466, 50, "home");
+    },
+    
+    unicornStorePage = function() {
+        
+        // main store loop
+        
+        storeButtonPluIn(unicornStore, currentUnicornType);
+        
+        for(var i = 0; i < unicornStore.type.length; ++i)
+        {
+            if(unicornStore.switchScene === i)
+            {
+                // show different unicorns
+                unicorn(
+                -285 + i * 600 - unicornStore.switchScene * 600,
+                -286, 242, unicornStore.type[i]);
+            }
+        }
+        
+        noStroke();
+        
+        // home button
+        button(40, 466, 50, "store");
+    },
+    
+    backdropStorePage = function() {
+        
+        switch(backdropStore.switchScene)
+        {
+            case 0:
+            image(landScapes.misticDark, 0, 0);
+                break;
+                
+            case 1:
+            image(landScapes.darkForest, 0, 0);
+                break;
+                
+            case 2:
+            image(landScapes.planety, 0, 0);
+                break;
+    }
+        
+        storeButtonPluIn(backdropStore, currentBackdrop);
+        
+        button(40, 466, 50, "store");
+        
+    };
+
+
+/** trans */
+var transStuff = function() {
+    
+    // trans stuff
+    if(transState === "shrink")
+    {
+        trans += 30;
+    }
+    
+    if(transState === "grow")
+    {
+        trans /= 1.2;
+    }
+    
+    if(trans >= 600)
+    {
+        trans = 600;
+    }
+    
+    if(trans <= 5)
+    {
+        transState = "shrink";
+        
+        scene = nextPage;
+        
+        // if the next scene is game, reset player / blocks / score
+        if(nextPage === "game")
+        {
+            score = 0;
+            
+            player = {
+                x: 52, y: 2,
+                w: 94, h: 59,
+                grav: 5,
+                
+                zoom: 0, zoomDelay: 0,
+                zoomState: false, zoomState2: false,
+                
+                dead: false, excel: 0,
+            };
+            
+            blockPos = {
+                x: [0, 120, 240, 360, 800, -300, -300],
+                y: [280, 280, 280, 280, 280, 280, 280],
+                w: [120, 120, 120, 120, 120, 120, 120]
+            };
+            
+            gem = {
+                
+                x: -20, y: 0,
+                w: 20, h: 25
+                
+            };
+            
+            gameStarted = true;
+        }
+    }
+    
+    floatingIsland(-396, -74 + trans, 1405, 749);
+};
+
+
+/** stuff that won't change */
+var PROGRAM_CONSTANTS = function(){
+    
+    noStroke();
+    backdropSelection();
+    textAlign(CENTER, CENTER);
+    textFont(createFont("Tahoma"));
+    loadImages();
+    cursor(ARROW);
+};
+
+draw = function() {
+    
+    PROGRAM_CONSTANTS();
+    
+    switch(scene)
+    {
+        case "home":
+        
+        menuPage();
+        
+            break;
+            
+        case "store":
+            
+        storePage();
+            
+            break;
+            
+        case "unicornstore":
+        
+        unicornStorePage();
+        
+            break;
+            
+        case "backdropstore":
+            
+        backdropStorePage();
+            
+            break;
+    
+        case "game":
+            
+        gamePage();
+        
+            break;
+            
+        case "how":
+            
+        howPage();
+            
+            break;
+    
+    }
+    
+    transStuff();
+    
+    if(width < 500)
+    {
+        fill(0, 0, 0, 230);
+        rect(0, 0, 400, 400);
+        
+        textSize(23);
+        fill(255, 0, 0);
+        text("Click the [Settings] button\nbelow, and change the following:\nWidth: 600\nHeight: 500\nIf you want to continue playing!\nAlso, don't forget to tell Isaac Emerald\nwhat you think about this game in\nthe Tips&Thanks            ", 200, 194);
+        
+        fill(11, 153, 209);
+        
+        if(mouseX >= 255 && mouseX <= 255 + 65 && mouseY >= 275 && mouseY <= 275 + 30)
+        {
+            cursor(HAND);
+            fill(84, 182, 242);
+            
+            if(clicked)
+            {
+                println(gameLink);
+            }
+        }
+        
+        text("HERE", 255 + (65 / 2), 275 + (30 / 2));
+        text("_____", 255 + (65 / 2), 275 + (30 / 2));
+    }
+    
+    clicked = false;
+};
+
