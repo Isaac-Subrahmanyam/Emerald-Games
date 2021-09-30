@@ -1,0 +1,2122 @@
+
+
+
+
+
+
+
+/**
+* 
+* Don't Touch The Red 2
+* Isaac Emerald
+* September 17 2018
+* 
+*/
+
+
+
+
+
+
+var leaderBoard = [
+    
+    ["Isaac Emerald", 11],
+    ["Skytobelow12", 47],
+    ["This Could Be You!", 0],
+    ["This Could Be You!", 0],
+    ["This Could Be You!", 0],
+    
+];
+
+var scene = "home";
+
+/** Map Stuff **/
+var levelMap = [], level = 0, paused = false;
+
+/** Death stuff **/
+var deaths = 1000, 
+    deathTran = 0,
+    deathAnim = 0,
+    deadDelay = 0,
+    dead = false;
+
+/** Key stuff **/
+var keys = [];
+keyPressed = function(){
+        
+        keys[keyCode] = true;
+    };
+keyReleased = function(){
+        
+        keys[keyCode] = false;
+    };
+
+
+/** Clicked stuff **/
+var clicked = false;
+mouseClicked = function(){
+        clicked = true;
+    };
+var clickedState = function(){
+    
+    clicked = false;
+    
+    if(deadDelay >= 1)
+    {
+        fill(255, 0, 0);
+        rect(0, 0, 600, 600);
+        
+        textSize(20);
+        fill(255);
+        text('\x53\x69\x6e\x63\x65\x20\x74\x68\x65\x72\x65\x20\x69\x73\x20\x61\x20\x73\x63\x6f\x72\x65\x2d\x62\x6f\x61\x72\x64\x2c\x0a\x49\x20\x61\x6d\x20\x6e\x6f\x74\x20\x61\x6c\x6c\x6f\x77\x69\x6e\x67\x20\x79\x6f\x75\x20\x74\x6f\x20\x65\x64\x69\x74\x20\x79\x6f\x75\x72\x20\x73\x63\x6f\x72\x65\x20\x6f\x72\x20\x63\x75\x72\x72\x65\x6e\x74\x20\x6c\x65\x76\x65\x6c\x2e\x0a\x49\x20\x68\x6f\x70\x65\x20\x79\x6f\x75\x20\x75\x6e\x64\x65\x72\x73\x74\x61\x6e\x64\x2c\x20\x74\x68\x61\x6e\x6b\x73\x20\x3a\x29', 300, 300);
+    }
+    
+};
+
+
+/** Button stuff **/
+var Button = function(x, y, w, h, m, s, sceneChange) {
+    
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.m = m;
+    this.s = s;
+    this.anim = 5;
+    this.sceneChange = sceneChange;
+};
+
+Button.prototype.draw = function() {
+    
+    noFill();
+    strokeWeight(15);
+    
+    // mouse coll
+    if(mouseX >= this.x && mouseX <= this.x + this.w &&
+    mouseY >= this.y && mouseY <= this.y + this.h)
+    {
+        cursor(HAND);
+        this.anim /= 1.2;
+        
+        if(clicked)
+        {
+            scene = this.sceneChange;
+        }
+    } else
+    {
+        if(this.anim <= 5)
+        {
+            this.anim += 1;
+        }
+    }
+    
+    // button
+    stroke(0, 0, 0, 100);
+    rect(this.x, this.y, this.w, this.h, 2);
+    stroke(0, 0, 0);
+    rect(this.x, this.y - this.anim, this.w, this.h, 2);
+    
+    // text
+    textSize(this.s);
+    fill(0, 0, 0, 100);
+    text(this.m, this.x + this.w / 2, this.y + this.h / 2);
+    fill(0, 0, 0);
+    text(this.m, this.x + this.w / 2, this.y + this.h / 2 - this.anim);
+    
+};
+
+
+/** Player stuff **/
+var Player = function(x, y){
+    
+    this.x = x;
+    this.y = y;
+    this.posX = this.x;
+    this.posY = this.y;
+    this.w = 30;
+    this.h = 30;
+    this.speed = 4;
+    this.facePosX = 0;
+    this.facePosY = 0;
+    
+    this.particle = {
+        x: [],
+        y: [],
+        s: []
+    };
+};
+
+Player.prototype.particles = function(){
+    
+    noStroke();
+    fill(255, 150, 3, 30);
+    
+    for(var i = 0; i < this.particle.x.length; i++)
+    {
+        pushMatrix();
+        translate(this.particle.x[i] + this.w / 2, this.particle.y[i] + this.h / 2);
+        rectMode(CENTER);
+        rect(0, 0, this.particle.s[i], this.particle.s[i]);
+        rectMode(0);
+        popMatrix();
+        
+        this.particle.s[i] -= 1;
+        
+        if(this.particle.s[i] <= 0)
+        {
+            this.particle.s[i] =  this.w;
+            this.particle.x[i] =  this.x;
+            this.particle.y[i] =  this.y;
+        }
+    }
+    
+    if(this.particle.x.length < 30)
+    {
+        this.particle.x.push(this.x);
+        this.particle.y.push(this.y);
+        this.particle.s.push(this.w);
+    }
+    
+};
+
+Player.prototype.draw = function() {
+    
+    stroke(186, 65, 0);
+    strokeWeight(((this.w + this.h) / 2) / 15);
+    fill(255, 132, 0);
+    
+    if(dead)
+    {
+        stroke(135, 0, 0);
+        fill(242, 0, 0);
+    }
+    
+    pushMatrix();
+    rectMode(CENTER);
+    translate(this.x + this.w / 2, this.y + this.h / 2);
+    scale(1 - (deathAnim / 100));
+    rotate(deathAnim * 2);
+    
+    // body
+    rect(0, 0, this.w, this.h);
+    
+    // face
+    pushMatrix();
+    translate(this.facePosX, this.facePosY);
+    rect(this.w / 5, - this.w / 5, this.w / 5, this.h / 5);
+    rect(-this.w / 5, - this.w / 5, this.w / 5, this.h / 5);
+    rect(0, this.h / 7.3, this.w / 1.7, this.h / 9);
+    popMatrix();
+    rectMode(0);
+    popMatrix();
+    
+    noStroke();
+};
+
+Player.prototype.update = function(){
+    
+    // movement
+    if(keys[UP]) { this.y -= this.speed; this.facePosY = -3; }
+    
+    if(keys[DOWN]) { this.y += this.speed; this.facePosY = 5; }
+    
+    if(keys[LEFT]) { this.x -= this.speed; this.facePosX = -3; }
+    
+    if(keys[RIGHT]) { this.x += this.speed; this.facePosX = 3; }
+    
+    // resetting face
+    
+    if(!keys[UP] && !keys[DOWN]) { this.facePosY = 0; }
+    
+    if(!keys[LEFT] && !keys[RIGHT]) { this.facePosX = 0; }
+    
+    // borders
+    if(this.x < 0) { this. x = 0; }
+    
+    if(this.y < 0) { this.y = 0; }
+    
+    if(this.y >= height - this.h) { this.y = height - this.h; }
+    
+    if(this.x >= width - this.w) { this.x = width - this.w; }
+};
+
+Player.prototype.applyCollision = function(){
+    
+    this.reset = function(){
+        
+        dead = true;
+        deathTran += 300;
+    };
+    
+    for(var i = 0; i < levelMap[level].blocks.length; i++)
+    {
+        if(this.x >= levelMap[level].blocks[i].x - this.w && 
+        this.y >= levelMap[level].blocks[i].y - this.h &&
+        this.x <= levelMap[level].blocks[i].x + levelMap[level].blocks[i].w &&
+        this.y <= levelMap[level].blocks[i].y + levelMap[level].blocks[i].h)
+        {
+            this.reset();
+        }
+    }
+    
+    for(var i = 0; i < levelMap[level].enemys.length; i++)
+    {
+        if(this.x >= levelMap[level].enemys[i].x - this.w && 
+        this.y >= levelMap[level].enemys[i].y - this.h &&
+        this.x <= levelMap[level].enemys[i].x + levelMap[level].enemys[i].w &&
+        this.y <= levelMap[level].enemys[i].y + levelMap[level].enemys[i].h)
+        {
+            this.reset();
+        }
+    }
+    
+    for(var i = 0; i < levelMap[level].cannons.length; i++)
+    {
+        if(this.x >= levelMap[level].cannons[i].cannonX - this.w - 15 && 
+        this.y >= levelMap[level].cannons[i].cannonY - this.h - 15 &&
+        this.x <= levelMap[level].cannons[i].cannonX + 15 &&
+        this.y <= levelMap[level].cannons[i].cannonY + 15)
+        {
+            this.reset();
+        }
+    }
+    
+    if(this.x >= levelMap[level].portal.x - this.w && 
+    this.y >= levelMap[level].portal.y - this.h &&
+    this.x <= levelMap[level].portal.x + levelMap[level].portal.w &&
+    this.y <= levelMap[level].portal.y + levelMap[level].portal.h)
+    {
+        level ++;
+        levelMap[level].portal.portalDelay = 50;
+    }
+};
+
+
+/** Block stuff **/
+var Block = function(x, y, w, h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+};
+
+Block.prototype.draw = function() {
+    
+    // block
+    strokeWeight(3);
+    stroke(179, 0, 0);
+    fill(255, 0, 0);
+    rect(this.x, this.y, this.w, this.h);
+    
+    noStroke();
+    fill(0, 0, 0, 10);
+    for(var i =0; i < this.h / 10; i ++)
+    {
+        rect(this.x, this.y + this.h, this.w, - i * 10);
+    }
+};
+
+
+/** Cannon stuff **/
+var Cannon = function(cannonX, cannonY){
+    
+    // connon positon
+    this.cannonX = cannonX;
+    this.cannonY = cannonY;
+    
+    this.bulletX = 0;
+    this.bulletY = 0;
+    
+    this.vectorX = 0;
+    this.vectorY = 0;
+    this.length = 0;
+    this.bulletDisplacement = 0;
+    this.bulletSize = 10;
+    
+    this.shootTime = 0;
+    this.shootState = false;
+    
+    this.cannonAnimState = false;
+    this.cannonAnim = 0;
+    this.cannonAnimX = 0;
+    this.cannonAnimY = 0;
+};
+
+Cannon.prototype.draw = function() {
+    
+    
+    //Determine the vector between two points, alowing the pupil to move in circular rotation
+    var AvectorX = (levelMap[level].player.x - this.cannonX); //calculates x component of vector
+    var AvectorY = (levelMap[level].player.y - this.cannonY); //calculates y component of vector
+    var Alength = sqrt((AvectorX * AvectorX) + (AvectorY * AvectorY));
+    
+    //calculate the length, by using the Pythagorean Theorem
+    var Adisplacement = 13;
+    
+    //calculate the unit vector
+    AvectorX /= Alength;
+    AvectorY /= Alength;
+    
+    noStroke();
+    
+    // splatter animation
+    if(this.cannonAnimState)
+    {
+        noStroke();
+        fill(255, 0, 0, 300 - (this.cannonAnim * 10));
+        ellipse(this.cannonAnimX, this.cannonAnimY, this.cannonAnim, this.cannonAnim);
+        ellipse(this.cannonAnimX + 11, this.cannonAnimY - 2, this.cannonAnim / 2, this.cannonAnim / 2);
+        ellipse(this.cannonAnimX - 10, this.cannonAnimY + 4, this.cannonAnim / 3, this.cannonAnim / 3);
+    }
+    
+    fill(255, 0, 0);
+    ellipse(this.bulletX, this.bulletY, 10, 10);
+    
+    strokeWeight(3);
+    stroke(156, 0, 0, 150);
+    
+    //The Main Circular rotation of the pupil
+    fill(219, 7, 7);
+    ellipse(this.cannonX + (AvectorX*Adisplacement), 
+            this.cannonY + (AvectorY*Adisplacement), 
+            20, 20);
+    
+    fill(255, 0, 0);
+    ellipse(this.cannonX, this.cannonY, 30, 30);
+    
+    noStroke();
+    fill(61, 0, 0, 30);
+    ellipse(this.cannonX - 1, this.cannonY - 1, 21, 25);
+    ellipse(this.cannonX - 1, this.cannonY - 1, 21, 21);
+    ellipse(this.cannonX - 3, this.cannonY - 3, 15, 15);
+    
+    noStroke();
+    
+};
+
+Cannon.prototype.update = function() {
+    
+    //shoot timer
+    this.shootTime += 1;
+    
+    //if not shot
+    if(this.shootTime <= 30)
+    {
+        this.bulletX = this.cannonX;
+        this.bulletY = this.cannonY;
+    }
+    
+    //if shot
+    if(this.shootTime > 30 && !this.shootState)
+    {
+        this.shootState = true;
+        this.vectorX = (levelMap[level].player.x - this.bulletX); //calculates x component of vector
+        this.vectorY = (levelMap[level].player.y - this.bulletY); //calculates y component of vector
+        this.length = sqrt((this.vectorX * this.vectorX) + (this.vectorY * this.vectorY));
+        this.bulletDisplacement = ((this.bulletSize / 2) - 50);
+    }
+    
+    //when shot
+    if(this.shootState)
+    {
+        this.bulletX += (this.vectorX - (this.bulletDisplacement / 3.14)) / (this.length / 3.5);
+        this.bulletY += (this.vectorY - (this.bulletDisplacement / 3.14)) / (this.length / 3.5);
+    }
+    
+    if(this.cannonAnimState)
+    {
+        this.cannonAnim += 2;
+        
+        if(this.cannonAnim >= 30)
+        {
+            this.cannonAnim = 0;
+            this.cannonAnimX = this.cannonX;
+            this.cannonAnimY = this.cannonY;
+        }
+    }
+    
+};
+
+Cannon.prototype.applyColission = function()
+{
+    // reset bullet and stuff
+    this.reset = function(){
+        
+        this.cannonAnim = 0;
+        this.cannonAnimX = this.cannonX;
+        this.cannonAnimY = this.cannonY;
+        this.cannonAnimState = true;
+        this.shootState = false;
+        this.cannonAnimX = this.bulletX;
+        this.cannonAnimY = this.bulletY;
+        this.bulletX = this.cannonX;
+        this.bulletY = this.cannonY;
+        this.shootTime = 0;
+    };
+    
+    // is shot and collided
+    if(this.shootState)
+    {
+        // collides with player
+        if(this.bulletX > levelMap[level].player.x && this.bulletX < levelMap[level].player.x + levelMap[level].player.w && this.bulletY > levelMap[level].player.y && this.bulletY < levelMap[level].player.y + levelMap[level].player.h)
+        {
+            dead = true;
+            deathTran += 300;
+            this.reset();
+        }
+        
+        // collides with wall
+        if(this.bulletX < -10 || this.bulletY < -10 || this.bulletX > width + 10 || this.bulletY > height + 10)
+        {
+            this.reset();
+        }
+        
+        // collides with block
+        for(var i = 0; i < levelMap[level].blocks.length; i++)
+        {
+            if(this.bulletX > levelMap[level].blocks[i].x && 
+            this.bulletX < levelMap[level].blocks[i].x + levelMap[level].blocks[i].w && 
+            this.bulletY > levelMap[level].blocks[i].y && 
+            this.bulletY < levelMap[level].blocks[i].y + levelMap[level].blocks[i].h)
+            {
+                this.reset();
+            }
+        }
+        
+        // collides with laser
+        for(var i = 0; i < levelMap[level].lasers.length; i++)
+        {
+            if(this.bulletX > levelMap[level].lasers[i].x && 
+            this.bulletX < levelMap[level].lasers[i].x + levelMap[level].lasers[i].w && 
+            this.bulletY > levelMap[level].lasers[i].y && 
+            this.bulletY < levelMap[level].lasers[i].y + levelMap[level].lasers[i].h)
+            {
+                this.reset();
+            }
+        }
+        
+        // collides with enemy
+        for(var i = 0; i < levelMap[level].enemys.length; i++)
+        {
+            if(this.bulletX > levelMap[level].enemys[i].x && 
+            this.bulletX < levelMap[level].enemys[i].x + levelMap[level].enemys[i].w && 
+            this.bulletY > levelMap[level].enemys[i].y && 
+            this.bulletY < levelMap[level].enemys[i].y + levelMap[level].enemys[i].h)
+            {
+                this.reset();
+            }
+        }
+        
+        // hits another cannon
+        for(var i = 0; i < levelMap[level].cannons.length; i++)
+        {
+            if(this.bulletX >= levelMap[level].cannons[i].cannonX - 15 && 
+            this.bulletY >= levelMap[level].cannons[i].cannonY - 15 &&
+            this.bulletX <= levelMap[level].cannons[i].cannonX + 15 &&
+            this.bulletY <= levelMap[level].cannons[i].cannonY + 15 && this.shootTime >= 40)
+            {
+                this.reset();
+            }
+        }
+    }
+};
+
+
+/** Enemy stuff **/
+var Enemy = function(x, y, w, h, speed, second, UDorLR){
+    
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.speed = speed;
+    this.facePosX = 0;
+    this.facePosY = 0;
+    
+    this.UDorLR = UDorLR;
+    this.first = (this.UDorLR === "l") ? this.x : this.y;
+    this.second = second;
+    this.switcheroo = "Right";
+    
+    this.particle = {
+        x: [],
+        y: [],
+        s: []
+    };
+};
+
+Enemy.prototype.draw = function() {
+    
+    strokeWeight(((this.w + this.h) / 2) / 20);
+    stroke(135, 0, 0);
+    fill(242, 0, 0);
+    
+    // body
+    rect(this.x, this.y, this.w, this.h);
+    
+    // face
+    pushMatrix();
+    translate(this.facePosX, this.facePosY);
+    strokeWeight(((this.w + this.h) / 2) / 25);
+    rect(this.x + this.w / 7.7, this.y + this.h / 5, this.w / 3, this.h / 3);
+    rect(this.x + this.w / 1.8, this.y + this.h / 5, this.w / 3, this.h / 3);
+    strokeWeight(((this.w + this.h) / 2) / 30);
+    rect(this.x + this.w / 5.4 + this.facePosX / 1.9, this.y + this.h / 3.8 + this.facePosY / 3, this.w / 5, this.h / 5);
+    rect(this.x + this.w / 1.62 + this.facePosX / 1.9, this.y + this.h / 3.8 + this.facePosY / 3, this.w / 5, this.h / 5);
+    rect(this.x + this.w / 7.7, this.y + this.h / 1.5, this.w / 1.3, this.h / 11);
+    strokeWeight(((this.w + this.h) / 2) / 17);
+    line(this.x + this.w / 11.8, this.y + this.h / 13.5, this.x + this.w / 2.0, this.y + this.h / 5.9);
+    line(this.x + this.w / 1.07, this.y + this.h / 13.5, this.x + this.w / 2.0, this.y + this.h / 5.9);
+    popMatrix();
+    
+};
+
+Enemy.prototype.update = function(){
+    
+    if(((this.UDorLR === "l") ? this.x : this.y) <= this.first)
+    {
+        this.switcheroo = "right";
+        
+        if(this.UDorLR === "l")
+        {
+            this.facePosX = this.w / 20;
+        } else
+        {
+            this.facePosY = this.h / 10;
+        }
+    }
+    
+    if(((this.UDorLR === "l") ? this.x : this.y) >= this.first + (this.second - this.w))
+    {
+        this.switcheroo = "left";
+        
+        if(this.UDorLR === "l")
+        {
+            this.facePosX = -this.w / 20;
+        } else
+        {
+            this.facePosY = -this.h / 20;
+        }
+    }
+    
+    if(this.switcheroo === "left")
+    {
+        if(this.UDorLR === "l")
+        {
+            this.x -= this.speed;
+        } else
+        {
+            this.y -= this.speed;
+        }
+    }
+    
+    if(this.switcheroo === "right")
+    {
+        if(this.UDorLR === "l")
+        {
+            this.x += this.speed;
+        } else
+        {
+            this.y += this.speed;
+        }
+    }
+    
+};
+
+
+/** Laser stuff **/
+var Laser = function(x, y, ammount, UDorLR, activatedLimit){
+    
+    this.x = x;
+    this.y = y;
+    this.w = 30;
+    this.h = 30;
+    this.ammount = ammount;
+    this.UDorLR = UDorLR;
+    this.activated = false;
+    this.activatedDelay = 0;
+    this.activatedLimit = activatedLimit;
+};
+
+Laser.prototype.draw = function() {
+    
+    strokeWeight(4);
+    stroke(191, 0, 0);
+    fill(255, 0, 0);
+    rect(this.x, this.y, this.w, this.h);
+    noStroke();
+    
+    // indicate direction of laser
+    switch(this.UDorLR)
+    {
+        case "r":
+            
+            if(this.activated)
+            {
+                stroke(255, 0, 0, 200);
+            
+                strokeWeight(23);
+                beginShape();
+                for(var i = 0; i < this.ammount - 10; i ++)
+                {
+                    vertex(this.x + this.w + i, this.y + this.h / 2 + random(-1, 1));
+                }
+                endShape();
+            } else
+            {
+                fill(255, 0, 0, 30);
+                rect(this.x + this.w, this.y, this.ammount, this.h, 20);
+            }
+            
+            noStroke();
+            fill(191, 0, 0);
+            arc(this.x + this.w / 1.25, this.y + this.h / 2, 30, 24, 144, 211);
+            break;
+            
+        case "l":
+            
+            
+            if(this.activated)
+            {
+                stroke(255, 0, 0, 200);
+            
+                strokeWeight(23);
+                beginShape();
+                for(var i = 0; i < this.ammount - 10; i ++)
+                {
+                    vertex(this.x - i, this.y + this.h / 2 + random(-1, 1));
+                }
+                endShape();
+            }
+            else
+            {
+                fill(255, 0, 0, 30);
+                rect(this.x - this.ammount, this.y, this.ammount, this.h, 20);
+            }
+            
+            noStroke();
+            fill(191, 0, 0);
+            arc(this.x + this.w / 3.98, this.y + this.h / 2, 30, 24, 144 + 180, 211 + 180);
+            break;
+            
+        case "u":
+            
+            fill(255, 0, 0, 50);
+            if(this.activated)
+            {
+                stroke(255, 0, 0, 200);
+            
+                strokeWeight(23);
+                beginShape();
+                for(var i = 0; i < this.ammount - 10; i ++)
+                {
+                    vertex(this.x + this.w / 2.0 + random(-1, 1), this.y - i);
+                }
+                endShape();
+            }
+            else
+            {
+                rect(this.x, this.y - this.ammount, this.w, this.ammount, 20);
+            }
+            
+            noStroke();
+            fill(191, 0, 0);
+            arc(this.x + this.w / 1.99, this.y + this.h / 3.4, 30, 24, 144 + 180 + 90, 211 + 180 + 90);
+            break;
+            
+        case "d":
+            
+            fill(255, 0, 0, 50);
+            if(this.activated)
+            {
+                stroke(255, 0, 0, 200);
+            
+                strokeWeight(23);
+                beginShape();
+                for(var i = 0; i < this.ammount - 10; i ++)
+                {
+                    vertex(this.x + this.w / 2.0 + random(-1, 1), this.y + this.h + i);
+                }
+                endShape();
+            }
+            else
+            {
+                rect(this.x, this.y + this.h, this.w, this.ammount, 20);
+            }
+            
+            noStroke();
+            fill(191, 0, 0);
+            arc(this.x + this.w / 1.87, this.y + this.h / 1.35, 30, 24, 144 - 180 - 90, 211 - 180 - 90);
+            break;
+    }
+};
+
+Laser.prototype.update = function(){
+    
+    this.activatedDelay ++;
+    
+    if(this.activatedDelay >= this.activatedLimit + 50)
+    {
+        this.activatedDelay = 0;
+        this.activated = false;
+    }
+    
+    if(this.activatedDelay >= this.activatedLimit && this.activatedDelay <= this.activatedLimit + 50)
+    {
+        this.activated = true;
+    }
+    
+    if(this.x > levelMap[level].player.x - levelMap[level].player.w &&
+    this.x < levelMap[level].player.x + this.w && 
+    this.y > levelMap[level].player.y - levelMap[level].player.h && 
+    this.y < levelMap[level].player.y + this.h)
+    {
+        dead = true;
+        deathTran += 300;
+    }
+    
+    switch(this.UDorLR)
+    {
+        case "r":
+            
+            if(this.x > levelMap[level].player.x - levelMap[level].player.w - this.ammount &&
+            this.x < levelMap[level].player.x + this.w && 
+            this.y > levelMap[level].player.y - levelMap[level].player.h && 
+            this.y < levelMap[level].player.y + this.h && this.activated)
+            {
+                dead = true;
+                deathTran += 300;
+            }
+            
+            
+            break;
+            
+        case "l":
+            
+            if(this.x > levelMap[level].player.x - levelMap[level].player.w &&
+            this.x < levelMap[level].player.x + this.ammount + this.w && 
+            this.y > levelMap[level].player.y - levelMap[level].player.h && 
+            this.y < levelMap[level].player.y + this.h && this.activated)
+            {
+                dead = true;
+                deathTran += 300;
+            }
+            
+            break;
+            
+        case "u":
+            
+            if(this.x > levelMap[level].player.x - levelMap[level].player.w &&
+            this.x < levelMap[level].player.x + this.w && 
+            this.y > levelMap[level].player.y - levelMap[level].player.h && 
+            this.y < levelMap[level].player.y + this.h + this.ammount && this.activated)
+            {
+                dead = true;
+                deathTran += 300;
+            }
+            
+            
+            break;
+            
+        case "d":
+            
+            if(this.x > levelMap[level].player.x - levelMap[level].player.w &&
+            this.x < levelMap[level].player.x + this.w && 
+            this.y > levelMap[level].player.y - levelMap[level].player.h - this.ammount && 
+            this.y < levelMap[level].player.y + this.h && this.activated)
+            {
+                dead = true;
+                deathTran += 300;
+            }
+            
+            
+            break;
+    }
+    
+};
+
+
+/** Portal stuff **/
+var Portal = function(x, y){
+    
+    this.x = x;
+    this.y = y;
+    this.w = 50;
+    this.h = 50;
+    this.anim = 0;
+    this.portalDelay = 0;
+};
+
+Portal.prototype.draw = function() {
+    
+    // main portal base
+    strokeWeight(3);
+    stroke(179, 69, 0, 200 + sin(frameCount * 2) * 150);
+    fill(255, 140, 0, 200 + sin(frameCount * 2) * 150);
+    ellipse(this.x + this.w / 2, this.y + this.h / 2, this.w, this.h);
+    
+    // little moving things
+    stroke(179, 69, 0, 100);
+    fill(255, 140, 0, 100);
+    pushMatrix();
+    translate(this.x + this.w / 2, this.y + this.h / 2);
+    
+    rotate(this.anim);
+    
+    for(var i = 0; i < 11; i ++)
+    {
+        rotate(33);
+        ellipse(0, -38 + sin(frameCount * 5) * 5, 10, 10);
+    }
+    
+    popMatrix();
+    
+    this.anim += 3;
+};
+
+/** Text on Map stuff **/
+var TxtOnMap = function(x, y, m, s){
+    
+    if(deaths < 1000 || level > 0)
+    {
+        deadDelay = 1;
+    }
+    
+};l:{levelMap = [
+    
+    // level 1
+    {
+        txt: "This one is easy for you ;)",
+        
+        player: new Player (283, 52),
+        
+        blocks: [
+            new Block (256, 108, 349, 50),
+            new Block (0, 226, 349, 50),
+        ],
+        
+        cannons: [
+        ],
+        
+        enemys: [
+            new Enemy (0, 108, 50, 50, 4, 255, "l"),
+            new Enemy (600 - 255, 227, 50, 50, 5, 255, "l"),
+        ],
+        
+        lasers: [
+            new Laser (0, 348, 572, "r", 45),
+            new Laser (0, 443, 572, "r", 45),
+        ],
+        
+        portal: new Portal (290, 526),
+    },
+    
+    // level 2
+    {
+        txt: "This one is also super easy!",
+        
+        player: new Player (30, 30),
+        
+        blocks: [
+            new Block (0, 106, 359, 50),
+            new Block (86, 289, 527, 50),
+            new Block (409, 437, 50, 165),
+        ],
+        
+        cannons: [
+        ],
+        
+        enemys: [
+            new Enemy (359, 106, 50, 50, 3, 241, "l"),  
+            new Enemy (0, 159, 80, 50, 1, 207, ""),       
+        ],
+        
+        lasers: [
+            new Laser (153, 341, 231, "d", 100),
+            new Laser (270, 341, 231, "d", 50),
+            new Laser (429, 407, 150, "r", 45),
+        ],
+        
+        portal: new Portal (519, 521),
+    },
+    
+    // level 3
+    {
+        txt: "I bet you won't beat this! HAHA! >:D",
+        
+        player: new Player (425, 42),
+        
+        blocks: [
+            new Block (0, 91, 175, 26),
+            new Block (423, 91, 175, 26),
+            new Block (154, 202, 445, 26),
+            new Block (-9, 347, 494, 26),
+            new Block (152, 231, 31, 64),
+            new Block (151, 475, 450, 26),
+        ],
+        
+        cannons: [
+            new Cannon (511, 164),
+            new Cannon (366, 262),
+        ],
+        
+        enemys: [
+            new Enemy (177, 90, 28, 28, 5, 245, "l"),
+            new Enemy (433, 375, 28, 28, 1, 100, ""),
+            new Enemy (349, 375, 28, 28, 1.5, 100, ""),
+            new Enemy (262, 375, 28, 28, 2, 100, ""),
+        ],
+        
+        lasers: [
+            new Laser (153, 90, 84, "d", 50),
+            new Laser (153, 200, 156, "l", 45),
+            new Laser (465, 345, 104, "r", 45),
+            new Laser (150, 345, 100, "d", 45),
+        ],
+        
+        portal: new Portal (27, 521),
+    },
+    
+    // level 4
+    {
+        txt: "You think you're unstoppable? Not this time!! >:D",
+        
+        player: new Player (6, 242),
+        
+        blocks: [
+            new Block (59, 329, 45, 272),
+            new Block (-3, 39, 108, 142),
+            new Block (106, 160, 96, 21),
+            new Block (202, 160, 19, 327),
+            new Block (335, 94, 19, 509),
+        ],
+        
+        cannons: [
+            new Cannon (152, 113),
+            new Cannon (383, 463),
+            new Cannon (577, 465),
+        ],
+        
+        enemys: [
+            new Enemy (59, 183, 46, 28, 4, 165, ""),
+            new Enemy (104, 328, 20, 20, 2, 95, "l"),
+            new Enemy (104, 398, 20, 20, 3, 95, "l"),
+        ],
+        
+        lasers: [
+            new Laser (191, 491, 84, "l", 47),
+            new Laser (204, 460, 107, "r", 50),
+            new Laser (203, 378, 107, "r", 45),
+            new Laser (204, 290, 107, "r", 40),
+            new Laser (204, 197, 107, "r", 37),
+        ],
+        
+        portal: new Portal (526, 526),
+    },
+    
+    // level 5
+    {
+        txt: "You'll never make it! Give up!",
+        
+        player: new Player (23, 21),
+        
+        blocks: [
+            new Block(82, 0, 30, 47),
+            new Block(0, 168, 542, 11),
+            new Block(172, 132, 30, 47),
+            new Block(258, 0, 30, 47),
+            new Block(348, 0, 8, 123),
+            new Block(357, 0, 45, 77),
+            new Block(467, 50, 39, 118),
+            new Block(50, 387, 550, 11),
+            new Block(532, 297, 10, 101),
+            new Block(405, 168, 10, 117),
+            new Block(293, 297, 10, 101),
+            new Block(166, 168, 10, 117),
+            new Block(49, 297, 10, 101),
+        ],
+        
+        cannons: [
+            new Cannon (536, 282),
+            new Cannon (55, 282),
+        ],
+        
+        enemys: [
+            new Enemy (82, 50, 30, 30, 2, 120, "u"),
+            new Enemy (172, 0, 30, 30, 3, 132, ""),
+            new Enemy (258, 49, 30, 30, 3, 120, ""),
+            new Enemy (404, 47, 62, 30, 1, 153, ""),
+        ],
+        
+        lasers: [
+            new Laser (284, 294, 113, "u", 40),
+        ],
+        
+        portal: new Portal (290, 526),
+    },
+    
+    // level 6
+    {
+        txt: "That one was so easy, my grandma could have done it!\nTry this! >:D",
+        
+        player: new Player (163, 24),
+        
+        blocks: [
+            new Block (225, 0, 13, 115),
+            new Block (122, 101, 115, 15),
+            new Block (-3, 218, 547, 23),
+            new Block (303, 77, 49, 164),
+            new Block (416, 0, 10, 164),
+            new Block (530, 77, 16, 164),
+            new Block (426, 0, 39, 76),
+            new Block (56, 352, 553, 20),
+            new Block (0, 469, 511, 20),
+        ],
+        
+        cannons: [
+            new Cannon (332, 264),
+            new Cannon (582, 394),
+        ],
+        
+        enemys: [
+            new Enemy (240, 2, 62, 22, 2, 255, ""),
+            new Enemy (467, 2, 62, 22, 4, 255, ""),
+            new Enemy (354, 0, 62, 22, 1, 255, ""),
+        ],
+        
+        lasers: [
+            new Laser (160, 215, 98, "u", 40),
+            new Laser (149, 353, 86, "d", 40),
+            new Laser (256, 353, 86, "d", 40),
+            new Laser (370, 353, 86, "d", 40),
+        ],
+        
+        portal: new Portal (26, 526),
+    },
+    
+    // level 7
+    {
+        txt: "Oh, back in the old days! :P",
+        
+        player: new Player (290, 59),
+        
+        blocks: [
+            new Block (149, 492, 223, 10),
+        ],
+        
+        cannons: [
+            new Cannon (257, 520),
+        ],
+        
+        enemys: [
+            new Enemy (0, 97, 30, 30, 13, 600, "l"),
+            new Enemy (0, 97 + 100, 30, 30, 14, 600, "l"),
+            new Enemy (0, 97 + 200, 30, 30, 15, 600, "l"),
+            new Enemy (0, 97 + 300, 30, 30, 16, 600, "l"),
+        ],
+        
+        lasers: [
+            new Laser (118 + 123, 471, 568, "u", 0),
+        ],
+        
+        portal: new Portal (48, 26),
+    },
+    
+    // level 8
+    {
+        txt: "Hehe, just give up! >:D",
+        
+        player: new Player (184, 64),
+        
+        blocks: [
+            new Block (149, 0, 10, 141),
+            new Block (149, 130, 385, 10),
+            new Block (254, 290, 345, 10),
+            new Block (149, 130, 10, 304),
+            new Block (149, 435, 383, 10),
+            new Block (149, 435, 10, 98),
+            new Block (387, 435, 10, 98),
+            new Block (266, 505, 10, 98),
+            new Block (519, 505, 10, 98),
+        ],
+        
+        cannons: [
+            new Cannon (389, 328),
+        ],
+        
+        enemys: [
+            new Enemy (256, 0, 30, 30, 2, 130, ""),
+            new Enemy (351, 0, 30, 30, 3, 130, ""),
+            new Enemy (453, 0, 30, 30, 4, 130, ""),
+            new Enemy (397, 504, 30, 30, 3, 123, "l"),
+            new Enemy (278, 504, 30, 30, 3, 110, "l"),
+            new Enemy (161, 504, 30, 30, 3, 108, "l"),
+            new Enemy (0, 410, 30, 30, 3, 150, "l"),
+            new Enemy (0, 307, 30, 30, 4, 150, "l"),
+            new Enemy (0, 198, 30, 30, 5, 150, "l"),
+        ],
+        
+        lasers: [
+            new Laser (502, 267, 128, "u", 50),
+            new Laser (384, 267, 128, "u", 45),
+            new Laser (257, 267, 128, "u", 40),
+            new Laser (502, 297, 85, "d", 40),
+            new Laser (502, 414, 62, "d", 37),
+            new Laser (257, 414, 62, "d", 37),
+            new Laser (377, 588, 55, "u", 37),
+            new Laser (137, 588, 55, "u", 37),
+        ],
+        
+        portal: new Portal (48, 26),
+    },
+    
+    // level 9
+    {
+        txt: "I admit it, this one is super evil! >:D",
+        
+        player: new Player (30, 30),
+        
+        blocks: [
+            new Block(250, 60, 10, 540),
+            new Block(368, 0, 10, 550),
+            new Block(480, 60, 10, 540),
+        ],
+        
+        cannons: [
+            new Cannon (403, 18),
+        ],
+        
+        enemys: [
+            new Enemy (0, 81, 30, 30, 7, 250, "l"),
+            new Enemy (0, 184, 30, 30, 8, 250, "l"),
+            new Enemy (0, 282, 30, 30, 9, 250, "l"),
+            new Enemy (0, 392, 30, 30, 10, 250, "l"),
+            new Enemy (261, 60, 30, 30, 2, 105, "l"),
+            new Enemy (261, 149, 30, 30, 2.5, 105, "l"),
+            new Enemy (261, 248, 30, 30, 3, 105, "l"),
+            new Enemy (489, 60 + 100, 30, 30, 1, 110, "l"),
+            new Enemy (489, 149 + 125, 30, 30, 2, 110, "l"),
+            new Enemy (489, 248 + 141, 30, 30, 3, 110, "l"),
+        ],
+        
+        lasers: [
+            new Laser (106, 0, 456, "d", 0),
+            new Laser (359, 341, 92, "l", 45),
+            new Laser (359, 430, 92, "l", 40),
+            new Laser (359, 519, 92, "l", 35),
+            new Laser (359, 430, 92, "r", 40),
+            new Laser (359, 519, 92, "r", 35),
+        ],
+        
+        portal: new Portal (514, 520),
+    },
+    
+    // level 10
+    {
+        txt: "Aw, was that too hard? Well, here's a harder one!\n- AquA217",
+
+        player: new Player (10, 52.5),
+
+        blocks: [
+
+            new Block(50, 50, 20, 35),
+            new Block(-2, 300, 152, 10),
+            new Block(2.5, 45, 600, 2),
+            new Block(150, 125, 5, 360),
+            new Block(250, 125, 5, 360),
+            new Block(350, 125, 5, 360),
+            new Block(450, 125, 5, 360),
+            new Block(550, 125, 5, 360),
+        ],
+
+        cannons: [
+
+            new Cannon (300, 175),
+            new Cannon (200, 375),
+            new Cannon (400, 375),
+            new Cannon (500, 175),
+        ],
+
+        enemys: [
+
+            new Enemy (142.5, 50, 15, 15,0.5, 75, "u"),
+            new Enemy (242.5, 50, 15, 15,0.75, 75, "u"),
+            new Enemy (342.5, 50, 15, 15,0.5, 75, "u"),
+            new Enemy (442.5, 50, 15, 15,0.75, 75, "u"),
+            new Enemy (542.5, 50, 15, 15,0.5, 75, "u"),
+            new Enemy (150, 125, 35, 35,0.75, 100, "l"),
+            new Enemy (450, 125, 35, 35,0.75, 100, "l"),
+            new Enemy (250, 125, 35, 35,0.75, 100, "l"),
+            new Enemy (350, 125, 35, 35,0.75, 100, "l"),
+        ],
+
+        lasers: [
+
+            new Laser (-32.5, 95, 90, "r", 45),
+            new Laser (135, 475, 92, "d", 45),
+            new Laser (335, 475, 92, "d", 65),
+            new Laser (535, 475, 92, "d", 85),
+            new Laser (235, 575, 92, "u", 55),
+            new Laser (435, 575, 92, "u", 75),
+
+        ],
+
+        portal: new Portal (25, 520),
+    },
+    
+    // level 10
+    {
+        txt: "",
+
+        player: new Player (10, 52.5),
+
+        blocks: [
+        ],
+
+        cannons: [
+        ],
+
+        enemys: [
+        ],
+
+        lasers: [
+        ],
+
+        portal: new Portal (25, 520),
+    },
+];}
+
+/** Extra stuff for map layout **/
+var drawLevels = function(){
+    
+    levelMap[level].portal.portalDelay --;
+    
+    if(levelMap[level].portal.portalDelay <= 0)
+    {
+        levelMap[level].portal.portalDelay = 0;
+    }
+    
+    for(var i in levelMap[level].blocks)
+    {
+        levelMap[level].blocks[i].draw();
+    }
+    
+    for(var i in levelMap[level].enemys)
+    {
+        if(!paused)
+        {
+            levelMap[level].enemys[i].update();
+        }
+        levelMap[level].enemys[i].draw();
+    }
+    
+    for(var i in levelMap[level].lasers)
+    {
+        if(!paused)
+        {
+            levelMap[level].lasers[i].update();
+        }
+        levelMap[level].lasers[i].draw();
+    }
+    
+    for(var i in levelMap[level].cannons)
+    {
+        if(!paused)
+        {
+            levelMap[level].cannons[i].update();
+        }
+        levelMap[level].cannons[i].draw();
+        levelMap[level].cannons[i].applyColission();
+    }
+    
+    if(!paused && !dead && levelMap[level].portal.portalDelay <= 0)
+    {
+        levelMap[level].player.update();
+    }
+    
+    textSize(20);
+    fill(255, 255, 255, 150);
+    text(levelMap[level].txt, 300, 24 - 2);
+    text(levelMap[level].txt, 300 - 2, 24 - 2);
+    text(levelMap[level].txt, 300 + 2, 24 - 2);
+    text(levelMap[level].txt, 300 - 2, 24 + 2);
+    text(levelMap[level].txt, 300 + 2, 24 + 2);
+    fill(0, 0, 0);
+    text(levelMap[level].txt, 300, 24);
+    
+    if(!dead)
+    {
+        levelMap[level].player.particles();
+    }
+    
+    levelMap[level].player.draw();
+    levelMap[level].player.applyCollision();
+    
+    levelMap[level].portal.draw();
+};
+
+var pausedButton = function(x, y, w, h){
+    
+    stroke(0, 0, 0, 100);
+    strokeWeight(2);
+    fill(255, 255, 255, 150);
+    
+    if(mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h)
+    {
+        fill(255, 255, 255);
+        stroke(0, 0, 0);
+        cursor(HAND);
+        
+        if(clicked)
+        {
+            switch(paused)
+            {
+                case true:
+                    paused = false;
+                    break;
+                    
+                case false:
+                    paused = true;
+                    break;
+            }
+        }
+    }
+    
+    rect(x, y, w, h);
+    
+    fill(0, 0, 0, 100);
+    
+    if(mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h)
+    {
+        fill(0, 0, 0);
+    }
+    
+    switch(paused)
+    {
+        case true:
+            triangle(x + w / 1.4, y + h / 2, x + w / 3, y + h / 1.4, x + w / 3, y + h / 3.9);
+            break;
+            
+        case false:
+            rect(x + w / 4.2, y + h / 6, w / 6, h / 1.5);
+            rect(x + w / 1.7, y + h / 6, w / 6, h / 1.5);
+            break;
+    }
+};
+
+var drawTitle = function(x, y, s){
+    pushMatrix();
+    translate(x, y);
+    scale(s);
+    textSize(46);
+    fill(255, 89, 0);
+    text("Don't Touch The", 209, 71);
+    fill(255, 140, 0);
+    text("Don't Touch The", 206, 68);
+    
+    textSize(191);
+    fill(181, 11, 11);
+    text("RED", 213, 175);
+    fill(255, 0, 0);
+    text("RED", 207, 168);
+    
+    textSize(252);
+    fill(0, 53, 138);
+    text("2", 486, 151);
+    fill(41, 123, 255);
+    text("2", 480, 142);
+    popMatrix();
+};
+
+var fancyDeathTran = function(){
+    
+    textSize(150);
+    fill(0, 0, 0, deathTran);
+    text(deaths, 300, 300);
+    
+    if(dead)
+    {
+        deathAnim += 5;
+        
+        if(deathAnim <= 5)
+        {
+            deaths ++;
+        }
+        
+        if(deathAnim >= 100)
+        {
+            dead = false;
+            deathAnim = 0;
+            levelMap[level].player.x = levelMap[level].player.posX;
+            levelMap[level].player.y = levelMap[level].player.posY;
+        }
+    }
+    
+    if(deathTran >= 300)
+    {
+        deathTran = 300;
+    }
+    
+    deathTran /= 1.1;
+    
+};
+
+/** Menu assets **/
+var Play = new Button (150, 394, 300, 109, "PLAY", 71, "game");
+var How = new Button (471, 394, 82, 109, "?", 71, "how");TxtOnMap();
+var LeaderBoard = new Button (47, 394, 82, 109, "1\n2  3", 33, "lb");
+var BackButton = new Button (20, 510, 128, 70, "BACK", 39, "home");
+var playerMenu = new Player (396, 243);
+var enemyMenu = new Enemy (175, 243, 100, 100);
+
+/** Opening Story **/
+var scenes = 0;
+var sceneTimerSet = 0;
+var sceneDelay = 0;
+var skip = false;
+var playerStory = new Player (75, 243);
+var EnemyStory = new Enemy (393, 243, 100, 100);
+var laserStory = new Laser (72, 573, 569, "u", 0);
+var laserStory2 = new Laser (492, 573, 569, "u", 0);
+var speachBubble = function(x, y, bs, m, s, LorR){
+    
+    noStroke();
+    fill(255, 255, 255);
+    ellipse(x, y, bs, bs / 2.1);
+    
+    switch(LorR)
+    {
+        case "L":
+        arc(x - bs / 2.3, y + bs / 2.4, bs, bs, - 54, -38);
+        break;
+        
+        case "R":
+        arc(x + bs / 2.1, y + bs / 2.7, bs, bs, - 62 - 90, -45 - 90);
+        break;
+    }
+    
+    fill(0);
+    textSize(s);
+    text(m, x, y);
+    
+};
+var story = function(){
+    
+    sceneDelay ++;
+    
+    switch(scenes)
+    {
+        case 0:
+            background(214, 214, 214);
+            noStroke();
+            
+            sceneTimerSet = 400;
+            
+            if(sceneDelay >= 50)
+            {
+                skip = true;
+            }
+            
+            // shadows
+            fill(135, 135, 135);
+            rect(0, 328, 600, 282);
+            fill(0, 0, 0, 100);
+            rect(64, 336, 121, 17);
+            rect(385, 336, 121, 17);
+            rect(341, 351, 200, 9);
+            
+            // orange dude
+            playerStory.w = 100;
+            playerStory.h = 100;
+            playerStory.facePosX = 10;
+            playerStory.draw();
+            
+            // red dude
+            EnemyStory.facePosX = -4;
+            EnemyStory.draw();
+            
+            // jail
+            noStroke();
+            fill(69, 68, 69);
+            for(var i = 0; i < 9; i++)
+            {
+                rect(360 + i * 20, 190, 3, 165);
+            }
+            fill(92, 92, 92);
+            rect(348, 180, 185, 18);
+            rect(348, 348, 185, 7);
+            
+            fill(255, 255, 255, 40);
+            rect(352, 183, 175, 8, 20);
+            
+            textSize(20);
+            fill(0, 0, 0);
+            text("All was well AGAIN when Evil Dr. Red was\nfinally put in jail!", 300, 57);
+            
+            speachBubble(228, 177, 145, "HAHA! >:D", 22, "L");
+            speachBubble(288, 248, 145, "I HATE YOU!\n>:(", 17, "R");
+            
+            break;
+            
+        case 1:
+            
+            sceneTimerSet = 150;
+            
+            background(0, 0, 0);
+            textSize(46);
+            fill(255, 255, 255);
+            text("Until the day after...", 300, 300);
+            
+            break;
+            
+        case 2:
+            
+            sceneTimerSet = 700;
+            
+            background(214, 214, 214);
+            
+            if(sceneDelay >= 50 && sceneDelay <= 150)
+            {
+                speachBubble(288, 248, 145, "Wait a minute...", 15, "R");
+            }
+            
+            if(sceneDelay >= 250 && sceneDelay <= 400)
+            {
+                speachBubble(288, 248, 145, "I'm 2D...", 15, "R");
+            }
+            
+            if(sceneDelay >= 450)
+            {
+                EnemyStory.x --;
+                speachBubble(EnemyStory.x - 81, 248, 145, "HAHA! >:D", 15, "R");
+            }
+            
+            noStroke();
+            fill(135, 135, 135);
+            rect(0, 328, 600, 282);
+            
+            fill(0, 0, 0, 100);
+            rect(EnemyStory.x - 10, 336, 121, 17);
+            rect(341, 351, 200, 9);
+            
+            // jail
+            noStroke();
+            fill(69, 68, 69);
+            for(var i = 0; i < 2; i++)
+            {
+                rect(360 + i * 20, 190, 3, 165);
+            }
+            
+            EnemyStory.facePosX = -4;
+            EnemyStory.draw();
+            
+            noStroke();
+            fill(69, 68, 69);
+            for(var i = 2; i < 9; i++)
+            {
+                rect(360 + i * 20, 190, 3, 165);
+            }
+            
+            fill(92, 92, 92);
+            rect(348, 180, 185, 18);
+            rect(348, 348, 185, 7);
+            
+            fill(255, 255, 255, 40);
+            rect(352, 183, 175, 8, 20);
+            
+            break;
+            
+        case 3:
+            
+            sceneTimerSet = 400;
+            
+            background(0, 0, 0);
+            textSize(41);
+            fill(255, 255, 255);
+            text("Evil Dr. Red worked on\nnew evil RED weapons,\nso he could destroy the\nOrange's for GOOD!!", 300, 300);
+            
+            break;
+            
+        case 4:
+            
+            
+            background(214, 214, 214);
+            sceneTimerSet = 300;
+            
+            EnemyStory.w = 250;
+            EnemyStory.h = 250;
+            EnemyStory.x = 175;
+            EnemyStory.y = 175;
+            EnemyStory.facePosX = 0;
+            EnemyStory.facePosY = sin(frameCount * 7) * 10;
+            EnemyStory.draw();
+            
+            textSize(20);
+            fill(0, 0, 0);
+            text("I'm going to turn you RED, AGAIN!!!\nMWAHAHAHA >:D", 300, 497);
+            
+            laserStory.draw();
+            laserStory.update();
+            laserStory2.draw();
+            laserStory2.update();
+            
+            break;
+    }
+    
+    if(sceneDelay >= sceneTimerSet)
+    {
+        sceneDelay = 0;
+        scenes ++;
+    }
+    
+};
+var endStory = function(){
+    
+    sceneDelay ++;
+    
+    switch(scenes)
+    {
+        case 6:
+            sceneTimerSet = 400;
+            background(0, 0, 0);
+            
+            
+            textSize(41);
+            fill(255, 255, 255);
+            text("The Orange's fought back,\nand captured Dr. Red\nAGAIN!\n\nAs for Dr.Red......", 300, 300);
+            break;
+            
+        case 7:
+            scenes = 7;
+            
+            EnemyStory.w = 100;
+            EnemyStory.h = 100;
+            EnemyStory.x = 393;
+            EnemyStory.y = 243;
+            
+            background(214, 214, 214);
+            noStroke();
+            
+            sceneTimerSet = 400;
+            
+            if(sceneDelay >= 50)
+            {
+                skip = true;
+            }
+            
+            // shadows
+            fill(135, 135, 135);
+            rect(0, 328, 600, 282);
+            fill(0, 0, 0, 100);
+            rect(64, 336, 121, 17);
+            rect(385, 336, 121, 17);
+            rect(341, 351, 200, 9);
+            
+            // orange dude
+            playerStory.w = 100;
+            playerStory.h = 100;
+            playerStory.facePosX = 10;
+            playerStory.draw();
+            
+            // red dude
+            EnemyStory.facePosX = -4;
+            EnemyStory.draw();
+            
+            // jail
+            noStroke();
+            fill(255, 255, 255, 150);
+            rect(360, 190, 159, 165);
+            fill(255, 255, 255, 50);
+            rect(360, 190, 159, 91);
+            rect(360, 190, 159, 64);
+            fill(92, 92, 92);
+            rect(348, 180, 185, 18);
+            rect(348, 348, 185, 7);
+            
+            fill(255, 255, 255, 40);
+            rect(352, 183, 175, 8, 20);
+
+            
+            speachBubble(298, 94, 294, "Now It's solid\nso you can't get through!\nHAHAHAHA!! >:D", 22, "L");
+            speachBubble(288, 248, 145, "I HATE YOU!\n>:(", 17, "R");
+            
+            textSize(83);
+            fill(255, 0, 0, 150);
+            text("DEATHS:", 300, 403 - 5);
+            text("DEATHS:", 300 - 5, 403 - 5);
+            text("DEATHS:", 300 + 5, 403 - 5);
+            text("DEATHS:", 300, 403 + 5);
+            text("DEATHS:", 300 - 5, 403 + 5);
+            text("DEATHS:", 300 + 5, 403 + 5);
+            text(deaths, 300, 403 - 5 + 81);
+            text(deaths, 300 - 5, 403 - 5 + 81);
+            text(deaths, 300 + 5, 403 - 5 + 81);
+            text(deaths, 300, 403 + 5 + 81);
+            text(deaths, 300 - 5, 403 + 5 + 81);
+            text(deaths, 300 + 5, 403 + 5 + 81);
+            fill(130, 0, 0);
+            text("DEATHS:", 300, 403);
+            fill(130, 0, 0);
+            text(deaths, 300, 403 + 81);
+            
+            break;
+    }
+    
+    if(scenes >= 7)
+    {
+        scenes = 7;
+    }
+    
+    if(sceneDelay >= sceneTimerSet && scenes < 7)
+    {
+        sceneDelay = 0;
+        scenes ++;
+    }
+    
+};
+
+/** OLG LOGO CODE xD **/
+var grow = 0, growSpeed = 3, delayTimerEmerald = 0;
+var emeraldX = 200, emeraldXSpeed = 3;
+var textEmeraldGamesX = 490, textEmeraldGamesSpeedX = 3;
+var shade = 0;
+
+var
+    emeraldGemLogo = function(x, y, s)
+    {
+        
+        //stroke
+        stroke(255, 255, 255, 35);
+        strokeWeight(s / 25);
+        
+        //base
+        fill(111, 252, 98);
+        beginShape();
+        vertex(x - s, y - s / 2);
+        vertex(x - s / 2, y - s);
+        vertex(x + s / 2, y - s);
+        vertex(x + s, y - s / 2);
+        vertex(x + s, y + s);
+        vertex(x + s / 2, y + s * 1.5);
+        vertex(x - s / 2, y + s * 1.5);
+        vertex(x - s, y + s);
+        vertex(x - s, y - s / 2);
+        endShape();
+        
+        //1
+        fill(113, 245, 98);
+        noStroke();
+        beginShape();
+        vertex(x - s, y - s / 2);
+        vertex(x - s / 2, y - s);
+        vertex(x - s / 3, y - s / 2);
+        vertex(x - s / 2, y - s / 3);
+        endShape();
+        
+        //2
+        fill(82, 235, 65);
+        beginShape();
+        vertex(x - s / 2, y - s);
+        vertex(x - s / 3, y - s / 2);
+        vertex(x + s / 3, y - s / 2);
+        vertex(x + s / 2, y - s);
+        endShape();
+        
+        //3
+        beginShape();
+        fill(72, 227, 54);
+        vertex(x + s / 2, y - s);
+        vertex(x + s, y - s / 2);
+        vertex(x + s / 2, y - s / 3);
+        vertex(x + s / 3, y - s / 2);
+        endShape();
+        
+        //4
+        fill(67, 217, 48);
+        beginShape();
+        vertex(x + s, y - s / 2);
+        vertex(x + s, y + s);
+        vertex(x + s / 2, y + s / 1.1);
+        vertex(x + s / 2, y - s / 3);
+        endShape();
+        
+        //5
+        fill(57, 207, 37);
+        beginShape();
+        vertex(x + s, y + s);
+        vertex(x + s / 2, y + s * 1.5);
+        vertex(x + s / 3, y + s);
+        vertex(x + s / 2, y + s / 1.2);
+        endShape();
+        
+        //6
+        fill(57, 196, 35);
+        beginShape();
+        vertex(x + s / 3, y + s);
+        vertex(x + s / 2, y + s * 1.5);
+        vertex(x - s / 2, y + s * 1.5);
+        vertex(x - s / 3, y + s);
+        endShape();
+        
+        //7
+        fill(79, 214, 55);
+        beginShape();
+        vertex(x - s, y + s);
+        vertex(x - s / 2, y + s * 1.5);
+        vertex(x - s / 3, y + s);
+        vertex(x - s / 2, y + s / 1.2);
+        endShape();
+        
+        //8
+        fill(96, 240, 67);
+        beginShape();
+        vertex(x - s, y + s);
+        vertex(x - s / 2, y + s / 1.2);
+        vertex(x - s / 2, y - s / 3);
+        vertex(x - s, y - s / 2);
+        endShape();
+        
+        //shade
+        fill(0, 0, 0, 4);
+        beginShape();
+        vertex(x + s / 2.3, y - s / 2.3);
+        vertex(x + s / 2, y - s / 3);
+        vertex(x + s / 2, y + s / 1.2);
+        vertex(x + s / 3, y + s);
+        vertex(x - s / 3, y + s);
+        vertex(x - s / 2.3, y + s / 1.1);
+        endShape();
+        
+        //shade 2
+        fill(0, 0, 0, 5);
+        beginShape();
+        vertex(x + s / 6, y + s);
+        vertex(x + s / 3, y + s);
+        vertex(x + s / 2, y + s / 1.2);
+        vertex(x + s / 2, y + s / 1.5);
+        endShape();
+
+},
+
+    logoPage = function()
+    {
+        
+        pushMatrix();
+        scale(width / 400, height / 400);
+        textAlign(CENTER, CENTER);
+        
+        background(255, 255, 255);
+        
+        //emerald efect
+        pushMatrix();
+        translate(emeraldX, 182);
+        rotate(grow * 4.53);
+        emeraldGemLogo(0, 0, grow);
+        popMatrix();
+        
+        //grow emerald
+        grow += growSpeed;
+        
+        //when emerald is at the right length
+        if(grow >= 35)
+        {
+            growSpeed -= 0.1;
+            delayTimerEmerald += 1;
+        }
+        
+        //textX move to the side
+        if(delayTimerEmerald >= 50)
+        {
+            textEmeraldGamesX -= textEmeraldGamesSpeedX;
+        }
+        
+        //once text touches the emerald
+        if(textEmeraldGamesX <= 365)
+        {
+            textEmeraldGamesSpeedX -= 0.07;
+            emeraldX -= emeraldXSpeed;
+        }
+        
+        //limmit the emerald moving to the Xpos
+        if(emeraldX < 180)
+        {
+            emeraldXSpeed -= 0.07;
+        }
+        
+        //once the speed is less then 0
+        if(emeraldXSpeed <= 0)
+        {
+            emeraldXSpeed = 0;
+            shade += 5;
+        }
+        
+        //once the speed is less then 0
+        if(textEmeraldGamesSpeedX <= 0)
+        {
+            textEmeraldGamesSpeedX = 0;
+        }
+        
+        //once the speed is less then 0
+        if(growSpeed <= 0)
+        {
+            growSpeed = 0;
+        }
+        
+        //text
+        textSize(37);
+        fill(47, 117, 11);
+        text("\x45\x4d\x45\x52\x41\x4c\x44\x0a\x47\x41\x4d\x45\x53\x20\x20\x20\x20", textEmeraldGamesX, 200);
+        text("\x45\x4d\x45\x52\x41\x4c\x44\x0a\x47\x41\x4d\x45\x53\x20\x20\x20\x20", textEmeraldGamesX + 2, 200);
+        text("\x45\x4d\x45\x52\x41\x4c\x44\x0a\x47\x41\x4d\x45\x53\x20\x20\x20\x20", textEmeraldGamesX, 202);
+        text("\x45\x4d\x45\x52\x41\x4c\x44\x0a\x47\x41\x4d\x45\x53\x20\x20\x20\x20", textEmeraldGamesX + 2, 202);
+        
+        noStroke();
+        popMatrix();
+    
+        fill(255, 255, 255, shade);
+        rect(0, 0, 800, 500);
+
+};
+
+draw = function() {
+    
+    // constants 
+    cursor(ARROW);
+    textFont(createFont("Tahoma Bold"));
+    textAlign(CENTER, CENTER);
+    
+    //logo
+    if(shade <= 400)
+    {
+        logoPage();
+        
+        if(clicked)
+        {
+            shade = 400;
+        }
+    }
+    
+    // display game once logo is done
+    if(shade >= 400 && scenes < 5)
+    {
+        story();
+        
+        if(skip)
+        {
+            textSize(17);
+            noFill();
+            strokeWeight(5);
+            stroke(255, 255, 255);
+            rect(500, 0, 100, 34);
+            fill(255, 255, 255);
+            text("SKIP >>", 550, 34 / 2);
+            noStroke();
+            
+            if(mouseX >= 500 && mouseX <= 600 && mouseY <= 34)
+            {
+                cursor(HAND);
+                
+                if(clicked)
+                {
+                    scenes = 5;
+                }
+            }
+        }
+    }
+    
+    if(scenes >= 5)
+    {
+        // constants 
+        background(212, 212, 212);
+        
+        switch(scene)
+        {
+            case "game":
+                
+                if(level <= 9)
+                {
+                    scenes = 6;
+                    
+                    drawLevels();
+                    
+                    fancyDeathTran();
+                    
+                    if(paused)
+                    {
+                        noStroke();
+                        fill(255, 255, 255, 150);
+                        rect(0, 0, width, height);
+                        
+                        textSize(100);
+                        fill(0, 0, 0, 200);
+                        text("PAUSED", 300, 300);
+                    }
+                    
+                    pausedButton(565, 3, 30, 30);
+                } else
+                {
+                    endStory();
+                }
+                
+                break;
+                
+            case "home":
+                
+                // draw that title
+                drawTitle(0, -21, 1);
+                
+                // speedy things on objects I guess xD
+                noStroke();
+                fill(173, 66, 3, 200);
+                rect(312, 257, 100, 10);
+                rect(300, 285, 100, 10);
+                rect(321, 313, 100, 10);
+                fill(171, 3, 3, 150);
+                rect(80, 257, 100, 10);
+                rect(67, 285, 116, 10);
+                rect(80, 313, 100, 10);
+                
+                // menu assets
+                deaths = 0;
+                Play.draw();
+                How.draw();
+                LeaderBoard.draw();
+                playerMenu.w = 100;
+                playerMenu.h = 100;
+                playerMenu.facePosX = 10;
+                playerMenu.draw();
+                enemyMenu.facePosX = 5;
+                enemyMenu.draw();
+                
+                break;
+                
+            case "how":
+                
+                // how text
+                textSize(24);
+                fill(0, 0, 0);
+                text("Don't touch anything BLUE, obviously!\n\nJk Jk, RED! xD", 300, 300);
+                
+                BackButton.draw();
+                
+                break;
+                
+            case "lb":
+                
+                // draw leader board
+                for(var i = 0; i < leaderBoard.length; i ++)
+                {
+                    text((i + 1) + ") " + leaderBoard[i][0] + " - " + leaderBoard[i][1], 300, 200 + i * 35);
+                }
+                
+                BackButton.draw();
+                
+                break;
+        }
+    }
+    
+    clickedState();
+
+};
+
