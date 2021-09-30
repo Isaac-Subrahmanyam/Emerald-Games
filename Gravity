@@ -1,0 +1,2881 @@
+/**
+
+
+
+
+    GRAVITY:
+    Isaac Emerald and PlatformerKing
+    
+    INSPIRED:
+    GravityX by Qalamar
+
+    NOTES:
+    This game was made in less than a week as a collaboration between 
+    PlatformerKing and I. Please note that both PlatformerKing and I put the same
+    amount of effort into trying to get this done for you guys.
+
+
+
+
+**/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// stop oh noes
+(function() {return this;})().LoopProtector.prototype.leave = function() {};
+
+// set up smooth
+smooth();
+
+// set up better object constructor
+Object.constructor.prototype.new= function () {
+    var obj = Object.create(this.prototype);
+    this.apply(obj, arguments);
+    return obj;
+};
+
+var levels = [
+    
+    [
+       'P',
+       '############',
+    ],
+    [
+       '#####',
+       '',
+       '',
+       '',
+       'P',
+       '#####',
+    ],
+    [
+       '      ########',
+       '      ********',
+       '',
+       '',
+       '',
+       'P',
+       '######',
+    ],
+    [
+        '',
+        '',
+        '',
+        '',
+       ' ############',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '**************',
+       '*            *',
+       '*P           *',
+       '*###         *',
+       '*            *',
+       '*            *',
+    ],
+    
+    [
+        '   ######',
+        '############',
+        '',
+        '',
+        '',
+        '',
+        '',
+        'P',
+        '############',
+        '   ######   ',
+    ],
+    [
+        '     *',
+        '     *',
+        'P    *',
+        '###  *  ###',
+        '     *',
+    ],
+    [
+        '****#####****',
+        '*           *',
+        '*           *',
+        '*     *     *',
+        '*P    *     *',
+        '*#####*#####*',
+    ],
+    [
+        '           *#####*',
+        '            ***** ',
+        '           *#####*',
+        'P',
+        '####',
+        '',
+        '',
+        '           *#####*',
+        '            ***** ',
+    ],
+    [
+        '*#####       *',
+        '**###        *',
+        '*            *',
+        '*            *',
+        '*            *',
+        '*    P **    *',
+        '*    ####    *',
+        '*    **      *',
+        '*            *',
+        '*        ###**',
+        '*       #####*',
+    ],
+    [
+        ' ***',
+        '*###***',
+        '*   ##******',
+        '*     ##*  *****',
+        '*       * # ###*',
+        '*   *   *      *',
+        '*   *   *      *',
+        '*   *P  *  #   *',
+        '*   *###*  *   *',
+        '*          *   *',
+        '*          *   *',
+        '*          *   *',
+        '*#####  ###*###*',
+        '****************',
+    ],
+    [
+        ' P',
+        '*###*##',
+        '*******        *',
+        '*#####*        *',
+        '*     *        *',
+        '*     *        *',
+        '*              *',
+        '*              *',
+        '*              *',
+        '*              *',
+        '*              *',
+        '*              *',
+        '****************',
+    ],
+    [
+        '****************',
+        '*      *       *',
+        '*      *       *',
+        '*      *       *',
+        '*      *       *',
+        '*  *  P*   *   *',
+        '*  *###*   *   *',
+        '*  *****   *   *',
+        '*  #####   *   *',
+        '*          *   *',
+        '*          *   *',
+        '*          *###*',
+        '****************',
+    ],
+    [
+        '  * *        * *',
+        ' * * *   P  * * *',
+        '# * * ###### * * #',
+        ' * * *      * * *',
+        '  * *        * *',
+    ],
+    [
+        
+        '  ####',
+        ' ******  *********',
+        '      *  *',
+        '  P   *  *',
+        '  ##  * #*',
+        '      *****     ##',
+        '          *    ##',
+        '          *   ##',
+        '          *  ##',
+        '####    ##*',
+        '*****   ***',
+        '    ***** ********',
+    ],
+    [
+        'P',
+        '#XXXXXXX#',
+        '*********',
+        '#XXXXXXX#',
+    ],
+    [
+        '        ************',
+        '        *XXXXXXXXXX*',
+        '        *          *',
+        '        *          *',
+        '  ******* XXX      *',
+        '***XXXXXXX***XXX   *',
+        '*                  *',
+        '*                  *',
+        '*P                 *',
+        '*####****XXXXX******',
+    ],
+    [
+        '        **********',
+        '*********        *',
+        '*       *        *',
+        '*P      *  XX#X  *',
+        '*###XXXX*  #  X  *',
+        '   *       X  #  *',
+        '   *       X#XX  *',
+        '   *             *',
+        '   *             *',
+        '   *             *',
+        '   ***************',
+    ],
+    [
+       '****************',
+       '*  XXX      XX *',
+       '*              *',
+       '*              *',
+       '*     *        *',
+       '*     *        *',
+       '*P    *XXX     *',
+       '*###XX****     *',
+       '*******        *',
+       '*          XXXX*',
+       '*          *****',
+       '*  XXXXXXXX*',
+       '************',
+    ],
+    [
+       '****************',
+       '*XXX*XX**XX*XXX*',
+       '*   *  **  *   *',
+       '*   *      *   *',
+       '*   *      *   *',
+       '*   *      *   *',
+       '*   *   P  *   *',
+       '*      ##      *',
+       '*      **      *',
+       '*      **      *',
+       '*      **      *',
+       '*###   **   XXX*',
+       '****************',
+    ],
+    [
+       '##  P  ##',
+       '#*#####*#',
+       'X *   * X',
+       'X  * *  X',
+       'X#  *  #X',
+       'X  * *  X',
+       'X *   * X',
+       '#*  #  *#',
+       '##XXXXX##',
+    ],
+    [
+       '**************',
+       '*P           *',
+       '*###>>>>>>>  *',
+       '*            *',
+       '*###<<<<<<<<**',
+    ],
+    [
+       '    >>>>>>',
+       '',
+       'P',
+       '#>>>>****X',
+    ],
+    [
+       '*********>>>>>>>>>>>*',
+       '*                   *',
+       '*P                  *',
+       '*#>>>>>>>>******    *',
+       '****<<<<<<<<<<<<    *',
+       '*                   *',
+       '*                   *',
+       '*  ##**********XXXXX*',
+       '*  >>>>>>>>>>>>******',
+       '*                   *',
+       '*                   *',
+       '*>>>**********XXXXXX*',
+    ],
+    [
+       '*********>>>>******',
+       '*                 *',
+       '*P                *',
+       '*#>>>>>>>>**>>>>  *',
+       '*********<<<<***  *',
+       '*                 *',
+       '*                 *',
+       '*  ###XXXX**XXXXXX*',
+       '*  ****************',
+       '*                 *',
+       '*                *',
+       '*#####          *',
+       '* <<<<    X    *',
+       '*             *',
+       '*            *',
+       '*XXX        *',
+       '************',
+    ],
+    [
+       '  C   D',
+       '',
+       '',
+       '  X   X',
+       '           ',
+       'P',
+       '##U###C##',
+    ],
+    [
+       '*D**C**D*',
+       '*       *',
+       '*       *',
+       '*       *',
+       '*X  X  X*',
+       '*       *',
+       '*       *',
+       '*P      *',
+       '*C**U**C*',
+   ],
+   [
+       '   ******DDD',
+       '   *',
+       '   *     XXX',
+       '   *',
+       '   *P',
+       '****#>>>>',
+       '*',
+       '*',
+       '*  ######CCC',
+       '*  X*',
+       '*  X*    DDD',
+       '*  X*',
+       '*  ######XXX',
+       '*',
+       '*',
+       '*********',
+       '*',
+       '*',
+       '*########CCC',
+   ],
+   [
+       '*****CD*C*',
+       '*        *',
+       '*        *',
+       '*        *',
+       '*        *',
+       '*XXXX XXX*',
+       '*        *',
+       '*        *',
+       '*        *',
+       '*>>> XXXX*',
+       '*        *',
+       '*        *',
+       '*XXXX XXX*',
+       '*        *',
+       '*P       *',
+       '*####XXXX*',
+       '*        *',
+       '*        *',
+       '*****UC*U*',
+   ],
+   [
+       ' C C  C  C C',
+       ' C C C C C C',
+       '  C  C C C C',
+       '  C  C C C C',
+       '  C   C   C',
+       '',
+       'C C C  C   C',
+       'C C C C C C C',
+       'C C C C C C C',
+       'C C C C C C C',
+       ' CCC   C  C C',
+       '',
+       'D###########D',
+       ' #    P    #',
+       ' ###########',
+       '',
+       '',
+       'C           C',
+   ],
+];
+var userLevels = [
+{
+       levelName: 'Simples',
+       authorName: 'Gray Wolf',
+       map: [
+           '',
+           '    * * * * * * *',
+           '',
+           '',
+           '',
+           '',
+           '    * * * * * * *',
+           '   *             *',
+           '* #C*D*C*D*C*D*C*D#',
+           '  #               # *',
+           '* #  X   X   X   X#',
+           '  #               # *',
+           '  #               #',
+           '                  # *',
+           '  P               #',
+           '  #X   X   X   X  # *',
+           '* #               #',
+           '  #U*C*U*C*U*C*U#C#',
+           '   *             *',
+           '    * * * * * * *',
+           '',
+           '',
+           '',
+           '',
+           '    * * * * * * *',
+       ],
+    },
+{
+       levelName: 'owooooo',
+       authorName: 'Gray Wolf',
+       map: [
+           '         ##',
+           '',
+           '     # <<<<<<<X##',
+           'C   X ***      **#  D',
+           '   X  C       D  #',
+           '  #       X *    #',
+           '   #          X  #  X',
+           '    #     X      #',
+           '      X          #',
+           '        * X       *',
+           '      U       C   *',
+           '                  *',
+           '  P               *',
+           'X ##>>>>    >>>>XX',
+           '        ****',
+           'U               **  C',
+           '         ##',
+       ],
+    },
+{
+       levelName: 'Zig-Zag',
+       authorName: 'A Random Coder',
+       map: [
+           '  **   ***          *##D',
+           ' ******  ******     *',
+           ' *  *    **   **    *',
+           'D  #*D # *   # ******',
+           '         *      *',
+           '          *     *#',
+           '           *    *',
+           '            *',
+           '  *         *',
+           '',
+           '*    *   *         *',
+           '         *     *   D',
+           '         *     *',
+           '         *    *',
+           ' P      *    *',
+           ' #  #   *    *',
+           '        * #  *',
+           'U*U ******  ** #  *U  #',
+           ' ****     *************U',
+       ],
+    },
+{
+       levelName: 'Herobrine',
+       authorName: 'Willard',
+       map: [
+           '  ########',
+           '  ########',
+           '  #XXXXXX#',
+           '  X      X',
+           '  X##  ##X',
+           '  X  ##  X',
+           '  X #  # X',
+           '##XXCCCCXX##',
+           '#          #',
+           '#          #',
+           '#       P  #',
+           '#  #XXXX#  #',
+           '#  #    #  #',
+           '#  #UUUU#  #',
+       ],
+    },
+{
+       levelName: 'lol',
+       authorName: 'Cavan P',
+       map: [
+           'P',
+           '#*#*#*#*#*#*#*#*#*#*#',
+           '',
+           '',
+           '',
+           '*#*#*#*#*#*#*#*#*#*#*',
+           '#*#*#*#*#*#*#*#*#*#*#',
+           '',
+           '',
+           '',
+           '',
+           '*#*#*#*#*#*#*#*#*#*#*',
+           '#*#*#*#*#*#*#*#*#*#*#',
+           '',
+           '',
+           '',
+           '*#*#*#*#*#*#*#*#*#*#*',
+       ],
+    },
+{
+       levelName: 'Gray Wolf beat it',
+       authorName: 'xacer',
+       map: [
+           '#####DDDDDDDDDDDDD#',
+           '',
+           '     XXXXXXXXXXXXX',
+           '     XXXXXXXXXXXXX',
+           '     XXXXXXXXXXXXX',
+           '     XXXXXXXXXXXXX',
+           '     XXXXXXXXXXXXX',
+           '     XXXXXXXXXXXXX',
+           ' P   XXXXXXXXXXXXX',
+           '',
+           '#####UUUUUUUUUUUUU#',
+       ],
+    },
+{
+       levelName: 'Ethan Kim',
+       authorName: 'Ethan Kim',
+       map: [
+           '##',
+           'P #**    *************',
+           '# #  ### *           *',
+           '#       #* X X X X X *',
+           ' #####  #*           *',
+           '   **#  #* X X X X X *',
+           '     D  D* #         *',
+           '             X X X X *',
+           '       * *           *',
+           '           U X X X X *',
+           '        #            *',
+           '          *# X X X X *',
+           '        D            *',
+           '             X X X X *',
+           '         *           *',
+           '           U**********',
+           '      * #  #',
+           '     #     #',
+           '      #####',
+       ],
+    },
+{
+   levelName: 'its possible',
+   authorName: 'Batuhan H.',
+   map: [
+       '              *   *',
+       '              *   *',
+       '              *   *',
+       '              *   *',
+       ' ************ *   *',
+       ' *          * *   *',
+       ' *          * *###*',
+       ' * P       X*******',
+       '**####>>>>  X*',
+       '*    D      X*',
+       '*    X       *',
+       '*            *',
+       '* #          *',
+       '*    C    <<******',
+       '*    *****       *',
+       '*                *',
+       '*                *',
+       '*   >X>X>X>X>X   *',
+       '***************  ******',
+   ],
+},
+{
+   levelName: 'adf',
+   authorName: 'adf',
+   map: [
+       '            P ####',
+       '  ############   ###',
+       ' ##               #',
+       '#                 #',
+       '#   #######       #',
+       '#   #      # ##   #',
+       '#   #          ###',
+       '#   ############',
+       '#                ###',
+       '#####################',
+       '  ##',
+   ],
+},
+{
+   levelName: 'A Close Call',
+   authorName: 'Cubic Coding',
+   map: [
+       '            CC',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '',
+       '************  ************',
+       '*XXXXXXXXXXX  XXXXXXXXXXX*',
+       '*                        *',
+       '*                        *',
+       '*                        *',
+       '*                        *',
+       '*###########  ###########*',
+       '*P                       *',
+       '*##                      *',
+       '*           XX           *',
+       '************UU************',
+   ],
+},
+{
+   levelName: 'A Trick To It',
+   authorName: 'Cubic Coding',
+   map: [
+       '*                      *',
+       '*                      *',
+       '*<<<<<<<<<<<>>>>>>>>>>>*',
+       '*######################*',
+       '*                      *',
+       '*                      *',
+       '*         DDDD         *',
+       '*                      *',
+       '*        #XXXX#        *',
+       '*        #    #        *',
+       '*        X    #        *',
+       '*        X    #        *',
+       '*        #P   #        *',
+       '*        #CCCC#        *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+   ],
+},
+{
+   levelName: 'A Tricky Scribble',
+   authorName: 'Cubic Coding',
+   map: [
+       '    XXXXX',
+       ' XXX     XXX     XX',
+       '            XXXXXX',
+       '',
+       '            P',
+       '           #####',
+       '         ##   #',
+       '      ###   ##',
+       '    ##     #',
+       ' ###      #',
+       '##  D     ##',
+       '     DD    #######',
+       '                 #',
+       ' XXXXXX   X     #',
+       '       XXX     #   #',
+       '      C         ####',
+       '    CC',
+   ],
+},
+{
+   levelName: 'look close for ocd',
+   authorName: 'Geo',
+   map: [
+       'C*********** *********D',
+       '   D       * *       D',
+       '           * *',
+       '           * *',
+       '           * *',
+       '   CP      ***       ',
+       '   *X      C#C     X C',
+       '   *#*      X      *#*',
+       '   ***             ***',
+       '   * *             * *',
+       '   * *             * *',
+       '   * *             * *',
+       '   * *             * *',
+       '   * *             * *',
+       '   * *             * *',
+       '   * *             * *',
+       '   * *     X X     * *',
+       '   * *             * *',
+       'U*** ******U*U********C',
+   ],
+},
+{
+   levelName: 'Spike pit escape',
+   authorName: 'Mushy Avocado',
+   map: [
+       'D#########D',
+       'X     X   X',
+       ' #    X  #',
+       ' #X####  #',
+       ' #X###D  #',
+       ' #    X  #',
+       ' *       #',
+       ' *       #C',
+       ' * X   ##',
+       ' *   *',
+       ' *   *',
+       ' *   *',
+       ' * P *',
+       'C**#**C',
+   ],
+},
+{
+   levelName: 'Up and Down',
+   authorName: 'Ninty-e',
+   map: [
+       'U                      U',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*P                     *',
+       '*#  U***D***U***D***U #*',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       '*                      *',
+       'D                      D',
+   ],
+},
+{
+   levelName: 'Block Bust',
+   authorName: 'Ninty-e',
+   map: [
+       'U     U',
+       'D     D',
+       ' P',
+       ' XXXXX',
+       ' XXXXX',
+       ' **XXX',
+       '   XXX',
+       ' XXXX*',
+       ' XXXX',
+       ' *****',
+       ' XXXXX',
+       ' XX',
+       ' XX***',
+       ' XXXXX',
+       '  XXX',
+       ' *XXX*',
+       '   XX',
+       'U**XX*U',
+       'D  XX D',
+   ],
+}, 
+{
+   levelName: 'Straightfoward',
+   authorName: 'Ninty-e',
+   map: [
+       '      P',
+       '',
+       '',
+       '',
+       ' XXX',
+       '*###* C    <<<  D',
+       '',
+       '      X  >>>    X',
+       '',
+       '      U    <<<  C',
+       '',
+       '         >>>',
+       '',
+       '        *#####*',
+   ],
+},
+{
+   levelName: 'Align And Move',
+   authorName: 'Ninty-e',
+   map: [
+       ' ###****### #',
+       '*          # *',
+       '* *######* * **',
+       '* *      * *  *',
+       '* *      * #  *',
+       '* *      * *  *',
+       '* *### *** ** *',
+       '* *   # P*    #',
+       '* * * * ######',
+       '* * * *      #',
+       '* * * * ## * *',
+       '* #        # *',
+       '* ########## *',
+       '#            *',
+       ' ##*********#',
+   ],
+},
+{
+   levelName: 'Mazed',
+   authorName: 'Ninty-e',
+   map: [
+       'U**********************U',
+       'D    * X    * X   X X  D',
+       ' P   *      *',
+       ' #   *      *  X X',
+       '     *  *      ******X',
+       '    **  *      * X  *',
+       '        *   X  *    *',
+       '        ********    *',
+       '    X   *  X        *',
+       ' ********',
+       '                 *',
+       '              X  *',
+       '           ******* X',
+       '        X  *  X  ******',
+       '    ********',
+       '     X X X',
+       '              *      #',
+       '      X X X X * X',
+       ' **********************',
+   ],
+},
+{
+   levelName: 'ouch',
+   authorName: 'littlewhinging',
+   map: [
+       'OOOOOOOOOXOOOOOX',
+       'OOOOOOOOOXOOOOOX',
+       'OOOOOOOOOXSSSOOX',
+       'OOOOOOOOOXOOOOOX',
+       'OOOOOOOOOXOOOOOX',
+       'OOOOOOOOOXOOOOOX',
+       'OOOOOOOOOXSSSOOX',
+       'OOOOOOOOOXOOOOOXX',
+       'OOOOOOOOOXOOOOOSX',
+       'OOOOOOBOXXOBBOOOX',
+       'PUOOOOSOXOBOBB',
+       'BBBBSS',
+       'OOOOOOOOBBBBBBBB',
+       'OOOOOOOOBOOOOOOB',
+       'OOOOOOOOBOOOOOOB',
+       'OOOOOOOOBBBBBBBB',
+   ],
+},
+{
+    levelName: 'Laser Bridge',
+    authorName: 'Lemurdog Chaos',
+    map: [
+    'OOOOOOOCOOOOC',
+    '',
+    '',
+    '',
+    '',
+    '',
+    'OOOOOOOXOOOOX',
+    'P',
+    'BXXXXXXUXXXXUXXXXXXB',
+    ],
+},
+{
+   levelName: 'Traps',
+   authorName: 'josephberning',
+   map: [
+       'SSBSBSBSBSBSBSBSBSBSBSSS',
+       'SOOOOOOOOOOOOBOOOOOOOOOB',
+       'SOOOOXOBBBBBOBOOOOOOOOOS',
+       'SOOOOOOBOOOBOBOOOSSSSOOB',
+       'SOOOOOOBOSOSOBOOOOOOOSOS',
+       'SOOOOOOOBBOOOBOOOOOOOSOB',
+       'SUOUOUBBBBBBBBOOOXXSOSOS',
+       'BOOOOOOOOOBOBOSOXOOXOSOB',
+       'SOOOOSOOSOSOBOSOXOOXOSOS',
+       'BOOSOOOOBOOOBOSOSXXSOSOB',
+       'SOOOODBBBBOOBOSOOOOOOSOS',
+       'BOOOOOOOOOBOBOSOOOOOOSOB',
+       'SOODOOSSOOOOBOOSSSSSSSOS',
+       'BOOOOOSOOOOOOOOOOOOOOOOB',
+       'SDOOOOSOOOSOOOOOOOOOOOOS',
+       'SOOOOOSOBOSOOOOOOOOOOOOB',
+       'SXOXOXSSSSSOOOOOOOOOOOOS',
+       'BPOOOOOOOOOOOOOOOOOOOOOB',
+       'SCBCBCBSBSBSBSBSBSBSBSBS',
+   ],
+},
+{
+    levelName: 'Death Corridor',
+    authorName: 'F4stB01',
+    map: [
+        'OOOOSSSOOSSSSSSS',
+        'OOOSXBCSSSXXSSXSSSSBS',
+        'OOSOOOOOOOOOOOOOOOOOXS',
+        'OCOOOOXOOOOOOOOOOOOOX',
+        'SOOOOOOOOOOSOOOXBSSSBB',
+        'SOOOSRUSLOSSSSXSSSXXBS',
+        'SOOSSSSSBSSBSBBSROOOOS',
+        'SXOOOOOOOOOOOOOOOOOOOS',
+        'SOOOOOOOOOOOSOOOOOOOOS',
+        'OUSXSSXSSSSXSLXSROOOOS',
+        'OOOSOOSOOOOSOOSOOSOOOS',
+        'OOSSSSSSSSSSSSSSSSSOOS',
+        'OSOOOOOOSOOOOOOOSOOOOS',
+        'OSOOOOOOOOOOOOOOOOOOOS',
+        'OSPOSOOOOOOOSOOOOOOOS',
+        'OSXSSSSSSSSSSSSSSSSS',
+        'OSBS',
+    ],
+},
+];
+
+// declare block arrays for levels
+var blocks = [],
+    player,
+    spikes = [],
+    xblocks = [], 
+    dirblocks = [],
+    cblocks = [],
+    lblocks = [];
+
+// create clicked state for buttons
+var click = false, mousePressed = function() {click = true;};
+
+// level variable decleration
+var levelScale = 0.7,
+    levelScaleTo = 1,
+    level = 0,
+    levelsCompleted = 0,
+    levelTimer = 0,
+    levelDone = false,
+    centerX, centerY,
+    grid = 25;
+
+// create variables for the editor and key code
+var editorMap = [];
+var keys = [];
+
+/* user level selector */
+var levelScroll = 0, // amount to scroll the "user levels" page
+    levelScrollP = 0, // "user levels" bottom scrolling popup
+    levelScrollT = -125, // "user levels" top scrolling popup
+    levelScrollCancel = false;
+
+/* user levels */
+var userLevel = userLevels[0]; // the selected user level
+var userLevelTimer = 0;
+
+// tutorial text
+var tutorial = {
+    0: [
+        {
+            text: 'Left/Right arrow and/or AD keys to move',
+            pos: [59, -96],
+            size: 19,
+        },
+        {
+            text: 'Touch a block to fill it',
+            pos: [173, -39],
+            size: 20,
+        },
+        {
+            text: 'Fill all of the blocks to win',
+            pos: [248, 104],
+            size: 20,
+        },
+    ],
+    1: [
+        {
+            text: 'Press space to flip gravity',
+            pos: [55, 71],
+            size: 20,
+        },
+        {
+            text: 'Click R to restart at anypoint',
+            pos: [56, 194],
+            size: 18,
+        },
+    ],
+    2: [
+        {
+            text: 'Maybe don\'t touch these. idk.',
+            pos: [242, 87],
+            size: 20,
+        },
+    ],
+    3: [
+        {
+            text: 'Go down here ;)',
+            pos: [242, 579],
+            size: 20,
+        },
+    ],
+    14: [
+        {
+            text: 'Touch these blocks and they\'ll disappear...',
+            pos: [116, -36],
+            size: 20,
+        },
+        {
+            text: '...and you have to touch them all to win.',
+            pos: [116, 142],
+            size: 20,
+        },
+    ],
+    20: [
+        {
+            text: 'Blue blocks will push you',
+            pos: [85, -36],
+            size: 20,
+        },
+        {
+            text: 'Fill them all to win',
+            pos: [288, 164],
+            size: 20,
+        },
+    ],
+    24: [
+        {
+            text: 'These are laser beams.\n                  Do not touch the beams!',
+            pos: [77, -36],
+            size: 18,
+        },
+        {
+            text: 'Fill all the beam collectors to win!',
+            pos: [111, 208],
+            size: 18,
+        },
+    ],
+};
+
+// death transition and state variables
+var deathTran = 0, deathState = false, levelTran = 0, levelTran2 = 0;
+
+// menu state
+var scene = 'menu';
+
+// rect colliders
+var rectCollide = function(one, two){
+    return one.x + grid > two.x &&
+        one.y + grid > two.y &&
+        one.x < two.x + grid &&
+        one.y < two.y + grid;
+};
+var rectCollide2 = function(one, two){
+    return one.x + grid > two.x &&
+        one.ly + one.lw > two.y &&
+        one.x < two.x + grid &&
+        one.ly < two.y + grid;
+};
+var rectCollide3 = function(one, two){
+    return one.x + grid > two.x &&
+        one.y + grid > two.ly &&
+        one.x < two.x + grid &&
+        one.y < two.ly + two.lw;
+};
+
+// automatically center levels
+var calcPos = function(num, max, spacingX, spacingY) {
+    var positions = [];
+    for(var i = 0; i < num; i++) {
+        positions.push({
+            x: (width / 2) +
+            ((i % max) *
+            spacingX) -
+            ((max - 1) *
+            spacingX) / 2 +
+            (floor(i / max) >= floor(num/max) ?
+            (max) *
+            spacingX / 2 -
+            ((num % max) *
+            spacingX / 2)
+            : 0),
+            y: floor(i / max) * spacingY
+        });
+    }
+    return positions;
+};
+
+// standard block
+function Block(x, y, left, right) {
+    this.isBlock = true; // for level editor
+    this.x = x;
+    this.y = y;
+    this.left = left;
+    this.right = right;
+    
+    this.centerS = 0;
+    this.filled = 0;
+}
+Block.prototype.display = function(x, y) {
+    if (x) {this.x = x;}
+    if (y) {this.y = y;}
+    noStroke();
+    fill(36, 36, 36);
+    rect(this.x, this.y, grid, grid);
+    stroke(240);
+    strokeWeight(2);
+
+    if (this.right) {
+        line(this.x + grid * 0.74, this.y + grid / 2, this.x + grid, this.y + grid / 2);
+    }
+    if (this.left) {
+        line(this.x, this.y + grid / 2, this.x  + grid * 0.28, this.y + grid / 2);
+    }
+    
+    fill(36, 36, 36);
+    ellipse(this.x + grid / 2, this.y + grid / 2, grid * 0.5, grid * 0.5);
+
+    
+    if (this.filled) {
+        fill(240);
+        noStroke();
+        ellipse(this.x + grid / 2, this.y + grid / 2, grid * 0.5 * this.centerS, grid * 0.5 * this.centerS);
+        
+        this.centerS += (1 - this.centerS) / 6;
+    } else {
+        this.centerS -= this.centerS / 6;
+    }
+};
+
+// laser beam collector
+function cBlock(x, y) {
+    this.isBlock = true; // for level editor
+    this.x = x;
+    this.y = y;
+    this.centerS = 0;
+    this.filled = 0;
+}
+cBlock.prototype.display = function(x, y) {
+    if (x) {this.x = x;}
+    if (y) {this.y = y;}
+    
+    if(this.filled === 1)
+    {
+        this.centerS += 20;
+    }
+    
+    noStroke();
+    fill(148, 77, 235);
+    rect(this.x, this.y, grid, grid);
+    
+    stroke(255, 255, 255);
+    strokeWeight(1.5);
+    fill(255, 255, 255, this.centerS);
+
+    beginShape();
+    vertex(this.x + grid * 0.5, this.y + grid / 5.0);
+    vertex(this.x + grid / 1.3, this.y + grid / 2.0);
+    vertex(this.x + grid * 0.5, this.y + grid / 1.3);
+    vertex(this.x + grid / 4, this.y + grid / 2.0);
+    vertex(this.x + grid * 0.5, this.y + grid / 5.0);
+    endShape();
+};
+
+// laser beam
+function lBlock(x, y, dir){
+    this.x = x;
+    this.y = y;
+    this.dir = dir;
+    this.ly = y;
+    this.yvel = 0;
+    this.lw = grid;
+}
+lBlock.prototype.display = function(x, y){
+    
+    if (x) {this.x = x;}
+    if (y) {this.y = y;}
+    
+    noStroke();
+    fill(148, 77, 235, 100);
+    rect(this.x, this.ly, grid, this.lw);
+    
+    if(scene !== "editor")
+    {
+        this.yvel += grid / 100;
+    } else
+    {
+        this.yvel = 0;
+        this.lw = 0;
+    }
+    this.yvel = constrain(this.yvel, -grid / 5, grid / 5);
+    
+    this.applyCollisions(this.yvel);
+    
+    if(this.dir === "up")
+    {
+        this.ly -= this.yvel;
+        this.lw += this.yvel;
+    }
+    
+    if(this.dir === "down")
+    {
+        this.ly = this.y + grid;
+        this.lw += this.yvel;
+    }
+    
+    fill(148, 77, 235);
+    rect(this.x, this.y, grid, grid);
+    
+    stroke(255, 255, 255);
+    strokeWeight(1.5);
+    noFill();
+    
+    pushMatrix();
+    if(this.dir === "up")
+    {
+        translate(0, grid / 10);
+        beginShape();
+        vertex(this.x + grid * 0.5, this.y + grid / 5.0);
+        vertex(this.x + grid / 1.3, this.y + grid / 2.0);
+        vertex(this.x + grid * 0.5, this.y + grid / 2.0);
+        vertex(this.x + grid / 4, this.y + grid / 2.0);
+        vertex(this.x + grid * 0.5, this.y + grid / 5.0);
+        endShape();
+    }
+    if(this.dir === "down")
+    {
+        translate(0, -grid / 10);
+        beginShape();
+        vertex(this.x + grid * 0.5, this.y + grid / 2.0);
+        vertex(this.x + grid / 1.3, this.y + grid / 2.0);
+        vertex(this.x + grid * 0.5, this.y + grid / 1.3);
+        vertex(this.x + grid / 4, this.y + grid / 2.0);
+        vertex(this.x + grid * 0.5, this.y + grid / 2.0);
+        endShape();
+    }
+    popMatrix();
+};
+
+// blue direction blocks
+function dirBlock(x, y, dir) {
+    this.isBlock = true; // for level editor
+    this.x = x;
+    this.y = y;
+    this.dir = dir;
+    this.centerS = 0;
+    this.filled = 0;
+}
+dirBlock.prototype.display = function(x, y){
+    if (x) {this.x = x;}
+    if (y) {this.y = y;}
+    
+    if(this.filled === 1)
+    {
+        this.centerS += 20;
+    }
+    
+    noStroke();
+    fill(77, 143, 235);
+    rect(this.x, this.y, grid, grid);
+    
+    stroke(255, 255, 255);
+    strokeWeight(2);
+    fill(255, 255, 255, this.centerS);
+    
+    if(this.dir === "right")
+    {
+        beginShape();
+        vertex(this.x + grid * 0.30, this.y + grid / 4.0);
+        vertex(this.x + grid / 1.5, this.y + grid / 2.0);
+        vertex(this.x + grid * 0.30, this.y + grid / 1.4);
+        vertex(this.x + grid * 0.30, this.y + grid / 4.0);
+        endShape();
+    }
+    if(this.dir === "left")
+    {
+        beginShape();
+        vertex(this.x + grid / 1.5, this.y + grid / 4.0);
+        vertex(this.x + grid * 0.30, this.y + grid / 2.0);
+        vertex(this.x + grid / 1.5, this.y + grid / 1.4);
+        vertex(this.x + grid / 1.5, this.y + grid / 4.0);
+        endShape();
+    }
+};
+
+// red X blocks
+function xBlock(x, y) {
+    this.isBlock = true; // for level editor
+    this.x = x;
+    this.y = y;
+    
+    this.centerS = 0;
+    this.filled = 0;
+}
+xBlock.prototype.display = function(x, y) {
+    if (x) {
+        this.x = x;
+        this.centerS = 0;
+    }
+    if (y) {this.y = y;}
+    noStroke();
+    fill(237, 76, 76, 300 - this.centerS);
+    rect(this.x, this.y, grid, grid);
+    
+    stroke(255, 255, 255, 300 - this.centerS);
+    strokeWeight(2);
+    line(this.x + grid * 0.30, this.y + grid / 3.0, this.x + grid / 1.5, this.y + grid / 1.5);
+    line(this.x + grid * 0.30, this.y + grid / 1.5, this.x + grid / 1.5, this.y + grid / 3.0);
+    
+    if (this.filled && this.centerS <= 300) {
+        
+        this.centerS += 6;
+    }
+};
+
+// player
+function Player(x, y) {
+    this.isPlayer = true; // needed for level editor
+    this.x = x; this.xvel = 0;
+    this.y = y; this.yvel = 0;
+    this.speed = 0;
+    this.g = 0;
+    this.gs = this.g;
+    this.facePosX = 0;
+    this.facePosY = 0;
+    
+    this.particle = {
+        x: [],
+        y: [],
+        s: []
+    };
+}
+Player.prototype.display = function(x, y) {
+    if (x) {this.x = x;}
+    if (y) {this.y = y;}
+    noStroke();
+    
+    fill(255, 255, 255);
+    rect(this.x, this.y, grid, grid);
+    
+    fill(36, 36, 36, deathTran);
+    rect(this.x - 1, this.y - 1, grid + 2, grid + 2);
+    
+    pushMatrix();
+    rectMode(CENTER);
+    translate(this.x + grid / 2, this.y + grid / 2);
+    
+    // body
+    rect(0, 0, grid, grid);
+    
+    // face
+    fill(36, 36, 36);
+    pushMatrix();
+    translate(this.facePosX, this.facePosY);
+    rect(grid / 5, - grid / 7, grid / 4, grid / 4);
+    rect(-grid / 5, - grid / 7, grid / 4, grid / 4);
+    popMatrix();
+    rectMode(0);
+    popMatrix();
+};
+Player.prototype.update = function() {
+    
+    this.speed = grid / 7;
+    
+    if(keys[LEFT] || keys[65]){
+        this.xvel -= 2;
+        this.dir = -12;
+        this.facePosX = -3;
+    }
+    if(keys[RIGHT] || keys[68]){
+        this.xvel += 2;
+        this.dir = 12;
+        this.facePosX = 3;
+    }
+    if(!keys[LEFT] && !keys[RIGHT] && !keys[65] && !keys[68])
+    {
+        this.xvel *= 0.7;
+        this.dir /= 1.1;
+        this.facePosX = 0;
+    }
+    
+    if(!keys[32]) {
+        this.gs = this.g;
+    } else {
+        this.g = 1 - this.gs;
+    }
+    
+    this.xvel = constrain(this.xvel, -this.speed, this.speed);
+    
+    switch(this.g)
+    {
+        case 0: this.yvel += grid / 100; this.facePosY = 0; break;
+        case 1: this.yvel -= grid / 100; this.facePosY = 6; break;
+    }
+    
+    this.yvel = constrain(this.yvel, -grid / 10, grid / 10);
+    
+    if (this.y >= centerY + height/2 + grid) {
+        this.y = centerY - height/2 - grid*2;
+    }
+    if (this.y < centerY - height/2 - grid * 2) {
+        this.y = centerY + height/2 + grid;
+    }
+    if (this.x >= centerX + width/2 + grid) {
+        this.x = centerX - width/2 - grid * 2;
+    }
+    if (this.x < centerX - width/2 - grid*2) {
+        this.x = centerX + width/2 + grid;
+    }
+    
+    this.x += this.xvel;
+    this.applyCollisions(this.xvel, 0);
+    this.y += this.yvel;
+    this.applyCollisions(0, this.yvel);
+};
+Player.prototype.particles = function(){
+    
+    noStroke();
+    fill(255, 255, 255, 10);
+    
+    for(var i = 0; i < this.particle.x.length; i++)
+    {
+        pushMatrix();
+        translate(this.particle.x[i] + grid / 2, this.particle.y[i] + grid / 2);
+        rectMode(CENTER);
+        rect(0, 0, this.particle.s[i], this.particle.s[i]);
+        rectMode(0);
+        popMatrix();
+        
+        this.particle.s[i] -= grid / 10;
+        
+        if(this.particle.s[i] <= 0)
+        {
+            this.particle.s[i] = grid;
+            this.particle.x[i] =  this.x;
+            this.particle.y[i] =  this.y;
+        }
+    }
+    
+    if(this.particle.x.length < 10)
+    {
+        this.particle.x.push(this.x);
+        this.particle.y.push(this.y);
+        this.particle.s.push(grid);
+    }
+    
+};
+
+// spike
+function Spike(x, y) {
+    this.x = x;
+    this.y = y;
+    this.timer = 0;
+}
+Spike.prototype.display = function(x, y) {
+    if (x) {
+        this.x = x;
+        this.timer = 0;
+    }
+    if (y) {this.y = y;}
+    this.timer -= 4;
+    pushMatrix();
+    translate(this.x + grid / 2, this.y + grid / 2);
+    fill(240);
+    noStroke();
+    beginShape();
+    var spikeCount = 24;
+    for(var i = 0; i < spikeCount; i ++) {
+        var m = i % 2 ? grid / 2 : grid * 0.7 * 0.5;
+        vertex(sin(i * (360 / spikeCount) + this.timer) * m, cos(i * (360 / spikeCount) + this.timer) * m);
+    }
+    endShape();
+    
+    ellipse(0, 0, grid * 0.7, grid * 0.7);
+    fill(61, 61, 61);
+    ellipse(0, 0, grid * 0.3, grid * 0.3);
+    popMatrix();
+};
+
+// load level
+function loadLevel(l, t, u) {
+    // l = level number (integer)
+    // t = test mode or not (boolean)
+    // u = user level or not (boolean)
+    var lvl = levels[l];
+    if (t) {
+        lvl = [];
+        var lastUsedSpot = 0;
+        var firstUsedSpot = 999;
+        var firstX = 999;
+        for(var i = 0; i < editorMap.length; i++) {
+            if (editorMap[i].join('') !== ' '.repeat(24)) {
+                if (firstUsedSpot >= i) {
+                    firstUsedSpot = i;
+                }
+                lastUsedSpot = i;
+            }
+            for(var j = 0; j < editorMap[i].length; j++) {
+                if (editorMap[i][j] !== ' ' && j <= firstX) {
+                    firstX = j;
+                }
+            }
+        }
+        for(var i = firstUsedSpot; i < lastUsedSpot + 1; i++) {
+            lvl.push(editorMap[i].join('').slice(firstX, 999).replace(/\s+$/, ''));
+        }
+    }
+    if (u) {
+        lvl = userLevel.map;
+    }
+    for(var i = 0; i < lvl.length; i++) {
+        lvl[i] = lvl[i].split('_').join(' ');
+        lvl[i] = lvl[i].split('O').join(' ');
+        lvl[i] = lvl[i].split('S').join('*');
+        lvl[i] = lvl[i].split('R').join('>');
+        lvl[i] = lvl[i].split('L').join('<');
+        lvl[i] = lvl[i].split('B').join('#');// i blame isaac for this
+    }
+    
+    blocks = [];
+    spikes = [];
+    xblocks = [];
+    dirblocks = [];
+    cblocks = [];
+    lblocks = [];
+    deathState = false;
+    deathTran = 0;
+    if (l >= levelsCompleted) {
+        levelsCompleted = l;
+    }
+    var longestLevelBlock = 0;
+    for(var y = 0; y < lvl.length; y++) {
+        if (lvl[y].length >= longestLevelBlock) {
+            longestLevelBlock = lvl[y].length;
+        }
+    for(var x = 0; x < lvl[y].length; x++) {
+        switch (lvl[y][x]) {
+            case '#': //{
+                var b = {
+                    left: x <= 0 ? false : lvl[y][x-1] === '#',
+                    right: x >= lvl[y].length ? false : lvl[y][x+1] === '#',
+                };
+                blocks.push(Block.new(x * grid, y * grid, b.left, b.right));
+                break;
+            //}
+            case '<': //{
+                dirblocks.push(dirBlock.new(x * grid, y * grid, "left"));
+                break;
+            //}
+            case '>': //{
+                dirblocks.push(dirBlock.new(x * grid, y * grid, "right"));
+                break;
+            //}
+            case 'X': //{
+                xblocks.push(xBlock.new(x * grid, y * grid));
+                break;
+            //}
+            case 'U': //{
+                lblocks.push(lBlock.new(x * grid, y * grid, "up"));
+                break;
+            //}
+            case 'D': //{
+                lblocks.push(lBlock.new(x * grid, y * grid, "down"));
+                break;
+            //}
+            case 'C': //{
+                cblocks.push(cBlock.new(x * grid, y * grid));
+                break;
+            //}
+            case '*': //{
+                spikes.push(Spike.new(x * grid, y * grid));
+                break;
+            //}
+            case 'P': //{
+                player = new Player (x * grid, y * grid);
+                break;
+            //}
+        }
+    }
+    }
+    
+    if (longestLevelBlock > 18) {
+        var levelScaleRel = longestLevelBlock - 18;
+        levelScaleTo = 0.95 - (levelScaleRel / 40);
+        levelScale = levelScaleTo;
+    } else {
+        levelScaleTo = 1;
+        levelScale = 0.8;
+    }
+    
+    centerX = longestLevelBlock * grid * 0.5;
+    centerY = lvl.length * grid * 0.5;
+}
+
+/* for testing purposes, can be deleted once released */
+if (scene === 'play') {
+    loadLevel(level);
+}
+if (scene === 'play-user') {
+    loadLevel(0, false, true);
+}
+
+// for typing in names for editor
+String.prototype.repeat = function(a) {
+    var b = '';
+    for(var i = 0; i < a; i++) {
+        b += this;
+    }
+    return b;
+};
+
+// apply collisions for player and laser blocks
+Player.prototype.applyCollisions = function(xvel, yvel) {
+        
+    for(var i = 0; i < blocks.length; i++) {
+        
+        if (!rectCollide(this, blocks[i]) / 2) { continue; }
+        
+        blocks[i].filled = 1;
+    }
+    for(var i = 0; i < xblocks.length; i++) {
+        
+        if (!rectCollide(this, xblocks[i]) / 2) { continue; }
+        
+        xblocks[i].filled = 1;
+    }
+    for(var i = 0; i < dirblocks.length; i++) {
+        
+        if (!rectCollide(this, dirblocks[i]) / 2) { continue; }
+        
+        dirblocks[i].filled = 1;
+    }
+    levelDone = true;
+    for(var i = 0; i < blocks.length; i++) {
+        if (blocks[i].filled !== 1) {
+            levelDone = false;
+        }
+        
+        if (!rectCollide(this, blocks[i])) { continue; }
+        
+        if (xvel < 0) {
+            this.x = blocks[i].x + grid;
+            this.xvel = 0;
+        }
+        if (xvel > 0) {
+            this.x = blocks[i].x - grid;
+            this.xvel = 0;
+        }
+        if (yvel < 0) {
+            this.y = blocks[i].y + grid;
+            this.yvel = 0;
+        }
+        if (yvel > 0) {
+            this.y = blocks[i].y - grid;
+            this.yvel = 0;
+        }
+    }
+    for(var i = 0; i < xblocks.length; i++) {
+        if (xblocks[i].filled !== 1) {
+            levelDone = false;
+        }
+        
+        if (!rectCollide(this, xblocks[i])) { continue; }
+        if (xblocks[i].centerS > 300) { continue; }
+        
+        if (xvel < 0) {
+            this.x = xblocks[i].x + grid;
+            this.xvel = 0;
+        }
+        if (xvel > 0) {
+            this.x = xblocks[i].x - grid;
+            this.xvel = 0;
+        }
+        if (yvel < 0) {
+            this.y = xblocks[i].y + grid;
+            this.yvel = 0;
+        }
+        if (yvel > 0) {
+            this.y = xblocks[i].y - grid;
+            this.yvel = 0;
+        }
+    }
+    for(var i = 0; i < dirblocks.length; i++) {
+        
+        if (dirblocks[i].filled !== 1) {
+            levelDone = false;
+        }
+        
+        if (!rectCollide(this, dirblocks[i])) { continue; }
+        
+        if(dirblocks[i].dir === "left")
+        {
+            this.x -= grid / 6;
+        }
+        if(dirblocks[i].dir === "right")
+        {
+            this.x += grid / 6;
+        }
+        
+        if (xvel < 0) {
+            this.x = dirblocks[i].x + grid;
+            this.xvel = 0;
+        }
+        if (xvel > 0) {
+            this.x = dirblocks[i].x - grid;
+            this.xvel = 0;
+        }
+        if (yvel < 0) {
+            this.y = dirblocks[i].y + grid;
+            this.yvel = 0;
+        }
+        if (yvel > 0) {
+            this.y = dirblocks[i].y - grid;
+            this.yvel = 0;
+        }
+    }
+    for(var i = 0; i < cblocks.length; i++) {
+        
+        if (cblocks[i].filled !== 1) {
+            levelDone = false;
+        }
+        
+        if (!rectCollide(this, cblocks[i])) { continue; }
+        
+        if (xvel < 0) {
+            this.x = cblocks[i].x + grid;
+            this.xvel = 0;
+        }
+        if (xvel > 0) {
+            this.x = cblocks[i].x - grid;
+            this.xvel = 0;
+        }
+        if (yvel < 0) {
+            this.y = cblocks[i].y + grid;
+            this.yvel = 0;
+        }
+        if (yvel > 0) {
+            this.y = cblocks[i].y - grid;
+            this.yvel = 0;
+        }
+    }
+    for(var i = 0; i < lblocks.length; i++) {
+        
+        if (!rectCollide(this, lblocks[i])) { continue; }
+        
+        if (xvel < 0) {
+            this.x = lblocks[i].x + grid;
+            this.xvel = 0;
+        }
+        if (xvel > 0) {
+            this.x = lblocks[i].x - grid;
+            this.xvel = 0;
+        }
+        if (yvel < 0) {
+            this.y = lblocks[i].y + grid;
+            this.yvel = 0;
+        }
+        if (yvel > 0) {
+            this.y = lblocks[i].y - grid;
+            this.yvel = 0;
+        }
+    }
+
+    for(var i = 0; i < spikes.length; i++) {
+        
+        if (!rectCollide(this, spikes[i])) { continue; }
+        if (scene === 'editor-test') {
+            scene = 'editor';
+        } else {
+            deathState = true;
+        }
+    }
+    for(var i = 0; i < lblocks.length; i++) {
+        
+        if (!rectCollide3(this, lblocks[i])) { continue; }
+
+            if (scene === 'editor-test') {
+                scene = 'editor';
+            } else {
+                deathState = true;
+            }
+    }
+    
+};
+lBlock.prototype.applyCollisions = function(yvel) {
+
+    for(var i = 0; i < blocks.length; i++) {
+
+        if (!rectCollide2(this, blocks[i])) { continue; }
+
+        this.yvel = 0;
+    }
+    for(var i = 0; i < xblocks.length; i++) {
+
+        if (!rectCollide2(this, xblocks[i])) { continue; }
+        if (xblocks[i].centerS > 300) { continue; }
+
+        this.yvel = 0;
+    }
+    for(var i = 0; i < dirblocks.length; i++) {
+
+        if (!rectCollide2(this, dirblocks[i])) { continue; }
+
+        this.yvel = 0;
+    }
+    for(var i = 0; i < cblocks.length; i++) {
+
+        if (!rectCollide2(this, cblocks[i])) { continue; }
+        
+        cblocks[i].filled = 1;
+        
+        this.yvel = 0;
+    }
+    for(var i = 0; i < spikes.length; i++) {
+        
+        if (!rectCollide2(this, spikes[i])) { continue; }
+        
+        this.yvel = 0;
+        
+    }
+};
+
+// text settings
+textAlign(CENTER, CENTER);
+textFont(createFont("Tahoma"));
+
+// buttons
+function Button(t, x, y, s, c, disabled) {
+    this.t = t;
+    this.x = x;
+    this.y = y;
+    this.as = s;
+    this.s = s;
+    this.r = 0;
+    
+    this.animate = false;
+    this.am = 0;
+    this.shimmerWidth = 60;
+    
+    this.disabled = disabled || function() {return true;};
+    
+    this.onclick = c || function() {
+        println('no click action provided');
+    };
+}
+Button.prototype.update = function(offset) {
+    offset = offset || 0;
+    if (dist(mouseX, mouseY + offset, this.x, this.y) <= this.s) {
+        this.animate = true;
+        this.s += ((this.as + 5) - this.s) / 10;
+        cursor('pointer');
+        if (click) {
+            this.onclick(this.t);
+            click = false;
+            mouseIsPressed = false;
+        }
+    } else {
+        this.s += (this.as - this.s) / 12;
+    }
+    if (this.animate) {
+        this.am += dist(this.am, 0, -20, 0) / 20;
+        this.r += (360 - this.r) / 10;
+        if (this.am >= 250) {
+            this.animate = false;
+        }
+    } else {
+        this.am = 0;
+        this.r = 0;
+    }
+};
+Button.prototype.icon = function() {
+    pushMatrix();
+    translate(this.x, this.y);
+    scale((this.s / 85) + (this.s - this.as) / 52);
+    noStroke();
+    fill(255);
+    switch(this.t) {
+        case 'home': {
+            stroke(255);
+            strokeWeight(7);
+            strokeJoin(ROUND);
+            beginShape();
+            vertex(-35, -17);
+            vertex(0, -47);
+            vertex(35, -17);
+            vertex(35, 30);
+            vertex(14, 30);
+            vertex(14, 7);
+            vertex(-14, 7);
+            vertex(-14, 30);
+            vertex(-35, 30);
+            endShape(CLOSE);
+            break;
+        }
+        case 'restart': {
+            rotate(this.r);
+            stroke(255);
+            strokeWeight(8);
+            noFill();
+            arc(0, 0, 75, 75, 118, 391);
+            
+            fill(255);
+            strokeWeight(3);
+            strokeJoin(ROUND);
+            beginShape();
+            vertex(18, 12);
+            vertex(18, 38);
+            vertex(43, 28);
+            endShape(CLOSE);
+            break;
+        }
+        case 'play': {
+            stroke(255);
+            fill(255);
+            strokeWeight(8);
+            strokeJoin(ROUND);
+            beginShape();
+            vertex(-19, -28);
+            vertex(32, 0);
+            vertex(-19, 28);
+            endShape(CLOSE);
+            grid = 25;
+            break;
+        }
+        case 'editor': {
+            pushMatrix();
+            translate(-3, 5);
+            scale(0.8);
+            rotate(10);
+            stroke(255);
+            fill(255);
+            strokeWeight(8);
+            strokeJoin(ROUND);
+            beginShape();
+            vertex(12, -45);
+            vertex(29, -34);
+            vertex(-3, 28);
+            vertex(-21, 17);
+            endShape(CLOSE);
+            beginShape();
+            vertex(21, -64);
+            vertex(42, -51);
+            vertex(33, -44);
+            vertex(19, -53);
+            endShape(CLOSE);
+            beginShape();
+            vertex(-26, 48);
+            vertex(-7, 38);
+            vertex(-26, 26);
+            endShape(CLOSE);
+            popMatrix();
+            grid = 25;
+            break;
+        }
+        default: {
+            fill(51);
+            textSize(62);
+            for(var i = 0; i < 360; i+= 30) {
+                fill(30);
+                text(this.t, sin(i) * 2, cos(i) * 2);
+            }
+            fill(150);
+            if (this.disabled(this.t)) {
+                fill(255);
+            }
+            text(this.t, 0, 0);
+            grid = 25;
+            break;
+        }
+    }
+    popMatrix();
+};
+Button.prototype.display = function(offset) {
+    if (this.disabled(this.t)) {this.update(offset);}
+    
+    fill(36, 36, 36);
+    stroke(200);
+    if (this.disabled(this.t)) {
+        stroke(255);
+    }
+    
+    strokeWeight(5 * (this.s / 100));
+    ellipse(this.x, this.y, this.s * 2, this.s * 2);
+    
+    fill(255);
+    pushMatrix();
+    translate(this.x, this.y);
+    rotate(-140);
+    noStroke();
+    if (this.am > 0) {
+    beginShape();
+    vertex(sin(constrain(this.am, 0, 180)) * this.s, cos(constrain(this.am, 0, 180)) * this.s);
+    for(var i = 0; i < this.shimmerWidth; i+=10) {
+        vertex(sin(constrain(this.am - i, 0, 180)) * this.s, cos(constrain(this.am - i, 0, 180)) * this.s);
+    }
+    
+    for(var i = this.shimmerWidth-5; i >= 0; i-=10) {
+        vertex(- sin(constrain(this.am - i, 0, 180)) * this.s,cos(constrain(this.am - i, 0, 180)) * this.s);
+    }
+    vertex(sin(constrain(this.am, 0, 180)) * this.s, cos(constrain(this.am, 0, 180)) * this.s);
+    endShape(CLOSE);
+    }
+    popMatrix();
+    
+    this.icon();
+};
+
+/* button setup */
+function startLevel(l) {
+    l = parseInt(l, 0);
+    scene = 'play';
+    level = l-1;
+    loadLevel(level);
+}
+function checkLevel(l) {
+    l = parseInt(l, 0);
+    return levelsCompleted >= l-1;
+}
+function createLevel () {
+    
+    pushMatrix();
+    translate(width / 2, height/ 2);
+    scale(levelScale);
+    translate(-centerX, -centerY);
+    levelScale += (levelScaleTo - levelScale) / 6;
+    
+    player.particles();
+    player.display();
+    
+    if(!deathState && levelTran === 0)
+    {
+        player.update();
+    }
+    
+    if(deathState)
+    {
+        deathTran += 8;
+    }
+    
+    if(deathTran >= 300)
+    {
+        if (scene === 'play') {
+            loadLevel(level);
+        } else if (scene === 'play-user') {
+            loadLevel(0, false, true);
+        }
+        deathState = false;
+        deathTran = 0;
+    }
+    if (levelDone) {
+        levelTran += 6;
+    }
+    
+    if(keys[82] && scene === 'play')
+    {
+        loadLevel(level);
+    }
+    
+    if(keys[82] && scene === 'editor-test')
+    {
+        scene = 'editor';
+    }
+    
+    if(levelTran >= 300)
+    {
+        levelTran2 = levelTran;
+        levelTran = 0;
+        
+        if(scene === 'play')
+        {
+            level ++;
+            loadLevel(level);
+        }
+        if(scene === 'editor-test')
+        {
+            scene = 'editor';
+        }
+        if (scene === 'play-user') {
+            scene = 'levels-user';
+        }
+    }
+    
+    
+    for(var i = 0; i < lblocks.length; i++) {
+        lblocks[i].display();
+    }
+    for(var i = 0; i < dirblocks.length; i++) {
+        dirblocks[i].display();
+    }
+    for(var i = 0; i < blocks.length; i++) {
+        blocks[i].display();
+    }
+    for(var i = 0; i < xblocks.length; i++) {
+        xblocks[i].display();
+    }
+    for(var i = 0; i < cblocks.length; i++) {
+        cblocks[i].display();
+    }
+    noStroke();
+    for(var i = 0; i < spikes.length; i++) {
+        spikes[i].display();
+    }
+    if (tutorial[level] && scene === 'play') {
+        for(var i = 0; i < tutorial[level].length; i++) {
+            textSize(tutorial[level][i].size);
+            fill(255);
+            text(tutorial[level][i].text, tutorial[level][i].pos[0], tutorial[level][i].pos[1]);
+        }
+    }
+    popMatrix();
+    if(levelTran < 300)
+    {
+        fill(61, 61, 61, levelTran);
+        rect(0, 0, 600, 600);
+    }
+    
+    levelTran2 /= 1.1;
+    fill(61, 61, 61, levelTran2);
+    rect(0, 0, 600, 600);
+}
+
+/* map editor */
+//{
+    for(var y = 0; y < height - 100 - grid; y += grid) {
+        editorMap.push([]);
+        for(var x = 0; x < width; x += grid) {
+            editorMap[floor(y / grid)].push(' ');
+        }
+    }
+    var selectedObj = 'block';
+    var elemData = {
+        'block': {
+            name: 'Block', // name of the item (used for the tooltip at the bottom)
+            symbol: '#', // symbol used on level map
+            elem: Block, // object function
+        },
+        'xblocks': {
+            name: 'X Block', // please lets rename this, ew
+            symbol: 'X',
+            elem: xBlock,
+        },
+        'spike': {
+            name: 'Blade',
+            symbol: '*',
+            elem: Spike,
+        },
+        'dirblockL': {
+            name: 'Left Direction Block',
+            symbol: '<',
+            elem: dirBlock,
+        },
+        'dirblockR': {
+            name: 'Right Direction Block',
+            symbol: '>',
+            elem: dirBlock,
+        },
+        'uplaser': {
+            name: 'Up Laser',
+            symbol: 'U',
+            elem: lBlock,
+        },
+        'downlaser': {
+            name: 'Down Laser',
+            symbol: 'D',
+            elem: lBlock,
+        },
+        'collector': {
+            name: 'Laser Collector',
+            symbol: 'C',
+            elem: cBlock,
+        },
+        'player': {
+            name: 'Player',
+            symbol: 'P',
+            elem: Player,
+        },
+    };
+    var elems = [];
+    var txt = {
+        lvl: '',
+        username: '',
+        none: '',
+    };
+    var confirmClear = false;
+    var focusedBox = 'lvl';
+    var allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz !?@&#*()-+_=,.0123456789';
+    keyTyped = function() {
+        if (scene === 'editor-save') {
+            if (allowedChars.indexOf(key.toString()) !== -1 && txt[focusedBox].length < 18) {
+                txt[focusedBox] += key.toString();
+            }
+        }
+    };
+    var curMsg = '';
+//}
+
+/** Key stuff **/
+keyPressed = function(){
+    keys[keyCode] = true;
+    if (scene === 'editor-save') {
+        if (keyCode === 8) {
+            txt[focusedBox] = txt[focusedBox].slice(0, txt[focusedBox].length - 1);
+        } 
+    }
+};
+keyReleased = function(){
+    keys[keyCode] = false;
+};
+
+// level select buttons
+var buttons = {
+    menu: {
+        play: Button.new('play', 300 + 65, 400, 62, function() {
+            scene = 'play-mode';
+        }),
+        editor: Button.new('editor', 300 - 65, 400, 62, function() {
+            scene = 'editor';
+            click = false;
+            mouseIsPressed = false;
+        })
+    },
+    levels: [],
+    levelsHome: Button.new('home', 300, 70, 40, function() {scene = 'menu';}),
+    play: {
+        home: Button.new('home', 49, 49, 27, function() {scene = 'menu';}),
+        restart: Button.new('restart', 123, 49, 27, function() {loadLevel(level);}),
+    },
+    playUser: {
+        home: Button.new('<', 49, 49, 27, function() {scene = 'levels-user';}),
+        restart: Button.new('restart', 123, 49, 27, function() {loadLevel(0, false, true);}),
+    },
+    editorPlay: Button.new('<', 49, 49, 27, function() {scene = 'editor';}),
+    editorHome: Button.new('home', 570, 30, 20, function() {scene = 'menu';}),
+    levelsUser: {
+        home: Button.new('home', 40, 40, 25, function() {if (!levelScrollCancel) {scene = 'menu';}}),
+        editor: Button.new('editor', 300, 254 + userLevels.length * 50, 35, function() {if (!levelScrollCancel) {scene = 'editor';}}),
+    },
+};
+var buttonPos = calcPos(29, 6, 88, 83);
+for(var i = 0; i < 29; i++) {
+    buttons.levels.push(Button.new(i + 1, buttonPos[i].x, 176 + buttonPos[i].y, 32, startLevel, checkLevel));
+}
+
+// menu -> block-display/background/title/
+var blocksMenu = [Spike.new(0, 550, "right"),dirBlock.new(50, 550, "right"),Block.new(100, 550, 0, 1),Block.new(150, 550, 1, 0),xBlock.new(200, 550, 1, 1),Block.new(250, 550, 0, 1),Block.new(300, 550, 1, 0),xBlock.new(350, 550, 1, 1),Block.new(400, 550, 0, 1),Block.new(450, 550, 1, 0),dirBlock.new(500, 550, "left"),Spike.new(550, 550), Player.new(275, 500)];
+var bg = function(){
+    
+    noFill();
+    stroke(255, 255, 255, 10);
+    strokeWeight(1);
+    
+    for(var i = 0; i < width; i+=30)
+    {
+        for(var j = 0; j < width; j+=30)
+        {
+            rect(i - 10, j - 10, 50, 50);
+        }
+    }
+};
+var title = function(x, y, c) {
+    
+    strokeWeight(5);
+    stroke(c);
+    
+    pushMatrix();
+    translate(x, y);
+    
+    // lines
+    rect(90, 161, 373 + 20, 1);
+    rect(90, 90, 373 + 20, 1);
+    rect(90, 96, 1, 61);
+    rect(482, 96, 1, 61);
+    
+    // G
+    rect(100, 100, 1, 50);
+    rect(100, 150, 50, 1);
+    rect(150, 125.5, 1, 25);
+    rect(126, 125, 25, 1);
+    rect(100, 100, 50, 1);
+    
+    // R
+    rect(160, 100, 1, 50);
+    rect(160, 100, 50, 1);
+    rect(210, 100, 1, 23);
+    rect(160, 122, 50, 1);
+    rect(188, 122, 1, 28);
+    
+    // A
+    rect(220, 100, 1, 50);
+    rect(270, 100, 1, 50);
+    rect(220, 100, 50, 1);
+    rect(220, 122, 50, 1);
+    
+    // V
+    pushMatrix();
+    translate(280, 100);
+    rotate(-28);
+    rect(0, 0, 1, 58);
+    popMatrix();
+    pushMatrix();
+    translate(335, 100);
+    rotate(28);
+    rect(0, 0, 1, 57);
+    popMatrix();
+    
+    // I
+    rect(345, 100, 1, 50);
+    
+    // T
+    rect(355, 100, 50, 1);
+    rect(379, 100, 1, 50);
+    
+    // Y
+    pushMatrix();
+    translate(415, 100);
+    rotate(-47);
+    rect(0, 0, 1, 38);
+    popMatrix();
+    pushMatrix();
+    translate(472, 100);
+    rotate(47);
+    rect(0, 0, 1, 38);
+    popMatrix();
+    rect(444, 125, 1, 25);
+    popMatrix();
+    
+    noStroke();
+};
+
+// main draw
+draw = function() {
+    
+    // setup defaults
+    cursor('default');
+    background(61);
+    bg();
+    
+    // other scenes scenes
+    if (scene === 'menu') {
+        strokeWeight(2);
+        stroke(255, 255, 255);
+        for(var i = 0; i < 13; i++) {
+            if (i % 2) {
+                fill(255, 255, 255);
+            } else {
+                noFill();
+            }
+            ellipse(128 + i * 29, 231, 20, 20);
+        }
+    
+        title(13, 46, color(122, 122, 122));
+        title(13, 42, color(255, 255, 255));
+        
+        textSize(21);
+        fill(122, 122, 122);
+        text("ISAAC EMERALD X PLATFORMERKING", 300, 117);
+        fill(255, 255, 255);
+        text("ISAAC EMERALD X PLATFORMERKING", 300, 115);
+        
+        grid = 50;
+        
+        blocksMenu[5].filled = 1;
+        blocksMenu[6].filled = 1;
+        for(var i = 0; i < blocksMenu.length; i++) {
+            blocksMenu[i].display();
+        }
+    
+        noStroke();
+        buttons.menu.play.display();
+        buttons.menu.editor.display();
+    }
+    if (scene === 'play-mode') {
+        fill(36);
+        stroke(255);
+        strokeWeight(2);
+        if (mouseX >= 70 && mouseX <= 270 && mouseY >= 200 && mouseY <= 400) {
+            fill(0);
+            cursor('pointer');
+            if (click) {
+                scene = 'levels-user';
+                click = false;
+            }
+        }
+        rect(70, 200, 200, 200, 10);
+        
+        noFill();
+        stroke(255);
+        strokeWeight(2);
+        arc(170, 327, 100, 100, 181, 246);
+        arc(170, 327, 100, 100, 295, 360);
+        ellipse(170, 258, 60, 60);
+        
+        fill(255);
+        textSize(23);
+        text('USER LEVELS', 170, 371);
+        
+        fill(36);
+        stroke(255);
+        strokeWeight(2);
+        if (mouseX >= 330 && mouseX <= 530 && mouseY >= 200 && mouseY <= 400) {
+            fill(0);
+            cursor('pointer');
+            if (click) {
+                scene = 'levels-official';
+                click = false;
+            }
+        }
+        rect(330, 200, 200, 200, 10);
+        
+        noFill();
+        stroke(255);
+        strokeWeight(2);
+        ellipse(430, 285, 70, 70);
+        beginShape();
+        vertex(406, 286);
+        vertex(424, 303);
+        vertex(476, 251);
+        endShape();
+        
+        fill(255);
+        text('OFFICIAL LEVELS', 430, 371);
+    }
+    if (scene === 'levels-official') {
+        textSize(30);
+        for(var i = 0; i < buttons.levels.length; i++) {
+            buttons.levels[i].display();
+        }
+        buttons.levelsHome.display();
+    }
+    if (scene === 'levels-user') {
+        pushMatrix();
+        levelScroll = constrain(levelScroll, 0, -139 + userLevels.length * 50);
+        translate(0, -levelScroll);
+        textSize(49);
+        fill(255);
+        text('USER LEVELS', 300, 101);
+        
+        for(var i = 0; i < userLevels.length; i++) {
+            fill(50);
+            strokeWeight(2);
+            stroke(255);
+            if (mouseX > 50 && mouseX < 550 && mouseY+levelScroll > 170 + i * 50 && mouseY+levelScroll <= 220 + i * 50 && !levelScrollCancel) {
+                fill(0);
+                cursor('pointer');
+                if (click) {
+                    userLevel = userLevels[i];
+                    loadLevel(0, false, true);
+                    scene = 'play-user';
+                    click = false;
+                }
+            }
+            rect(50, 170 + i * 50, 500, 50);
+            fill(255);
+            textSize(20);
+            textAlign(1, 3);
+            var b = textWidth(userLevels[i].levelName) >= 160 ? userLevels[i].levelName.slice(0, 10) + '...' : userLevels[i].levelName;
+            text(b, 63, 193 + i * 50);
+            textAlign(39, 3);
+            var b = textWidth(userLevels[i].authorName) >= 260 ? userLevels[i].authorName.slice(0, 14) + '...' : userLevels[i].authorName;
+            text('by ' + b, 533, 193 + i * 50);
+            textAlign(3, 3);
+        }
+        for(var i in buttons.levelsUser) {
+            buttons.levelsUser[i].display(levelScroll);
+        }
+        fill(255);
+        textSize(30);
+        text('MAKE YOUR OWN', 300, 325 + userLevels.length * 50);
+        popMatrix();
+        
+        levelScrollCancel = false;
+        // {
+        fill(200 + levelScrollT);
+        noStroke();
+        rect(0, levelScrollT-40, width, 90);
+        noFill();
+        stroke(50);
+        strokeWeight(5);
+        strokeJoin(ROUND);
+        beginShape();
+        vertex(285, levelScrollT + 30);
+        vertex(300, levelScrollT + 17);
+        vertex(315, levelScrollT + 30);
+        endShape();
+        fill(50);
+        textSize(20);
+        text('HOLD TO SCROLL UP', 300, levelScrollT - 12);
+        if (mouseY <= levelScrollT + 50) {
+            levelScrollT += (40 - levelScrollT) / 6;
+            levelScrollCancel = true;
+            if (mouseIsPressed) {
+                levelScroll -= 3;
+            }
+        } else if (levelScroll < 50)  {
+            levelScrollT += (-55 - levelScrollT) / 6;
+        } else {
+            levelScrollT -= levelScrollT / 6;
+        }
+        // } top scroll control
+        // {
+        fill(200 + levelScrollP);
+        noStroke();
+        rect(0, 550 - levelScrollP, width, 90);
+        noFill();
+        stroke(50);
+        strokeWeight(5);
+        strokeJoin(ROUND);
+        beginShape();
+        vertex(285, 567 - levelScrollP);
+        vertex(300, 582 - levelScrollP);
+        vertex(315, 567 - levelScrollP);
+        endShape();
+        fill(50);
+        textSize(20);
+        text('HOLD TO SCROLL DOWN', 300, 614 - levelScrollP);
+        if (mouseY >= 550 - levelScrollP) {
+            levelScrollP += (40 - levelScrollP) / 6;
+            levelScrollCancel = true;
+            if (mouseIsPressed) {
+                levelScroll += 3;
+            }
+        } else {
+            levelScrollP -= levelScrollP / 6;
+        }
+        // } bottom scroll control
+    }
+    if (scene === 'play') {
+        createLevel();
+        
+        for(var i in buttons.play) {
+            buttons.play[i].display();
+        }
+    }
+    if (scene === 'play-user') {
+        createLevel();
+        for(var i in buttons.playUser) {
+            buttons.playUser[i].display();
+        }
+    }
+    
+    // editor scenes
+    if (scene === 'editor') {
+        curMsg = '';
+        // {
+        fill(100);
+        noStroke();
+        rect(0, 0, width, 60);
+        stroke(0);
+        strokeWeight(5);
+        line(0, 60, width, 60);
+        // } toolbar
+        
+        // {
+        for(var i in elemData) {
+            var pos = Object.keys(elemData).indexOf(i);
+            fill(0, 0, 0, 50);
+            noStroke();
+            if (selectedObj === i) {
+                rect(12 + pos * 40, 9, 40, 40);
+            }
+            if (mouseX >= 12 + pos * 40 && mouseX <= 52 + pos * 40 && mouseY <= 49 && mouseY >= 9) {
+                cursor('pointer');
+                curMsg = elemData[i].name;
+                if (mouseIsPressed) {
+                    fill(0, 0, 0, 100);
+                }
+                rect(12 + pos * 40, 9, 40, 40);
+                if (click) {
+                    selectedObj = i;
+                }
+            }
+            elemData[i].elem.prototype.display(20 + pos * 40, 17);
+            
+            if(elemData[i].symbol === '>')
+            {
+                elemData[i].elem.prototype.dir = "left";
+            }
+            if(elemData[i].symbol === 'U')
+            {
+                elemData[i].elem.prototype.dir = "down";
+            }
+            if(elemData[i].symbol === 'D')
+            {
+                elemData[i].elem.prototype.dir = "up";
+            }
+            if(elemData[i].symbol === '<')
+            {
+                elemData[i].elem.prototype.dir = "right";
+            }
+        }
+        // } toolbar items
+        
+        // {
+            fill(100);
+            noStroke();
+            rect(0, height - 60, width, 60);
+            stroke(0);
+            strokeWeight(5);
+            line(0, height - 60, width, height - 60);
+        // } bottom toolbar
+        
+        // {
+        if (mouseY > height - 60 && mouseX >= 520) {
+            fill(0, 0, 0, 50);
+            cursor('pointer');
+            curMsg = 'Save the level for others to play';
+            if (mouseIsPressed) {
+                fill(0, 0, 0, 100);
+            }
+            if (click) {
+                scene = 'editor-save';
+            }
+            noStroke();
+            rect(520, height - 60, 80, 60);
+        }
+        
+        fill(255);
+        textSize(22);
+        text('SAVE', 560, height - 30);
+        //} save code
+        
+        // {
+        if (mouseY > height - 60 && mouseX >= 440 && mouseX < 520) {
+            fill(0, 0, 0, 50);
+            cursor('pointer');
+            curMsg = 'Test-play your level';
+            if (mouseIsPressed) {
+                fill(0, 0, 0, 100);
+            }
+            if (click) {
+                var foundPlayer = false;
+                var foundItem = false;
+                for(var i = 0; i < elems.length; i++) {
+                    if (elems[i].isPlayer) {
+                        foundPlayer = true;
+                    } else if (elems[i].isBlock) {
+                        foundItem ++;
+                    }
+                }
+                if (!foundPlayer) {
+                    _clearLogs();
+                    println('You need a player to test your level.');
+                } else if (foundItem < 2) {
+                    _clearLogs();
+                    println('You need at least two blocks to test your level.');
+                } else {
+                    loadLevel(0, true);
+                    scene = 'editor-test';
+                }
+            }
+            noStroke();
+            rect(440, height - 60, 80, 60);
+        }
+        
+        fill(255);
+        text('TEST', 480, height - 30);
+        //} test button
+        
+        // {
+        if (mouseY > height - 60 && mouseX >= 360 && mouseX < 440) {
+            fill(0, 0, 0, 50);
+            cursor('pointer');
+            curMsg = 'Clear the level';
+            if (mouseIsPressed) {
+                fill(0, 0, 0, 100);
+            }
+            if (confirmClear) {
+                curMsg = 'Are you sure?';
+            }
+            if (click) {
+                if (confirmClear) {
+                    editorMap = [];
+                    for(var y = 0; y < height - 100 - grid; y += grid) {
+                        editorMap.push([]);
+                        for(var x = 0; x < width; x += grid) {
+                            editorMap[floor(y / grid)].push(' ');
+                        }
+                    }
+                    elems = [];
+                    confirmClear = false;
+                } else {
+                    confirmClear = true;
+                }
+                
+            }
+            noStroke();
+            rect(360, height - 60, 80, 60);
+        } else {
+            confirmClear = false;
+        }
+        
+        fill(255);
+        text(confirmClear ? 'SURE?' : 'CLEAR', 400, height - 30);
+        //} clear button
+        
+        for(var i = 0; i < elems.length; i++) {
+            elems[i].display(); // display all elements in the editor
+        }
+        
+        var mx = floor(mouseX / grid); 
+        var my = floor((max(mouseY, 60) - 60) / grid); // mouse position asjusted for grid size
+        
+        if (mouseY > 60 && my < editorMap.length) {
+            curMsg = 'Left-click to add, Right-click to delete';
+            fill(0, 0, 0, 50);
+            stroke(255);
+            strokeWeight(1);
+            rect(mx * grid, 60 + my * grid, grid, grid);
+        
+            if (mouseIsPressed) {
+                if (mouseButton === LEFT) {
+                    if (editorMap[my][mx] === ' ') {
+                        editorMap[my][mx] = elemData[selectedObj].symbol;
+                        if(elemData[selectedObj].elem !== dirBlock && elemData[selectedObj].elem !== lBlock)
+                        {
+                            elems.push(new elemData[selectedObj].elem(mx * grid, 60 + my * grid));
+                        }
+                        if(elemData[selectedObj].symbol === '<')
+                        {
+                            elems.push(new elemData[selectedObj].elem(mx * grid, 60 + my * grid, "left"));
+                        }
+                        if(elemData[selectedObj].symbol === '>')
+                        {
+                            elems.push(new elemData[selectedObj].elem(mx * grid, 60 + my * grid, "right"));
+                        }
+                        if(elemData[selectedObj].symbol === 'U')
+                        {
+                            elems.push(new elemData[selectedObj].elem(mx * grid, 60 + my * grid, "up"));
+                        }
+                        if(elemData[selectedObj].symbol === 'D')
+                        {
+                            elems.push(new elemData[selectedObj].elem(mx * grid, 60 + my * grid, "down"));
+                        }
+                    }
+                } else { // if you right click
+                    editorMap[my][mx] = ' '; // clear that space from the editor map
+                    for(var i = 0; i < elems.length; i++) {
+                        if (floor(elems[i].x / grid) === mx && floor((elems[i].y - 60) / grid) === my) {
+                            elems.splice(i, 1); // and remove the element from the array
+                        }
+                    }
+                }
+            }
+        }
+        
+        fill(255);
+        textAlign(LEFT, CENTER);
+        textSize(18);
+        text(curMsg, 20, height - 29);
+        textAlign(CENTER, CENTER);
+        buttons.editorHome.display();
+    }
+    if (scene === 'editor-test') {
+        createLevel();
+        buttons.editorPlay.display();
+    }
+    if (scene === 'editor-save') {
+        fill(0xFFAAAAAA);
+        noStroke();
+        if (focusedBox === 'lvl') {
+            fill(0xFFFFFFFF);
+        }
+        rect(50, 175, 500, 50, 5);
+        fill(0);
+        textAlign(LEFT, CENTER);
+        textSize(31);
+        text(txt.lvl + (focusedBox === 'lvl' && frameCount % 40 < 20 ? '|' : ''), 67, 200);
+        fill(0xFFAAAAAA);
+        noStroke();
+        if (focusedBox === 'username') {
+            fill(0xFFFFFFFF);
+        }
+        rect(50, 350, 500, 50, 5);
+        fill(0);
+        textAlign(LEFT, CENTER);
+        textSize(31);
+        text(txt.username + (focusedBox === 'username' && frameCount % 40 < 20 ? '|' : ''), 67, 374);
+        
+        if (mouseX > 50 && mouseY < 550) {
+            if (mouseY > 175 && mouseY < 225) {
+                cursor('text');
+                if (click) {
+                    focusedBox = 'lvl';
+                }
+            }
+            if (mouseY > 350 && mouseY < 400) {
+                cursor('text');
+                if (click) {
+                    focusedBox = 'username';
+                }
+            }
+        }
+        
+        textSize(40);
+        fill(255);
+        textAlign(CENTER, CENTER);
+        text('Level Name', 300, 133);
+        text('Your Name', 300, 311);
+        
+        fill(255);
+        noStroke();
+        if (mouseX >= 210 && mouseX <= 390 && mouseY >= 470 && mouseY <= 540) {
+            fill(220);
+            cursor('pointer');
+            if (mouseIsPressed) {
+                fill(180);
+            }
+            if (click) {
+                if (txt.lvl.length >= 3 && txt.username.length >= 3) {
+                _clearLogs();
+                println('{');
+                println('   levelName: \'' + txt.lvl + '\',');
+                println('   authorName: \'' + txt.username + '\',');
+                println('   map: [\n');
+                var lastUsedSpot = 0;
+                var firstUsedSpot = 999;
+                var firstX = 999;
+                for(var i = 0; i < editorMap.length; i++) {
+                    if (editorMap[i].join('') !== ' '.repeat(24)) {
+                        if (firstUsedSpot >= i) {
+                            firstUsedSpot = i;
+                        }
+                        lastUsedSpot = i;
+                    }
+                    for(var j = 0; j < editorMap[i].length; j++) {
+                        if (editorMap[i][j] !== ' ' && j <= firstX) {
+                            firstX = j;
+                        }
+                    }
+                }
+                for(var i = firstUsedSpot; i < lastUsedSpot + 1; i++) {
+                    println('       \'' + editorMap[i].join('').slice(firstX, 999).replace(/\s+$/, '').replace(/ /g,"O").split('*').join('S').split('#').join('B').split('>').join('R').split('<').join('L') + '\',\n');
+                }
+                println('   ],');
+                println('},');
+                println('');
+                println('Post this into Tips&Thanks to get featured in our user level section');
+                scene = 'editor';
+                } else {
+                    _clearLogs();
+                    println('Level Name and Author Name must be at least 3 characters.');
+                }
+            }
+        }
+        rect(210, 470, 180, 70, 10);
+        fill(0);
+        textSize(40);
+        text('SAVE', 300, 505);
+        
+        buttons.editorPlay.display();
+    }
+    
+    // default click state
+    click = false;
+};
