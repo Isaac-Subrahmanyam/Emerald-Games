@@ -1,0 +1,2343 @@
+
+
+
+
+
+/**
+
+
+___________________________
+THE CURRENT - EMERALD GAMES PRODUCTION!
+@Author: ISAAC EMERALD ©2016.
+___________________________
+
+
+
+Inspired by The Current, on scratch - https://scratch.mit.edu/projects/89790449/
+
+Post your score in the Tips&Thanks!
+
+**/
+
+
+
+
+
+
+
+
+
+
+
+
+
+//LeaderBoard
+{
+var placeHolder = 'This could be you';
+
+//Main Leader-Board array
+var scores = [
+    
+    ["$hakia", 6057],
+    
+    ["Alpha Wolf", 3151],
+    
+    ["Mewceleste", 2152],
+    
+    ["Joe Runner", 1973],
+    
+    ["D Bear", 1914],
+    
+    ["Rishi", 3907],
+
+];
+}
+
+//Game Code
+
+//Achievement stuff
+var scaleCanvasBy = width / 400;
+var feedingFrenzyAchievement = false;
+var goldenTenAchievement = false;
+var goldenTenCount = 0;
+var highFive = false;
+var tenGamesCount = 0;
+var tenGamesCountAchievement = false;
+var sharkDodgeCount = 0;
+var sharkDodgeAchievement = false;
+var fishCount = 0;
+var fishCountAchievement = false;
+var twoFeedingFrenzyCount = 0;
+var twoFeedingFrenzyAchievement = false;
+var roaringScore = false;
+var shadeTrophie = 0;
+var shadeTrophieOffset = 0;
+
+var achievementTeller = function(x, y, w, h, m){
+
+textSize(25);
+
+if(mouseX > x * scaleCanvasBy && mouseX < (x + w) * scaleCanvasBy && mouseY > y * scaleCanvasBy && mouseY < (y + h) * scaleCanvasBy)
+{
+    fill(0, 7, 148);
+    text(m, 200, 280);
+    fill(255, 255, 255, 50);
+}
+rect(x, y, w, h);
+
+};
+
+var locked = function(x, y, w, h){
+
+stroke(255, 255, 255);
+strokeWeight(3);
+noFill();
+arc(x + w / 2, y + h / 2, w / 3, h / 2, -180, 0);
+noStroke();
+fill(255, 255, 255);
+ellipse(x + w / 2, y + h / 1.5, w / 2, h / 2);
+fill(58, 171, 252);
+ellipse(x + w / 2, y + h / 1.5, w / 10, h / 10);
+arc(x + w / 2, y + h / 1.3, w / 10, h / 10, -180, 0);
+
+noFill();
+
+};
+
+var page = "game";
+var playerX = 300;
+var playerY = 100;
+var end = false;
+var start = false;
+var acceleration = 0;
+var PLAYERSIZE = 15;
+var scoreOffset = -100;
+var scoreOffsetAdd = 3;
+//bubble positioins/sizes
+var bubbleX = [88,54,161,196,127,115,92,246,106,59,148,49,34,23,29,262,227,228,288,334,282,301,93,81,20,132,269,210];
+var bubbleY = [89,229,134,296,297,234,279,297,342,130,50,331,355,266,35,82,222,352,351,218,200,96,50,165,107,53,162,51];
+var bubbleSize = [10,6,19,7,10,6,19,6,16,7,8,13,13,16,7,9,6,9,15,9,11,11,6,18,10,8,15,18];
+
+var puase = 0;
+var score = 0;
+var best = 0;
+var shade2 = 0;
+var buttonAnimation = 0;
+var goldFishTextOffset = 0;
+var howPageX = 0;
+var delayCursorLoad = 0;
+var mobile = false;
+var readingTimeDelay = 0;
+var delayTimer = 1000;
+var fishEatAmount = 2;
+var achievementAchievCountOffset = 0, achievementAchievCountOffset2 = 0, achievementAchievCountOffset3 = 0, achievementAchievCountOffset4 = 0, achievementAchievCountOffset5 = 0, achievementAchievCountOffset6 = 0, achievementAchievCountOffset7 = 0, achievementAchievCountOffset8 = 0;
+var shadeText = 0;
+
+var acievementEarnedPicture = function(m){
+
+noStroke();
+shadeText += 10;
+if(shadeText >= 500)
+{
+    shadeText = 500;
+}
+fill(0, 0, 0, shadeText);
+rect(100, 300, 200, 50);
+fill(255, 255, 255, shadeText);
+textSize(20);
+text("Achievement Earned\n> " + m + " <", 200, 325);
+
+};
+
+
+//Stores the size
+var TXTsize = 25;
+
+//Top scores on the list
+var topScore = 0;
+
+//Order the scores
+var orderedScores = scores;
+
+//Orders the scores
+var sortScores = function() {
+    for (var a = 1; a < orderedScores.length; a++) 
+    {
+        if (orderedScores[a][1] > orderedScores[a - 1][1]) 
+        {
+            var saveScore = orderedScores[a];
+            orderedScores[a] = orderedScores[a - 1];
+            orderedScores[a - 1] = saveScore;
+        }
+    }
+};
+
+var scroll = 0;
+
+//background
+var back = function(){
+    
+    var waterX = -40 + sin(frameCount * 5) * 10;
+    var waterY = sin(frameCount * 7) * 7;
+
+    background(99, 245, 255);
+    
+    fill(255, 255, 255, 90);
+    noStroke();
+    
+    for(var i = 0;i < 3 * 150; i += 150)
+    {
+        beginShape();
+        vertex(waterX + 50 + i,waterY - 10);
+        vertex(waterX + 40 + i,waterY + 200);
+        vertex(waterX + 70 + i,waterY + 190);
+        vertex(waterX + 102 + i,waterY - 10);
+        endShape();
+    }
+    
+    for(var i = 0;i < 3 * 150; i += 150)
+    {
+        beginShape();
+        vertex(waterX + 50 + i + 60,waterY - 10);
+        vertex(waterX + 40 + i + 60,waterY + 260);
+        vertex(waterX + 70 + i + 60,waterY + 250);
+        vertex(waterX + 102 + i + 86,waterY - 10);
+        endShape();
+    }
+    
+    noStroke();
+    for(var i =0;i<bubbleX.length;++i)
+    {
+        bubbleX[i]+=bubbleSize[i]/5;
+        fill(0, 187, 255,100);
+        ellipse(bubbleX[i],bubbleY[i],bubbleSize[i],bubbleSize[i]);
+        if(bubbleX[i]>400)
+        {
+            bubbleX[i]=-20;
+            bubbleY[i] = random(0,400);
+        }
+    }
+    
+    strokeWeight(3);
+    stroke(201, 102, 4);
+    fill(255, 216, 99);
+    ellipse(305,430,300,154);
+    ellipse(58,430,388,193);
+    ellipse(200,430,388,193);
+
+};
+
+//player fish
+var speed = 3;
+var rotatePlayer = 0;
+var shade = 0;
+
+//score
+var scoreCall = function(){
+    fill(0, 0, 0,shade);
+    textSize(50);
+    text(score,10 + scoreOffset,390);
+    
+    fill(255, 225, 0, goldFishTextOffset);
+    text(score,10 + scoreOffset,390);
+    
+    goldFishTextOffset -= 5;
+    if(goldFishTextOffset < 1)
+    {
+        goldFishTextOffset = 0;
+    }
+};
+
+//blue fish
+var speedBlue = random(1,5);
+var blueX = -50;
+var blueY = random(0,300);
+var FtailMove,FtailMoveOffset,color1,color2;
+var blueFish = function(x,y,w,h){
+w = 50;
+h = 50;
+
+var FtailMove = sin(frameCount * 15) * 5;
+var FtailMoveOffset = sin(frameCount * 5) * 3;
+var color1 = color(0, 153, 255,shade);
+var color2 = color(0, 13, 255,shade);
+
+if(PLAYERSIZE >= w)
+{
+    fill(255, 174, 0, shade / 2);
+    ellipse(x + w / 2.5, y + h / 2, w * 2, h * 2);
+}
+
+if(playerX > x - PLAYERSIZE && playerX < x + w && playerY > y - PLAYERSIZE && playerY < y + h && end === false)
+{
+    if(PLAYERSIZE < w)
+    {
+        end = true;
+    }
+    if(PLAYERSIZE >= w)
+    {
+        fishCount += 1;
+        blueX = -150;
+        speedBlue = random(1,5);
+        blueY = random(0,300);
+        score += 20;
+        goldFishTextOffset = 200;
+        goldenTenCount = 0;
+    }
+}
+
+fill(color2);
+arc(x + 5,y + 25,55 + FtailMove,50 + FtailMove,-45 + 180 + FtailMoveOffset,45 + 180 + FtailMoveOffset);
+
+fill(color1);
+arc(x + 5,y + 25,50 + FtailMove,45 + FtailMove,-45 + 180 + FtailMoveOffset + 10,45 + 180 + FtailMoveOffset - 10);
+
+strokeWeight(3);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h);
+
+fill(0, 0, 0,shade);
+noStroke();
+ellipse(x + 38, y - 7 + 28, 13,20);
+
+if(PLAYERSIZE >= w)
+{
+    fill(255, 255, 255,shade / 2);
+    rect(x, y + frameCount / 3 % h - 3, w, 3);
+}
+
+};
+
+//pic
+var FishPic = function(x,y,w,h,color1,color2,eatable, eyeColor){
+
+noStroke();
+if(eatable === true)
+{
+    fill(255, 174, 0, 200);
+    ellipse(x + w / 2.5, y + h / 2, w * 1.6, h * 1.6);
+}
+
+noStroke();
+fill(color2);
+arc(x, y + h / 2, w / 0.9 + FtailMove, h + FtailMove,-45 + 180 + FtailMoveOffset,45 + 180 + FtailMoveOffset);
+
+fill(color1);
+arc(x + w / 100,y + h / 2,w + FtailMove,h / 1.1 + FtailMove,-45 + 180 + FtailMoveOffset + 10,45 + 180 + FtailMoveOffset - 10);
+
+strokeWeight(2);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h);
+
+noStroke();
+fill(eyeColor);
+ellipse(x + w / 1.3, y + h / 2.6, w / 3.5, h / 2);
+
+
+};
+
+//rare fish
+var rareX = 0;
+var rareY = random(0, 250);
+var shineAngle = 0;
+var RareFish = function(x,y,w,h,color1,color2,eatable){
+
+noStroke();
+fill(255, 255, 255, shade / 2);
+ellipse(x + w / 2.5, y + h / 2, w * 2, h * 2);
+if(eatable === true)
+{
+    fill(255, 255, 255, shade / 2);
+    arc(x + w / 2.5, y + h / 2, w * 4, h * 4, 0 + shineAngle, 30 + shineAngle);
+    arc(x + w / 2.5, y + h / 2, w * 4, h * 4, 0 + 50 + shineAngle, 30 + 50 + shineAngle);
+    arc(x + w / 2.5, y + h / 2, w * 4, h * 4, 0 + 100 + shineAngle, 30 + 100 + shineAngle);
+    arc(x + w / 2.5, y + h / 2, w * 4, h * 4, 0 + 150 + shineAngle, 30 + 150 + shineAngle);
+    arc(x + w / 2.5, y + h / 2, w * 4, h * 4, 0 + 200 + shineAngle, 30 + 200 + shineAngle);
+    arc(x + w / 2.5, y + h / 2, w * 4, h * 4, 0 + 250 + shineAngle, 30 + 250 + shineAngle);
+    arc(x + w / 2.5, y + h / 2, w * 4, h * 4, 0 + 300 + shineAngle, 30 + 300 + shineAngle);
+    shineAngle += 5;
+
+}
+
+if(playerX > x - PLAYERSIZE && playerX < x + w && playerY > y - PLAYERSIZE && playerY < y + h && end === false)
+{
+    fishCount += 1;
+    goldFishTextOffset = 200;
+    PLAYERSIZE += fishEatAmount;
+    score += 50;
+    goldenTenCount = 0;
+    rareX = random(-15000,-14000);
+    rareY = random(0,300);
+}
+
+noStroke();
+fill(color2);
+arc(x, y + h / 2, w / 0.9 + FtailMove, h + FtailMove,-45 + 180 + FtailMoveOffset,45 + 180 + FtailMoveOffset);
+
+fill(color1);
+arc(x + w / 100,y + h / 2,w + FtailMove,h / 1.1 + FtailMove,-45 + 180 + FtailMoveOffset + 10,45 + 180 + FtailMoveOffset - 10);
+
+strokeWeight(2);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h, 3);
+
+fill(0, 0, 0, shade);
+noStroke();
+ellipse(x + w / 1.3, y + h / 2.6, w / 4, h / 3);
+
+
+};
+
+//purple fish
+var speedPurple = random(1,5);
+var purpleX = 0;
+var purpleY = random(0,300);
+var FtailMove,FtailMoveOffset,color1,color2;
+var purpleFish = function(x,y,w,h){
+w = 30;
+h = 30;
+
+FtailMove = sin(frameCount * 15) * 3;
+FtailMoveOffset = sin(frameCount * 5) * 2;
+color1 = color(221, 0, 255,shade);
+color2 = color(134, 4, 186,shade);
+
+if(PLAYERSIZE > w)
+{
+    fill(255, 174, 0, shade / 2);
+    ellipse(x + w / 2.5, y + h / 2, w * 2, h * 2);
+}
+
+if(playerX > x - PLAYERSIZE && playerX < x + w && playerY > y - PLAYERSIZE && playerY < y + h && end === false)
+{
+    if(PLAYERSIZE <= w)
+    {
+        end = true;
+    }
+    if(PLAYERSIZE > w)
+    {
+        fishCount += 1;
+        purpleX = -150;
+        speedPurple = random(1,5);
+        purpleY = random(0,300);
+        score += 15;
+        goldFishTextOffset = 200;
+        PLAYERSIZE += fishEatAmount;
+        goldenTenCount = 0;
+    }
+    
+}
+
+fill(color2);
+arc(x + 2,y + 15,40 + FtailMove,35 + FtailMove,-45 + 180 + FtailMoveOffset,45 + 180 + FtailMoveOffset);
+
+fill(color1);
+arc(x + 2,y + 15,35 + FtailMove,30 + FtailMove,-45 + 180 + FtailMoveOffset + 10,45 + 180 + FtailMoveOffset - 10);
+
+strokeWeight(2);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h);
+
+fill(0, 0, 0,shade);
+noStroke();
+ellipse(x + 22, y + 12, 10,14);
+
+if(PLAYERSIZE > w)
+{
+    fill(255, 255, 255,shade / 2);
+    rect(x, y + frameCount / 3 % h - 3, w, 3);
+}
+
+};
+
+var speedPurple2 = random(1,5);
+var purpleX2 = -600;
+var purpleY2 = random(0,300);
+var FtailMove,FtailMoveOffset,color1,color2;
+var purpleFish2 = function(x,y,w,h){
+w = 30;
+h = 30;
+
+FtailMove = sin(frameCount * 15) * 3;
+FtailMoveOffset = sin(frameCount * 5) * 2;
+color1 = color(221, 0, 255,shade);
+color2 = color(134, 4, 186,shade);
+
+if(PLAYERSIZE > w)
+{
+    fill(255, 174, 0, shade / 2);
+    ellipse(x + w / 2.5, y + h / 2, w * 2, h * 2);
+}
+
+if(playerX > x - PLAYERSIZE && playerX < x + w && playerY > y - PLAYERSIZE && playerY < y + h && end === false)
+{
+    if(PLAYERSIZE <= w)
+    {
+        end = true;
+    }
+    if(PLAYERSIZE > w)
+    {
+        fishCount += 1;
+        purpleX2 = -150;
+        speedPurple2 = random(1,5);
+        purpleY2 = random(0,300);
+        score += 15;
+        goldFishTextOffset = 200;
+        PLAYERSIZE += fishEatAmount;
+        goldenTenCount = 0;
+    }
+    
+    
+}
+
+fill(color2);
+arc(x + 2,y + 15,40 + FtailMove,35 + FtailMove,-45 + 180 + FtailMoveOffset,45 + 180 + FtailMoveOffset);
+
+fill(color1);
+arc(x + 2,y + 15,35 + FtailMove,30 + FtailMove,-45 + 180 + FtailMoveOffset + 10,45 + 180 + FtailMoveOffset - 10);
+
+strokeWeight(2);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h);
+
+fill(0, 0, 0,shade);
+noStroke();
+ellipse(x + 22, y + 12, 10,14);
+
+if(PLAYERSIZE > w)
+{
+    fill(255, 255, 255,shade / 2);
+    rect(x, y + frameCount / 3 % h - 3, w, 3);
+}
+
+};
+
+//yellow fish
+var speedYellow = random(1,5);
+var yellowX = 0;
+var yellowY = random(0,300);
+var FtailMove,FtailMoveOffset,color1,color2;
+var yellowFish = function(x,y,w,h){
+
+w = 15;
+h = 15;
+
+FtailMove = sin(frameCount * 15) * 3;
+FtailMoveOffset = sin(frameCount * 5) * 2;
+color1 = color(247, 255, 0,shade);
+color2 = color(255, 145, 0,shade);
+
+if(PLAYERSIZE >= w)
+{
+    fill(255, 174, 0, shade / 2);
+    ellipse(x + w / 2.5, y + h / 2, w * 2, h * 2);
+}
+
+if(playerX > x - PLAYERSIZE && playerX < x + w && playerY > y - PLAYERSIZE && playerY < y + h && end === false && end === false)
+{
+    fishCount += 1;
+    yellowX = -150;
+    speedYellow = random(1,5);
+    yellowY = random(0,300);
+    score += 5;
+    goldFishTextOffset = 200;
+    PLAYERSIZE += fishEatAmount;
+    goldenTenCount += 1;
+}
+
+fill(color2);
+arc(x + 2,y + 7.5,25 + FtailMove,20 + FtailMove,-45 + 180 + FtailMoveOffset,45 + 180 + FtailMoveOffset);
+
+fill(color1);
+arc(x + 2,y + 7.5,20 + FtailMove,15 + FtailMove,-45 + 180 + FtailMoveOffset + 10,45 + 180 + FtailMoveOffset - 10);
+
+strokeWeight(2);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h);
+
+fill(0, 0, 0,shade);
+noStroke();
+ellipse(x + 11, y + 6, 5,7);
+
+fill(255, 255, 255,shade / 2);
+rect(x, y + frameCount / 3 % h - 3, w, 3);
+
+};
+
+
+//green fish
+var speedGreen = random(1,5);
+var greenX = -500;
+var greenY = random(0,300);
+var FtailMove,FtailMoveOffset,color1,color2;
+var greenFish = function(x,y,w,h){
+
+w = 25;
+h = 25;
+
+FtailMove = sin(frameCount * 15) * 3;
+FtailMoveOffset = sin(frameCount * 5) * 2;
+color1 = color(0, 255, 9,shade);
+color2 = color(2, 143, 9,shade);
+
+if(PLAYERSIZE > w)
+{
+    fill(255, 174, 0, shade / 2);
+    ellipse(x + w / 2.5, y + h / 2, w * 2, h * 2);
+}
+
+if(playerX > x - PLAYERSIZE && playerX < x + w && playerY > y - PLAYERSIZE && playerY < y + h && end === false)
+{
+    if(PLAYERSIZE <= w)
+    {
+        end = true;
+    }
+    if(PLAYERSIZE > w)
+    {
+        fishCount += 1;
+        greenX = -150;
+        speedGreen = random(1,5);
+        greenY = random(0,300);
+        score += 10;
+        goldFishTextOffset = 200;
+        PLAYERSIZE += fishEatAmount;
+        goldenTenCount = 0;
+    }
+    
+}
+
+fill(color2);
+arc(x + 2,y + 12.5,30 + FtailMove,25 + FtailMove,-45 + 180 + FtailMoveOffset,45 + 180 + FtailMoveOffset);
+
+fill(color1);
+arc(x + 2,y + 12.5,25 + FtailMove,20 + FtailMove,-45 + 180 + FtailMoveOffset + 10,45 + 180 + FtailMoveOffset - 10);
+
+strokeWeight(2);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h);
+
+fill(0, 0, 0,shade);
+noStroke();
+ellipse(x + 18, y + 10, 8,11);
+
+if(PLAYERSIZE > w)
+{
+    fill(255, 255, 255,shade / 2);
+    rect(x, y + frameCount / 3 % h - 3, w, 3);
+}
+
+};
+
+var speedGreen2 = random(1,5);
+var greenX2 = 0;
+var greenY2 = random(0,300);
+var FtailMove,FtailMoveOffset,color1,color2;
+var greenFish2 = function(x,y,w,h){
+
+w = 25;
+h = 25;
+
+FtailMove = sin(frameCount * 15) * 3;
+FtailMoveOffset = sin(frameCount * 5) * 2;
+color1 = color(0, 255, 9,shade);
+
+if(PLAYERSIZE > w)
+{
+    fill(255, 174, 0, shade / 2);
+    ellipse(x + w / 2.5, y + h / 2, w * 2, h * 2);
+}
+
+color2 = color(2, 143, 9,shade);
+
+if(playerX > x - PLAYERSIZE && playerX < x + w && playerY > y - PLAYERSIZE && playerY < y + h && end === false)
+{
+    if(PLAYERSIZE <= w)
+    {
+        end = true;
+    }
+    if(PLAYERSIZE > w)
+    {
+        fishCount += 1;
+        greenX2 = -150;
+        speedGreen2 = random(1,5);
+        greenY2 = random(0,300);
+        score += 10;
+        goldFishTextOffset = 200;
+        PLAYERSIZE += fishEatAmount;
+        goldenTenCount = 0;
+    }
+    
+}
+
+fill(color2);
+arc(x + 2,y + 12.5,30 + FtailMove,25 + FtailMove,-45 + 180 + FtailMoveOffset,45 + 180 + FtailMoveOffset);
+
+fill(color1);
+arc(x + 2,y + 12.5,25 + FtailMove,20 + FtailMove,-45 + 180 + FtailMoveOffset + 10,45 + 180 + FtailMoveOffset - 10);
+
+strokeWeight(2);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h);
+
+fill(0, 0, 0,shade);
+noStroke();
+ellipse(x + 18, y + 10, 8,11);
+
+if(PLAYERSIZE > w)
+{
+    fill(255, 255, 255,shade / 2);
+    rect(x, y + frameCount / 3 % h - 3, w, 3);
+}
+
+};
+
+
+//shark fish
+var speedShark = random(1,5);
+var sharkX = -5000;
+var sharkY = random(0,300);
+var FtailMove,FtailMoveOffset,color1,color2;
+var shark = function(x,y,w,h){
+
+w = 40;
+h = 40;
+
+FtailMove = -3 + sin(frameCount * 15) * 2;
+color1 = color(94, 94, 94, shade);
+color2 = color(51, 51, 51, shade);
+
+if(playerX > x - PLAYERSIZE && playerX < x + w && playerY > y - PLAYERSIZE && playerY < y + h)
+{
+    end = true;
+}
+
+fill(color2);
+arc(x - 32, y - 2 + FtailMove, w + 30, h + 30, 25, 52);
+arc(x - 21, y + 41 + FtailMove, w + 30, h + 30, -54, -20);
+
+fill(color1);
+arc(x - 30, y + FtailMove, w + 30, h + 30, 27, 50);
+arc(x - 19, y + 39 + FtailMove, w + 30, h + 30, -50, -20);
+
+strokeWeight(2);
+stroke(color2);
+fill(color1);
+rect(x, y, w, h);
+
+fill(0, 0, 0, shade);
+noStroke();
+ellipse(x + 28, y + 14, 12,16);
+
+stroke(0, 0, 0, shade);
+strokeWeight(3);
+noFill();
+line(x + 16,y + 2,x + 35,y + 5);
+noStroke();
+fill(232, 123, 205, shade);
+arc(x + 39,y + 25,35,20,90,180);
+fill(255, 255, 255, shade);
+arc(x + 34,y + 25,10,10,0,90);
+arc(x + 28,y + 25,5,5,0,90);
+
+
+};
+
+var keys=[];
+keyPressed=function(){keys[keyCode]=true;};
+keyReleased=function(){keys[keyCode]=false;};
+
+//Player
+var player = function(){
+    textAlign(CENTER,CENTER);
+    var tailMove = sin(frameCount * 20) * 5;
+    var tailMoveOffset = sin(frameCount * 10) * 3;
+    
+    pushMatrix();
+    translate(playerX + 1,playerY + 1);
+    rectMode(CENTER);
+    rotate(rotatePlayer);
+    
+    //tail
+    noStroke();
+    fill(158, 0, 0, shade);
+    arc(0 + PLAYERSIZE,0 + PLAYERSIZE / 2,PLAYERSIZE * 1.5 + tailMove,PLAYERSIZE * 1.5,-45 + tailMoveOffset,45 + tailMoveOffset);
+    fill(255, 0, 0, shade);
+    arc(0 + PLAYERSIZE,0 + PLAYERSIZE / 2,PLAYERSIZE * 1.3 + tailMove,PLAYERSIZE * 1.3,-45 + 10 + tailMoveOffset,45 - 10 + tailMoveOffset);
+    
+    //body
+    fill(255, 0, 0, shade);
+    strokeWeight(3);
+    stroke(158, 0, 0, shade);
+    rect(PLAYERSIZE / 2, PLAYERSIZE / 2, PLAYERSIZE, PLAYERSIZE);
+    
+    noFill();
+    if(end === false)
+    {
+        strokeWeight(PLAYERSIZE / 20);
+        stroke(0, 0, 0, shade);
+        arc(3,PLAYERSIZE / 2,PLAYERSIZE / 1.5,PLAYERSIZE / 2,51,90);
+    }
+    
+    if(end === true)
+    {
+    
+    stroke(0, 0, 0, shade);
+    arc(3,PLAYERSIZE / 1.2,PLAYERSIZE / 1.5, -PLAYERSIZE / 2,51,90);
+    
+    }
+    //eye
+    fill(0, 0, 0, shade);
+    noStroke();
+    
+    if(end === false)
+    {
+        ellipse(PLAYERSIZE / 3,PLAYERSIZE / 3.3,PLAYERSIZE / 4,PLAYERSIZE / 3);
+    }
+    if(end === true)
+    {
+        ellipse(PLAYERSIZE / 3,PLAYERSIZE / 3.3,PLAYERSIZE / 3,PLAYERSIZE / 10);
+    }
+    popMatrix();
+    
+    //rotate
+    if(end === false)
+    {
+        if(rotatePlayer < -5)
+        {
+            rotatePlayer = -5;
+        }
+        
+        if(rotatePlayer > 5)
+        {
+            rotatePlayer = 5;
+        }
+    }
+    
+    //keyCode
+    
+    if(end === false && mobile === false)
+    {
+    
+        if(keys[UP] || keys[87])
+        {
+            playerY -= speed;
+            rotatePlayer += 3;
+        }
+        else if(keys[DOWN] || keys[83])
+        {
+            playerY += speed; 
+            rotatePlayer -= 3;
+        }else
+        {
+            rotatePlayer = 0;
+        }
+        
+    }
+    
+    if(mobile === true && end === false)
+    {
+        rectMode(0);
+        rotatePlayer = 0;
+        
+        
+        
+        if(mouseY < (playerY + PLAYERSIZE / 2) * scaleCanvasBy)
+        {
+            if(mouseIsPressed)
+            {
+                playerY -= speed;
+                rotatePlayer += 3;
+            }
+        }
+        
+        if(mouseY > (playerY + PLAYERSIZE / 2) * scaleCanvasBy)
+        {
+            if(mouseIsPressed)
+            {
+                playerY += speed; 
+                rotatePlayer -= 3;
+            }
+        }
+    }
+    
+    if(playerY < 5)
+    {
+        playerY = 5;
+    }
+    if(playerY > 350 - PLAYERSIZE)
+    {
+        playerY = 350 - PLAYERSIZE;
+    }
+    
+    rectMode(0);
+    
+    if(PLAYERSIZE >= 50)
+    {
+        PLAYERSIZE = 50;
+        delayTimer -= 1;
+        feedingFrenzyAchievement = true;
+    }
+    if(end === true)
+    {
+        delayTimer = 1000;
+    }
+    if(delayTimer < 1)
+    {
+        puase = 100;
+        twoFeedingFrenzyCount += 1;
+        delayTimer = 1000;
+        
+    
+    }
+    
+    if(delayTimer < 1000)
+    {
+        
+        textSize(40);
+        stroke(255, 136, 0, 100);
+        strokeWeight(5);
+        noFill();
+        for(var i =0;i < 322; i+= 40)
+        {
+        arc(200, 200, 270 + sin(frameCount * 2) * 20, 270 + sin(frameCount * 10) * 20, i + sin(frameCount * 5) * 50, i + 20 + sin(frameCount * 5) * 50);
+        }
+        
+        fill(255, 115, 0, 200);
+        text("\n" + floor(delayTimer / 60), 200, 200);
+        text("F\n", 87.5, 200 + sin(frameCount * 5) * 3);
+        text("e\n", 105.5, 200 + sin(frameCount * 6) * 3);
+        text("e\n", 126, 200 + sin(frameCount * 7) * 3);
+        text("d\n", 147, 200 + sin(frameCount * 8) * 3);
+        text("i\n", 163, 200 + sin(frameCount * 9) * 3);
+        text("n\n", 180, 200 + sin(frameCount * 10) * 3);
+        text("g\n", 199, 200 + sin(frameCount * 11) * 3);
+        text("F\n", 225, 200 + sin(frameCount * 12) * 3);
+        text("r\n", 240, 200 + sin(frameCount * 13) * 3);
+        text("e\n", 258, 200 + sin(frameCount * 14) * 3);
+        text("n\n", 279, 200 + sin(frameCount * 15) * 3);
+        text("z\n", 296, 200 + sin(frameCount * 16) * 3);
+        text("y\n", 312, 200 + sin(frameCount * 17) * 3);
+    }
+    textAlign(0, 0);
+    noStroke();
+};
+
+//reset game
+var reset = function(){
+    
+    twoFeedingFrenzyCount = 0;
+    tenGamesCount += 1;
+    goldenTenCount = 0;
+    PLAYERSIZE = 15;
+    delayTimer = 1000;
+    scoreOffset = -100;
+    acceleration = 0;
+    end = false;  
+    
+    rareX = random(-15000,-14000);
+    rareY = random(0,300);
+    
+    speedBlue = random(1,2);
+    blueX = random(-150,0);
+    blueY = random(0,300);
+    
+    speedPurple = 2;
+    purpleX = -1000;
+    purpleY = random(0,300);
+    
+    speedPurple2 = random(1,2);
+    purpleX2 = random(-50,0);
+    purpleY2 = random(0,300);
+    
+    speedGreen = 2;
+    greenX = -1200;
+    greenY = random(0,300);
+    
+    speedGreen2 = random(1,2);
+    greenX2 = random(-50,0);
+    greenY2 = random(0,300);
+    
+    speedShark = 1;
+    sharkX = -1500;
+    sharkY = random(0,300);
+    
+    speedYellow = random(1,5);
+    yellowX = random(-50,0);
+    yellowY = random(0,300);
+        
+    playerX = 300;
+    playerY = 100;
+    
+};
+
+//Button constructer
+var button = function(txt,x,y,d,pageSwitch){
+    
+    fill(25, 150, 255,shade2);
+    strokeWeight(d / 20);
+    stroke(255, 255, 255, shade2);
+    
+    if(dist(mouseX, mouseY, x * scaleCanvasBy, y * scaleCanvasBy) < (d / 2) * scaleCanvasBy && shade2 > 200 && delayCursorLoad < 1)
+    {
+        fill(25, 160, 255,shade2);
+        cursor(HAND);
+        d += 5;
+        if(mouseIsPressed)
+        {
+            delayCursorLoad = 20;
+            page = pageSwitch;
+        }
+    }
+    
+    ellipse(x, y, d, d);
+    
+    noFill();
+    arc(x, y, d / 1.3,d / 1.3, -71, -32);
+    
+    fill(255, 255, 255, shade2);
+    textSize(d / 4);
+    text(txt, x, y);
+    noStroke();
+    
+    if(pageSwitch === "board")
+    {
+        rect(x - d / 12, y, d / 25, d / 4.7);
+        rect(x, y - d / 11, d / 25, d / 3.3);
+        rect(x + d / 12, y - d / 6.1, d / 25, d / 2.7);
+    }
+};
+
+var emeraldGem = function(x, y, s){
+    
+    //stroke
+    stroke(255, 255, 255, 35);
+    strokeWeight(s / 25);
+    
+    //base
+    fill(111, 252, 98);
+    beginShape();
+    vertex(x - s, y - s / 2);
+    vertex(x - s / 2, y - s);
+    vertex(x + s / 2, y - s);
+    vertex(x + s, y - s / 2);
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s, y + s);
+    vertex(x - s, y - s / 2);
+    endShape();
+    
+    //1
+    fill(113, 245, 98);
+    noStroke();
+    beginShape();
+    vertex(x - s, y - s / 2);
+    vertex(x - s / 2, y - s);
+    vertex(x - s / 3, y - s / 2);
+    vertex(x - s / 2, y - s / 3);
+    endShape();
+    
+    //2
+    fill(82, 235, 65);
+    beginShape();
+    vertex(x - s / 2, y - s);
+    vertex(x - s / 3, y - s / 2);
+    vertex(x + s / 3, y - s / 2);
+    vertex(x + s / 2, y - s);
+    endShape();
+    
+    //3
+    beginShape();
+    fill(72, 227, 54);
+    vertex(x + s / 2, y - s);
+    vertex(x + s, y - s / 2);
+    vertex(x + s / 2, y - s / 3);
+    vertex(x + s / 3, y - s / 2);
+    endShape();
+    
+    //4
+    fill(67, 217, 48);
+    beginShape();
+    vertex(x + s, y - s / 2);
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s / 1.1);
+    vertex(x + s / 2, y - s / 3);
+    endShape();
+    
+    //5
+    fill(57, 207, 37);
+    beginShape();
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s / 1.2);
+    endShape();
+    
+    //6
+    fill(57, 196, 35);
+    beginShape();
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s / 3, y + s);
+    endShape();
+    
+    //7
+    fill(79, 214, 55);
+    beginShape();
+    vertex(x - s, y + s);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s / 3, y + s);
+    vertex(x - s / 2, y + s / 1.2);
+    endShape();
+    
+    //8
+    fill(96, 240, 67);
+    beginShape();
+    vertex(x - s, y + s);
+    vertex(x - s / 2, y + s / 1.2);
+    vertex(x - s / 2, y - s / 3);
+    vertex(x - s, y - s / 2);
+    endShape();
+    
+    //shade
+    fill(0, 0, 0, 4);
+    beginShape();
+    vertex(x + s / 2.3, y - s / 2.3);
+    vertex(x + s / 2, y - s / 3);
+    vertex(x + s / 2, y + s / 1.2);
+    vertex(x + s / 3, y + s);
+    vertex(x - s / 3, y + s);
+    vertex(x - s / 2.3, y + s / 1.1);
+    endShape();
+    
+    //shade 2
+    fill(0, 0, 0, 5);
+    beginShape();
+    vertex(x + s / 6, y + s);
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s / 1.2);
+    vertex(x + s / 2, y + s / 1.5);
+    endShape();
+
+};
+
+var grow = 0;
+var growSpeed = 3;
+var delayTimerEmerald = 0;
+var emeraldX = 200;
+var emeraldXSpeed = 3;
+var textEmeraldGamesX = 490;
+var textEmeraldGamesSpeedX = 3;
+var shade3 = 0;
+
+var tXpos = [0,166];
+var tYpos = [0,83];
+
+var eXpos = [0, 6];
+var eYpos = [0, 83];
+
+var achievementPicture = function(x,y,pic,message){
+
+    switch(pic)
+    {
+    
+    case "feedingtime":
+        
+    stroke(13, 2, 173);
+    strokeWeight(3);
+    
+    //feedingFrenzyAchievement
+    if(feedingFrenzyAchievement === false)
+    {
+        fill(58, 171, 252);
+        rect(x, y, 50, 50);
+        locked(x, y, 50, 50);
+    }
+    if(feedingFrenzyAchievement === true)
+    {
+        fill(0, 217, 255);
+        rect(x, y, 50, 50);
+        FishPic(x + 17, y + 11, 25, 25, color(0, 153, 255), color(0, 26, 255), true, color(0, 0, 0));
+    }
+    noFill();
+    
+        break;
+    
+    case "goldenten":
+    //goldenTenAchievement
+    stroke(0, 38, 153);
+    if(goldenTenCount >= 10)
+    {
+        goldenTenAchievement = true;
+    }
+    if(goldenTenAchievement === false)
+    {
+        fill(58, 171, 252);
+        rect(x, y, 50, 50);
+        locked(x, y, 50, 50);
+    }
+    if(goldenTenAchievement === true)
+    {
+        fill(0, 217, 255);
+        rect(x, y, 50, 50);
+        FishPic(x + 14, y + 5, 13, 11, color(255, 242, 0), color(255, 119, 0), false, color(0, 0, 0));
+        FishPic(x + 26, y + 20, 13, 11, color(255, 242, 0), color(255, 119, 0), false, color(0, 0, 0));
+        FishPic(x + 14, y + 35, 13, 11, color(255, 242, 0), color(255, 119, 0), false, color(0, 0, 0));
+    }
+    noFill();
+        break;
+        
+    case "highfive":    
+    //highFive
+    stroke(13, 2, 173);
+    
+    if(highFive === false)
+    {
+        fill(58, 171, 252);
+        rect(x, y, 50, 50);
+        locked(x, y, 50, 50);
+    }
+    if(highFive === true)
+    {
+        fill(0, 217, 255);
+        rect(x, y, 50, 50);
+        noStroke();
+        fill(255, 188, 117);
+        ellipse(x + 28, 53, 22, 23);
+        rect(x + 16, y + 12, 4, 25, 10);
+        rect(x +  21, y + 5, 4, 25, 10);
+        rect(x + 26, y + 3, 4, 25, 10);
+        rect(x + 31, y + 5, 4, 25, 10);
+        ellipse(x + 38, y + 27, 5, 17);
+    }
+    noFill();
+        break;
+        
+    case "tengames":    
+    //tenGamesCountAchievement
+    stroke(13, 2, 173);
+    if(tenGamesCountAchievement === false)
+    {
+        fill(58, 171, 252);
+        rect(x, y, 50, 50);
+        locked(x, y, 50, 50);
+    }
+    if(tenGamesCountAchievement === true)
+    {
+        fill(0, 217, 255);
+        rect(x, y, 50, 50);
+        textSize(13);
+        fill(0, 0, 0);
+        text("5             \n\n             2", x + 25, y + 25);
+        textSize(20);
+        text("X", x + 25, y + 25);
+    }
+    noFill();
+        break;
+    
+    case "sharkdodge":
+        
+    stroke(13, 2, 173);
+    if(sharkDodgeAchievement === false)
+    {
+        fill(58, 171, 252);
+        rect(x, y, 50, 50);
+        locked(x, y, 50, 50);
+    }
+    if(sharkDodgeAchievement === true)
+    {
+        fill(0, 217, 255);
+        rect(x, y, 50, 50);
+        FishPic(x + 20, y + 15, 20, 20, color(117, 117, 116), color(43, 43, 42), false, color(0, 0, 0));
+        
+        stroke(33, 32, 32);
+        strokeWeight(2);
+        line(x + 40, y + 20, x + 30, y + 18);
+        noFill();
+        arc(x + 40, y + 26, 20, 10, 90, 180);
+    }
+    noFill();
+        break;
+    case "hungryfish":
+        
+    stroke(13, 2, 173);
+    if(fishCountAchievement === false)
+    {
+        fill(58, 171, 252);
+        rect(x, y, 50, 50);
+        locked(x, y, 50, 50);
+    }
+    if(fishCountAchievement === true)
+    {
+        fill(0, 217, 255);
+        rect(x, y, 50, 50);
+        FishPic(x + 9, y + 5, 12, 12, color(255, 255, 0), color(255, 154, 3), false, color(0, 0, 0));
+        FishPic(x + 33, y + 10, 13, 13, color(0, 255, 17), color(11, 133, 0), false, color(0, 0, 0));
+        FishPic(x + 9, y + 22, 14, 14, color(195, 50, 252), color(133, 0, 133), false, color(0, 0, 0));
+        FishPic(x + 32, y + 29, 15, 15, color(50, 130, 250), color(0, 34, 255), false, color(0, 0, 0));
+    }
+    noFill();
+    
+        break;
+    case "twofeedingfrenzy":
+    
+    stroke(13, 2, 173);
+    if(twoFeedingFrenzyAchievement === false)
+    {
+        fill(58, 171, 252);
+        rect(x, y, 50, 50);
+        locked(x, y, 50, 50);
+    }
+    if(twoFeedingFrenzyAchievement === true)
+    {
+        fill(0, 217, 255);
+        rect(x, y, 50, 50);
+        FishPic(x + 13, y + 8, 15, 15, color(70, 142, 250), color(5, 38, 255), true, color(0, 0, 0));
+        FishPic(x + 29, y + 28, 15, 15, color(70, 142, 250), color(5, 38, 255), true, color(0, 0, 0));
+    }
+    noFill();
+    
+        break;
+        
+    case "roaringscore":
+    
+    stroke(13, 2, 173);
+    if(roaringScore === false)
+    {
+        fill(58, 171, 252);
+        rect(x, y, 50, 50);
+        locked(x, y, 50, 50);
+    }
+    if(roaringScore === true)
+    {
+        fill(0, 217, 255);
+        rect(x, y, 50, 50);
+        noStroke();
+        fill(255, 215, 94);
+        ellipse(x + 15, y + 25, 20, 20);
+        fill(0, 0, 0);
+        ellipse(x + 17, y + 23, 7, 3);
+        
+        stroke(0, 0, 0);
+        strokeWeight(1);
+        fill(255, 215, 94);
+        ellipse(x + 20, y + 29, 7, 5);
+        line(x + 40, y + 25, x + 25, y + 30);
+        line(x + 40, y + 17, x + 25, y + 27);
+        line(x + 40, y + 36, x + 25, y + 33);
+        textSize(12);
+        fill(0, 0, 0);
+        text("! ! !", x + 13, y + 8);
+    }
+    noFill();
+    
+        break;
+    }
+    
+    achievementTeller(x, y, 50, 50, message);
+        
+};
+
+
+draw= function() 
+{
+    pushMatrix();
+    scale(scaleCanvasBy);
+    cursor(ARROW);
+    back();
+    delayCursorLoad -= 1;
+    if(delayCursorLoad < 1)
+    {
+        delayCursorLoad = 0;
+    }
+    if(delayCursorLoad > 1)
+    {
+        cursor(WAIT);
+    }
+    
+    //logo
+    if(shade3 <= 300)
+    {
+        if(mouseIsPressed)
+        {
+            shade3 = 350;
+            delayCursorLoad = 20;
+        }
+        
+        textAlign(CENTER, CENTER);
+    
+        background(255, 255, 255);
+        
+        //emerald efect
+        pushMatrix();
+        translate(emeraldX, 182);
+        rotate(grow * 4.53);
+        emeraldGem(0, 0, grow);
+        popMatrix();
+        
+        //grow emerald
+        grow += growSpeed;
+        
+        //when emerald is at the right length
+        if(grow >= 35)
+        {
+            growSpeed -= 0.1;
+            delayTimerEmerald += 1;
+        }
+        
+        //textX move to the side
+        if(delayTimerEmerald >= 50)
+        {
+            textEmeraldGamesX -= textEmeraldGamesSpeedX;
+        }
+        
+        //once text touches the emerald
+        if(textEmeraldGamesX <= 365)
+        {
+            textEmeraldGamesSpeedX -= 0.07;
+            emeraldX -= emeraldXSpeed;
+        }
+        
+        //limmit the emerald moving to the Xpos
+        if(emeraldX < 180)
+        {
+            emeraldXSpeed -= 0.07;
+        }
+        
+        //once the speed is less then 0
+        if(emeraldXSpeed <= 0)
+        {
+            emeraldXSpeed = 0;
+            shade3 += 3;
+        }
+        
+        //once the speed is less then 0
+        if(textEmeraldGamesSpeedX <= 0)
+        {
+            textEmeraldGamesSpeedX = 0;
+        }
+        
+        //once the speed is less then 0
+        if(growSpeed <= 0)
+        {
+            growSpeed = 0;
+        }
+        
+        //text
+        textSize(37);
+        fill(47, 117, 11);
+        text("EMERALD\nGAMES    ", textEmeraldGamesX, 200);
+        text("EMERALD\nGAMES    ", textEmeraldGamesX + 2, 200);
+        text("EMERALD\nGAMES    ", textEmeraldGamesX, 202);
+        text("EMERALD\nGAMES    ", textEmeraldGamesX + 2, 202);
+    
+        noStroke();
+        fill(255, 255, 255, shade3);
+        rect(0, 0, 400, 400);
+    }
+    
+    if(shade3 > 300)
+    {
+        switch(page)
+        {
+            
+            case "game":
+            textAlign(0,0);
+            textFont(createFont("Impact"));
+            
+            player();
+            
+            //fish
+            blueFish(blueX,blueY);
+            purpleFish(purpleX,purpleY);
+            purpleFish2(purpleX2,purpleY2);
+            yellowFish(yellowX,yellowY);
+            greenFish(greenX,greenY);
+            greenFish2(greenX2,greenY2);
+            shark(sharkX,sharkY);
+            RareFish(rareX + 20, rareY + sin(frameCount * 5) * 10, 12, 12, color(255, 255, 255, shade), color(148, 148, 148, shade), true);
+            
+            //shade / 1.5
+            noStroke();
+            fill(255, 157, 0, shade / 1.5);
+            rect(20, 10, 185, 20);
+            ellipse(35, 20, 35, 35);
+            
+            //Player growth for different sizes of player
+            if(PLAYERSIZE < 25)
+            {
+                fishEatAmount = 2;
+            }
+            if(PLAYERSIZE > 25)
+            {
+                fishEatAmount = 1;
+                ellipse(85, 20, 35, 35);
+            }
+            if(PLAYERSIZE > 30)
+            {
+                ellipse(135, 20, 35, 35); 
+            }
+            if(PLAYERSIZE >= 50)
+            {
+                fishEatAmount = 0;
+                ellipse(184, 20, 35, 35);
+            }
+            puase -= 2;
+            if(puase < 1)
+            {
+                puase = 0;
+            }
+            if(acceleration >= 5)
+            {
+                acceleration = 5;
+            }
+            
+            noStroke();
+            
+            
+            FishPic(30, 13, 15, 15, color(255, 234, 0, shade / 1.5), color(255, 123, 0, shade / 1.5), false, color(2, 0, 0, shade / 1.5));
+            
+            FishPic(80, 13, 15, 15, color(17, 255, 0, shade / 1.5), color(3, 145, 27, shade / 1.5), false, color(2, 0, 0, shade / 1.5));
+            
+            FishPic(130, 13, 15, 15, color(209, 4, 206, shade / 1.5), color(108, 1, 112, shade / 1.5), false, color(2, 0, 0, shade / 1.5));
+            
+            FishPic(180, 13, 15, 15, color(13, 140, 252, shade / 1.5), color(12, 1, 110, shade / 1.5), false, color(2, 0, 0, shade / 1.5));
+            
+            
+            //Move fish
+            if(howPageX > 150 && puase < 1)
+            {
+                blueX += speedBlue + acceleration;
+                purpleX += speedPurple + acceleration;
+                purpleX2 += speedPurple2 + acceleration;
+                yellowX += speedYellow + acceleration;
+                greenX2 += speedGreen2 + acceleration; 
+                greenX += speedGreen + acceleration;
+                if(delayTimer >= 1000)
+                {
+                    sharkX += speedShark + acceleration;
+                }
+                if(delayTimer < 1000)
+                {
+                    
+                    speedShark = 1;
+                    sharkX = -1500;
+                    sharkY = random(0,300);
+                    
+                }
+                rareX += 7;
+                acceleration += 0.001;
+            }
+            if(puase > 1)
+            {
+                blueX -= speedBlue + acceleration * 2;
+                purpleX -= speedPurple + acceleration * 2;
+                purpleX2 -= speedPurple2 + acceleration * 2;
+                yellowX -= speedYellow + acceleration * 2;
+                greenX2 -= speedGreen2 + acceleration * 2; 
+                greenX -= speedGreen + acceleration * 2;
+                PLAYERSIZE -= 1;
+            }
+            if(PLAYERSIZE < 15)
+            {
+                PLAYERSIZE = 15;
+            }
+            
+            //pink fish follow
+            if(sharkX > 1)
+            {
+                if(sharkY < playerY)
+                {
+                    sharkY += speed/5;
+                }   
+                if(sharkY > playerY)
+                {
+                    sharkY -= speed/5;
+                }
+            }
+            
+            
+            scoreOffset += scoreOffsetAdd;
+            if(end === false)
+            {
+                scoreOffsetAdd = 1.5;
+                if(purpleX2 > 430)
+                {
+                    purpleX2 = random(-50,0);
+                    speedPurple2 = random(1,2);
+                    purpleY2 = random(0,300);
+                }
+                
+                if(purpleX > 430)
+                {
+                    purpleX = random(-50,0);
+                    speedPurple = random(1,2);
+                    purpleY = random(0,300);
+                }
+                
+                if(blueX > 450)
+                {
+                    blueX = random(-150,-50);
+                    speedBlue = random(1,2);
+                    blueY = random(0,300);
+                }
+            
+                if(yellowX > 450)
+                {
+                    yellowX = -100;
+                    speedYellow = random(1,2);
+                    yellowY = random(0,300);
+                }
+                
+                if(greenX > 450)
+                {
+                    greenX = random(-100,0);
+                    speedGreen = random(1,2);
+                    greenY = random(0,300);
+                }
+                
+                if(greenX2 > 430)
+                {
+                    greenX2 = random(-100,0);
+                    speedGreen2 = random(1,5);
+                    greenY2 = random(0,300);
+                }
+                
+                if(sharkX > 440)
+                {
+                    sharkX = -500;
+                    speedShark = random(1,5);
+                    sharkY = random(0,300);
+                    score++;
+                    if(end === false)
+                    {
+                        sharkDodgeCount++;
+                    }
+                }
+                if(rareX > 430)
+                {
+                    rareX = random(-15000,-14000);
+                    rareY = random(0,300);
+                }
+                
+                
+                shade += 10;
+                shade2 -= 10;
+            }
+            if(end === true)
+            {
+                scoreOffsetAdd = -4;
+            }
+            
+            if(scoreOffset > 1)
+            {
+                scoreOffset = 1;
+            }
+            if(scoreOffset < -100)
+            {
+                scoreOffset = -100;
+            }
+            
+            //shade stops
+            if(shade > 300)
+            {
+                shade = 300;
+                readingTimeDelay++;
+                if(readingTimeDelay > 200)
+                {
+                    howPageX += 3;
+                }
+            }
+            if(shade2 > 300)
+            {
+                shade2 = 300;
+            }
+            if(shade2 < 1)
+            {
+                shade2 = 0;
+            }
+            
+            //fish shade
+            if(shade < 1)
+            {
+                shade = 0;
+            }
+            if(end === true)
+            {
+                shade -= 15;
+                shade2 += 10;
+                rotatePlayer += 5;
+                playerY -= 3;
+            }
+            if(start === false)
+            {
+                end = true;
+                shade = 0;
+            }
+            
+            scoreCall();
+        
+            textAlign(CENTER,CENTER);
+            
+            //play button
+            strokeWeight(5);
+            stroke(255, 255, 255,shade2);
+            fill(25, 150 + buttonAnimation * 3, 255,shade2);
+            
+            if(dist(mouseX,mouseY,200 * scaleCanvasBy,250 * scaleCanvasBy) <= (100 / 2) * scaleCanvasBy && end === true && shade2 > 200 && delayCursorLoad < 1)
+            {
+                cursor(HAND);
+                buttonAnimation += 3;
+                if(mouseIsPressed)
+                {
+                    reset();
+                    start = true;
+                }
+            }else{
+                buttonAnimation -= 2;
+            }
+            
+            if(buttonAnimation >= 15)
+            {
+                buttonAnimation = 15;
+            }
+            if(buttonAnimation < 1)
+            {
+                buttonAnimation = 0;
+            }
+            
+            if(end === false&& shade2 < 50 && shade2 > 5)
+            {
+                score = 0;
+            }
+            
+            ellipse(200,250,100 + buttonAnimation,100 + buttonAnimation);
+            
+            noFill();
+            arc(200,250,80 + buttonAnimation,80 + buttonAnimation,-70,-32);
+            
+            fill(255, 255, 255,shade2);
+            noStroke();
+            arc(220 + buttonAnimation/2,250,80 + buttonAnimation,80 + buttonAnimation,-45 + 180,45 + 180);
+            
+            button("SETTINGS",120 - buttonAnimation,300 + buttonAnimation,70,"set");
+            button("",280 + buttonAnimation,300 + buttonAnimation,70,"board");
+            button("",200, 360 - 25 + buttonAnimation,50,"achievement");
+            
+            //trophie symbol
+            fill(255, 255, 255, shade2);
+            arc(350 - 150, 350 - 25 + buttonAnimation, 20, 20, 0, 180);
+            arc(350 - 150, 371 - 25 + buttonAnimation, 10, 10, 180, 360);
+            stroke(255, 255, 255, shade2);
+            strokeWeight(1);
+            noFill();
+            rect(349 - 150, 360 - 25 + buttonAnimation, 1, 10);
+            strokeWeight(2);
+            arc(343 - 150, 354 - 25 + buttonAnimation, 15, 5, 89, 260);
+            arc(357 - 150, 354 - 25 + buttonAnimation, 15, 5, 89 + 180, 260 + 180);
+            
+            if(end === true)
+            {
+                noStroke();
+                fill(255, 162, 0, shadeTrophie);
+                arc(350 - 150, 350 - 25 + buttonAnimation, 20, 20, 0, 180);
+                arc(350 - 150, 371 - 25 + buttonAnimation, 10, 10, 180, 360);
+                stroke(255, 162, 0, shadeTrophie);
+                
+                shadeTrophieOffset += 2;
+                
+                noFill();
+                for(var i =  0;i < 10; ++i)
+                {
+                    arc(200, 360 - 25 + buttonAnimation, 40, 40, 0 + i * 50 + shadeTrophieOffset, 20 + i * 50 + shadeTrophieOffset);
+                }
+                
+                strokeWeight(1);
+                noFill();
+                rect(349 - 150, 360 - 25 + buttonAnimation, 1, 10);
+                strokeWeight(2);
+                arc(343 - 150, 354 - 25 + buttonAnimation, 15, 5, 89, 260);
+                arc(357 - 150, 354 - 25 + buttonAnimation, 15, 5, 89 + 180, 260 + 180);
+            }
+        
+            //acccc
+            shadeText -= 5;
+            if(shadeText < 1)
+            {
+                shadeText = 0;
+            }
+            
+            
+            if(score >= 500)
+            {
+                highFive = true;
+            }
+            if(highFive === true)
+            {
+                achievementAchievCountOffset += 1;
+                if(achievementAchievCountOffset < 200)
+                {
+                    acievementEarnedPicture("HIGHFIVE!");
+                    shadeTrophie += 2;
+                }
+            }
+            
+            
+            if(sharkDodgeCount >= 20)
+            {
+                sharkDodgeAchievement = true;
+            }
+            if(sharkDodgeAchievement === true)
+            {
+                achievementAchievCountOffset2 += 1;
+                if(achievementAchievCountOffset2 < 200)
+                {
+                    acievementEarnedPicture("SHARK ATTACK");
+                    shadeTrophie += 2;
+                }
+            }
+            
+            
+            if(goldenTenCount >= 10)
+            {
+                goldenTenAchievement = true;
+            }
+            if(goldenTenAchievement === true)
+            {
+                achievementAchievCountOffset3 += 1;
+                if(achievementAchievCountOffset3 < 200)
+                {
+                    acievementEarnedPicture("HELLO YELLOW");
+                    shadeTrophie += 2;
+                }
+            }
+            
+            
+            if(tenGamesCount >= 10)
+            {
+                tenGamesCountAchievement = true;
+            }
+            if(tenGamesCountAchievement === true)
+            {
+                achievementAchievCountOffset4 += 1;
+                if(achievementAchievCountOffset4 < 200)
+                {
+                    acievementEarnedPicture("FIVE TIMES TWO");
+                    shadeTrophie += 2;
+                }
+            }
+            
+            
+            if(fishCount >= 300)
+            {
+                fishCountAchievement = true;
+            }
+            if(fishCountAchievement === true)
+            {
+                achievementAchievCountOffset5 += 1;
+                if(achievementAchievCountOffset5 < 200)
+                {
+                    acievementEarnedPicture("HUNGRY FISH");
+                    shadeTrophie += 2;
+                }
+            }
+            
+            
+            
+            if(twoFeedingFrenzyCount >= 2)
+            {
+                twoFeedingFrenzyAchievement = true;
+            }
+            if(twoFeedingFrenzyAchievement === true)
+            {
+                achievementAchievCountOffset6 += 1;
+                if(achievementAchievCountOffset6 < 200)
+                {
+                    acievementEarnedPicture("FILLED FISH");
+                    shadeTrophie += 2;
+                }
+            }
+            
+            
+            
+            if(score >= 1500)
+            {
+                roaringScore = true;
+            }
+            if(roaringScore === true)
+            {
+                achievementAchievCountOffset7 += 1;
+                if(achievementAchievCountOffset7 < 200)
+                {
+                    acievementEarnedPicture("ROARING SCORE");
+                    shadeTrophie += 2;
+                }
+            }
+            
+            
+            if(feedingFrenzyAchievement === true)
+            {
+                achievementAchievCountOffset8 += 1;
+                if(achievementAchievCountOffset8 < 200)
+                {
+                    acievementEarnedPicture("FEEDING TIME");
+                    shadeTrophie += 2;
+                }
+            }
+            
+            
+            //score/top score
+            if(start === true)
+            {
+                textSize(80);
+                fill(0, 89, 255,shade2);
+                text(score,200 + sin(frameCount * 3) * 2,104 - buttonAnimation + sin(frameCount * 7) * 5);
+                textSize(40);
+                text("TOP " + best,200,173 - buttonAnimation + sin(frameCount * 5) * 3);
+                
+                if(best === score && score > 1)
+                {
+                    fill(255, 0, 0,shade2);
+                    text("NEW  " + "TOP " + best + "  NEW",200,173 - buttonAnimation + sin(frameCount * 5) * 3);
+                    fill(0, 81, 230,shade2);
+                    text("TOP " + best,200,173 - buttonAnimation + sin(frameCount * 5) * 3);
+                }
+            }
+            
+            //store best score
+            if(best < score)
+            {
+                best = score;
+            }
+            
+            //the current
+            if(start === false)
+            {
+                //T2
+                fill(0, 55, 255, shade2);
+                strokeWeight(3);
+                stroke(0, 0, 0, shade2);
+                
+                //The T
+                for(var i = 0; i < tXpos.length; ++i)
+                {
+                    beginShape();
+                    vertex(144 + tXpos[i], 31 + tYpos[i] - buttonAnimation);
+                    vertex(179 + tXpos[i], 29 + tYpos[i] - buttonAnimation);
+                    vertex(177 + tXpos[i], 51 + tYpos[i] - buttonAnimation);
+                    vertex(170 + tXpos[i], 42 + tYpos[i] - buttonAnimation);
+                    vertex(164 + tXpos[i], 83 + tYpos[i] - buttonAnimation);
+                    vertex(169 + tXpos[i], 93 + tYpos[i] - buttonAnimation);
+                    vertex(155 + tXpos[i], 93 + tYpos[i] - buttonAnimation);
+                    vertex(158 + tXpos[i], 83 + tYpos[i] - buttonAnimation);
+                    vertex(152 + tXpos[i], 41 + tYpos[i] - buttonAnimation);
+                    vertex(147 + tXpos[i], 52 + tYpos[i] - buttonAnimation);
+                    vertex(144 + tXpos[i], 31 + tYpos[i] - buttonAnimation);
+                    endShape();
+                }
+                
+                //The H
+                fill(0, 162, 255, shade2);
+                {
+                beginShape();
+                    
+                    vertex(185,29 - buttonAnimation);
+                    vertex(197,29 - buttonAnimation);
+                    vertex(195,53 - buttonAnimation);
+                    vertex(209,53 - buttonAnimation);
+                    vertex(205,29 - buttonAnimation);
+                    vertex(221,29 - buttonAnimation);
+                    vertex(217,53 - buttonAnimation);
+                    vertex(217,81 - buttonAnimation);
+                    vertex(221,91 - buttonAnimation);
+                    vertex(205,91 - buttonAnimation);
+                    vertex(210,80 - buttonAnimation);
+                    vertex(204,66 - buttonAnimation);
+                    vertex(199,66 - buttonAnimation);
+                    vertex(194,80 - buttonAnimation);
+                    vertex(199,91 - buttonAnimation);
+                    vertex(183,91 - buttonAnimation);
+                    vertex(187,81 - buttonAnimation);
+                    vertex(186,54 - buttonAnimation);
+                    vertex(185,29 - buttonAnimation);
+                    
+                endShape();
+                }
+                
+                //The E
+                fill(0, 55, 255, shade2);
+                for(var i = 0; i < eXpos.length; ++i)
+                {
+                    beginShape();
+                    
+                    vertex(228 + eXpos[i], 30 + eYpos[i] - buttonAnimation);
+                    vertex(246 + eXpos[i], 32 + eYpos[i] - buttonAnimation);
+                    vertex(255 + eXpos[i], 30 + eYpos[i] - buttonAnimation);
+                    vertex(255 + eXpos[i], 41 + eYpos[i] - buttonAnimation);
+                    vertex(246 + eXpos[i], 39 + eYpos[i] - buttonAnimation);
+                    vertex(244 + eXpos[i], 43 + eYpos[i] - buttonAnimation);
+                    vertex(244 + eXpos[i], 57 + eYpos[i] - buttonAnimation);
+                    vertex(254 + eXpos[i], 55 + eYpos[i] - buttonAnimation);
+                    vertex(254 + eXpos[i], 67 + eYpos[i] - buttonAnimation);
+                    vertex(244 + eXpos[i], 65 + eYpos[i] - buttonAnimation);
+                    vertex(244 + eXpos[i], 78 + eYpos[i] - buttonAnimation);
+                    vertex(247 + eXpos[i], 83 + eYpos[i] - buttonAnimation);
+                    vertex(256 + eXpos[i], 80 + eYpos[i] - buttonAnimation);
+                    vertex(256 + eXpos[i], 93 + eYpos[i] - buttonAnimation);
+                    vertex(248 + eXpos[i], 90 + eYpos[i] - buttonAnimation);
+                    vertex(229 + eXpos[i], 93 + eYpos[i] - buttonAnimation);
+                    vertex(232 + eXpos[i], 63 + eYpos[i] - buttonAnimation);
+                    vertex(228 + eXpos[i], 30 + eYpos[i] - buttonAnimation);
+                    
+                    endShape();
+                    
+                }
+                
+                //The C
+                {
+                beginShape();
+                
+                vertex(63,115 - buttonAnimation);
+                vertex(74,111 - buttonAnimation);
+                vertex(87,113 - buttonAnimation);
+                vertex(94,123 - buttonAnimation);
+                vertex(92,132 - buttonAnimation);
+                vertex(96,139 - buttonAnimation);
+                vertex(81,139 - buttonAnimation);
+                vertex(85,132 - buttonAnimation);
+                vertex(81,127 - buttonAnimation);
+                vertex(77,121 - buttonAnimation);
+                vertex(73,129 - buttonAnimation);
+                vertex(73,158 - buttonAnimation);
+                vertex(76,166 - buttonAnimation);
+                vertex(81,161 - buttonAnimation);
+                vertex(84,155 - buttonAnimation);
+                vertex(81,148 - buttonAnimation);
+                vertex(96,148 - buttonAnimation);
+                vertex(92,155 - buttonAnimation);
+                vertex(94,165 - buttonAnimation);
+                vertex(87,173 - buttonAnimation);
+                vertex(78,176 - buttonAnimation);
+                vertex(67,174 - buttonAnimation);
+                vertex(59,168 - buttonAnimation);
+                vertex(60,144 - buttonAnimation);
+                vertex(58,124 - buttonAnimation);
+                vertex(63,115 - buttonAnimation);
+                
+                endShape();
+                }
+                
+                //The U
+                fill(0, 162, 255, shade2);
+                {
+                    beginShape();
+                    
+                    vertex(102,113 - buttonAnimation);
+                    vertex(105,125 - buttonAnimation);
+                    vertex(103,140 - buttonAnimation);
+                    vertex(102,165 - buttonAnimation);
+                    vertex(108,172 - buttonAnimation);
+                    vertex(121,176 - buttonAnimation);
+                    vertex(134,172 - buttonAnimation);
+                    vertex(140,165 - buttonAnimation);
+                    vertex(140,140 - buttonAnimation);
+                    vertex(137,125 - buttonAnimation);
+                    vertex(140,113 - buttonAnimation);
+                    vertex(124,113 - buttonAnimation);
+                    vertex(128,125 - buttonAnimation);
+                    vertex(125,140 - buttonAnimation);
+                    vertex(125,162 - buttonAnimation);
+                    vertex(121,166 - buttonAnimation);
+                    vertex(118,162 - buttonAnimation);
+                    vertex(118,140 - buttonAnimation);
+                    vertex(114,125 - buttonAnimation);
+                    vertex(118,112 - buttonAnimation);
+                    vertex(102,113 - buttonAnimation);
+                    
+                    endShape();
+                }
+                
+                //The R
+                fill(0, 55, 255, shade2);
+                {
+                    beginShape();
+                    
+                    vertex(148,112 - buttonAnimation);
+                    vertex(172,112 - buttonAnimation);
+                    vertex(180,116 - buttonAnimation);
+                    vertex(183,123 - buttonAnimation);
+                    vertex(183,136 - buttonAnimation);
+                    vertex(179,141 - buttonAnimation);
+                    vertex(172,144 - buttonAnimation);
+                    vertex(182,147 - buttonAnimation);
+                    vertex(182,165 - buttonAnimation);
+                    vertex(185,175 - buttonAnimation);
+                    vertex(169,175 - buttonAnimation);
+                    vertex(172,165 - buttonAnimation);
+                    vertex(169,151 - buttonAnimation);
+                    vertex(164,148 - buttonAnimation);
+                    vertex(160,163 - buttonAnimation);
+                    vertex(163,174 - buttonAnimation);
+                    vertex(148,174 - buttonAnimation);
+                    vertex(150,163 - buttonAnimation);
+                    vertex(148,149 - buttonAnimation);
+                    vertex(172,130 - buttonAnimation);
+                    vertex(156,122 - buttonAnimation);
+                    vertex(156,137 - buttonAnimation);
+                    vertex(148,144 - buttonAnimation);
+                    vertex(148,112 - buttonAnimation);
+                    
+                    endShape();
+                }
+                
+                //The 2nd R
+                fill(0, 162, 255, shade2);
+                {
+                    beginShape();
+                    
+                    vertex(148 + 43,112 - buttonAnimation);
+                    vertex(172 + 43,112 - buttonAnimation);
+                    vertex(180 + 43,116 - buttonAnimation);
+                    vertex(183 + 43,123 - buttonAnimation);
+                    vertex(183 + 43,136 - buttonAnimation);
+                    vertex(179 + 43,141 - buttonAnimation);
+                    vertex(172 + 43,144 - buttonAnimation);
+                    vertex(182 + 43,147 - buttonAnimation);
+                    vertex(182 + 43,165 - buttonAnimation);
+                    vertex(185 + 43,175 - buttonAnimation);
+                    vertex(169 + 43,175 - buttonAnimation);
+                    vertex(172 + 43,165 - buttonAnimation);
+                    vertex(169 + 43,151 - buttonAnimation);
+                    vertex(164 + 43,148 - buttonAnimation);
+                    vertex(160 + 43,163 - buttonAnimation);
+                    vertex(163 + 43,174 - buttonAnimation);
+                    vertex(148 + 43,174 - buttonAnimation);
+                    vertex(150 + 43,163 - buttonAnimation);
+                    vertex(148 + 43,149 - buttonAnimation);
+                    vertex(172 + 43,130 - buttonAnimation);
+                    vertex(156 + 43,122 - buttonAnimation);
+                    vertex(156 + 43,137 - buttonAnimation);
+                    vertex(148 + 43,144 - buttonAnimation);
+                    vertex(148 + 43,112 - buttonAnimation);
+                    
+                    endShape();
+                }
+                
+                //The N
+                fill(0, 162, 255, shade2);
+                {
+                    
+                    beginShape();
+                    
+                    vertex(269,113 - buttonAnimation);
+                    vertex(281,110 - buttonAnimation);
+                    vertex(291,140 - buttonAnimation);
+                    vertex(294,120 - buttonAnimation);
+                    vertex(291,113 - buttonAnimation);
+                    vertex(304,113 - buttonAnimation);
+                    vertex(302,120 - buttonAnimation);
+                    vertex(306,176 - buttonAnimation);
+                    vertex(291,176 - buttonAnimation);
+                    vertex(283,155 - buttonAnimation);
+                    vertex(278,165 - buttonAnimation);
+                    vertex(282,175 - buttonAnimation);
+                    vertex(268,175 - buttonAnimation);
+                    vertex(271,165 - buttonAnimation);
+                    vertex(269,113 - buttonAnimation);
+                    
+                    endShape();
+                    
+                }
+                
+                
+                noStroke();
+            }
+            
+            //how to play
+            fill(0, 138, 250, shade);
+            rect(0 - howPageX,74,150,113);
+            rect(0 - howPageX,197,150,57);
+            rect(0 - howPageX,264,150,66);
+            blueFish(30 - howPageX,271);
+            yellowFish(60 - howPageX,215);
+            
+            fill(255, 255, 255,shade);
+            rect(30 - howPageX,84,40,40);
+            rect(30 - howPageX,137,40,40);
+            
+            strokeWeight(3);
+            stroke(0, 255, 21,shade);
+            line(110 - howPageX,220,127 - howPageX,248);
+            line(138 - howPageX,199,127 - howPageX,248);
+            stroke(255, 0, 0,shade);
+            line(138 - howPageX,278,127 - howPageX,317);
+            line(122 - howPageX,278,142 - howPageX,317);
+            
+            stroke(133, 130, 130,shade);
+            strokeWeight(6);
+            line(43 - howPageX,153,50 - howPageX,166);
+            line(56 - howPageX,153,50 - howPageX,166);
+            line(43 - howPageX,111,50 - howPageX,95);
+            line(56 - howPageX,111,50 - howPageX,95);
+            
+                break;
+                
+            //settings
+            case "set":
+                button("BACK",35,365,60,"game");
+                
+                //mobile
+                fill(0, 166 + buttonAnimation, 255);
+                strokeWeight(5);
+                stroke(255, 255, 255);
+                if(dist(mouseX,mouseY,200 * scaleCanvasBy,200 * scaleCanvasBy) < (100 / 2) * scaleCanvasBy)
+                {
+                    buttonAnimation += 3;
+                    cursor(HAND);
+                }else{
+                    buttonAnimation -= 4;
+                }
+                ellipse(200,200,100 + buttonAnimation,100 + buttonAnimation);
+                arc(200,200,80 + buttonAnimation,80 + buttonAnimation,-68,-32);
+                
+                if(buttonAnimation > 10)
+                {
+                    buttonAnimation = 10;
+                }
+                if(buttonAnimation < 1)
+                {
+                    buttonAnimation = 0;
+                }
+                textSize(20 + buttonAnimation / 10);
+                fill(255, 255, 255);
+                text("Mobile\n" + mobile,200,200);
+                
+                switch(mobile)
+                {
+                    case false:
+                        
+                        mouseClicked = function()
+                        {
+                        
+                            if(dist(mouseX,mouseY,200 * scaleCanvasBy,200 * scaleCanvasBy) < (100 / 2) * scaleCanvasBy && page === "set")
+                            {
+                                mobile = true;
+                            }    
+                        
+                        };
+                        
+                        break;
+                        
+                    case true:
+                        
+                        mouseClicked = function()
+                        {
+                        
+                            if(dist(mouseX,mouseY,200 * scaleCanvasBy,200 * scaleCanvasBy) < (100 / 2) * scaleCanvasBy && page === "set")
+                            {
+                                mobile = false;
+                            }    
+                        
+                        };
+                        
+                        break;
+                }
+                
+                break;
+                
+                //leader board
+            case "board":
+                    
+                    
+                //Size
+                textSize(TXTsize);
+                
+                //Aranges
+                sortScores();
+                
+                //Keeps the TXT Center
+                textAlign(0,0);
+                
+                //Calls the TXT for the Leader-Board
+                fill(0, 60, 255);
+                noStroke();
+                textAlign(CENTER,CENTER);
+                textSize(25);
+                for (var a = topScore; a < 5; a++) 
+                {
+                    fill(4, 4, 207);
+                    if(orderedScores[a][a])
+                    {
+                        fill(255, 153, 0);
+                    }
+                    if(orderedScores[a][a - 1])
+                    {
+                        fill(89, 89, 89);
+                    }
+                    if(orderedScores[a][a - 2])
+                    {
+                        fill(194, 99, 4);
+                    }
+                    if(orderedScores[a][a - 3])
+                    {
+                        fill(4, 4, 207); 
+                    }
+                    text("(" + (a + 1) + ").  " + orderedScores[a][0] + "  ...  " + orderedScores[a][1], 200, 140 + a * 1.2 * TXTsize-scroll); 
+                    
+                    
+                }
+                
+                noStroke();
+                pushMatrix();
+                translate(200,62 - scroll + sin(frameCount * 3) * 10);
+                rotate(sin(frameCount * 5) * 7);
+                fill(0, 89, 255);
+                textSize(35);
+                text("TOP 5 SCORES!",0,0);
+                popMatrix();
+                
+                fill(31, 31, 31);
+                textSize(20);
+                text("Post your scores in the Tips&Thanks.\nBe sure to make a spin-off for proof.",200,305);
+                    
+                button("BACK",35,365,60,"game");
+                
+                break;
+                
+                case "achievement":
+                
+                    stroke(13, 2, 173);
+                    strokeWeight(2);
+                    achievementPicture(20, 20, "feedingtime", "FEEDING TIME!\nGet a feeding frenzy");
+                    
+                    achievementPicture(80, 20, "highfive", "HIGHFIVE!\nGet a score of at least 500");
+                    
+                    achievementPicture(140, 20, "goldenten", "HELLO YELLOW!\nGet ten yellow fish in a row\nwithout getting any other fish");
+                    
+                    achievementPicture(200, 20, "tengames", "FIVE TIMES TWO!\nPlay a total of ten games");
+                    
+                    achievementPicture(260, 20, "sharkdodge", "SHARK ATTACK!\nDodge at least 20 Sharks");
+                    
+                    achievementPicture(320, 20, "hungryfish", "HUNGRY FISH!\nEat 300 fish");
+                    
+                    achievementPicture(20, 80, "twofeedingfrenzy", "FILLED FISH!\nGet two feeding frenzy's\nin one round");
+                    achievementPicture(80, 80, "roaringscore", "ROARING SCORE!\nGet a score of at least 1500");
+                    
+                    
+                    button("BACK",35,365,60,"game");
+                    shadeTrophie = 0;
+                    break;
+    }
+    }
+    popMatrix();
+};
+
