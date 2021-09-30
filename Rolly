@@ -1,0 +1,601 @@
+
+
+
+
+
+
+
+
+
+/*  Inspired by Rolly Vortex by VOODOO!  */
+
+/**
+* 
+* ROLLY
+* Isaac Emerald
+* April 9 2018
+* 
+*/
+
+
+
+
+
+
+
+
+
+
+// player
+var p = {
+    
+    d: 50,
+    
+    speed: 2,
+    
+    angle: 174,
+    
+    dead: false,
+    
+    spining: [0, -15, -30, -50, -72, -100]
+};
+
+// block
+var b = { angle: [[]], z: [], p: [] };
+
+// particle system
+var
+    playerParticle = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+    particleY = [0, 0, 0, 0, 0, 0, 0, 0],
+    particleSize = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+
+// score and highscore
+var score = 0, best = 0;
+
+// if (hit block) red tran
+var redDyeAnime = 0, passedAnim = 0;
+
+// current scene
+var scene = "home";
+
+// smooth scene animations
+var openingSceneAnim = [1000, 1000, 1000];
+
+// trans stuff
+var trans = 0, transState = "shrink";
+
+// next page
+var nextPage = "menu";
+
+// keys and keyCodes
+var keys = [];
+
+    keyPressed = function() {
+    keys[keyCode] = true;
+};
+
+    keyReleased = function() {
+    keys[keyCode] = false;
+};
+
+
+// clicked states of mouse
+var
+    clicked = false,
+    
+    mouseClicked = function () {
+        clicked = true;
+    };
+
+var delayTimer = 0;
+
+// player
+var player = function() {
+    
+    // particles
+    for(var i = 0; i < playerParticle.length; ++i)
+    {
+        pushMatrix(); // set matrix
+        translate(width / 2, height / 2); // main pos of particle
+        rotate(playerParticle[i]); // rotate
+        
+        // main particle circle
+        fill(36, 36, 36, 150);
+        ellipse(0, -167 + particleY[i], particleSize[i], particleSize[i]);
+        popMatrix(); // reset matrix
+        
+        if(!p.dead)
+        {
+            particleSize[i] -= 1;
+            particleY[i] -= 5;
+        }
+        
+        if(particleSize[i] <= 0)
+        {
+            particleSize[i] = 40;
+            playerParticle[i] = p.angle;
+            particleY[i] = 0;
+        }
+    }
+    
+    // player base
+    pushMatrix();
+    
+    translate(width / 2, height / 2);
+    rotate(p.angle);
+    
+    // base
+    noStroke();
+    fill(0, 0, 0);
+    ellipse(0, -153, p.d, p.d);
+    
+    // spin animation
+    noFill();
+    strokeWeight(2);
+    stroke(13, 13, 13);
+    for(var i = 0; i < p.spining.length; i++)
+    {
+        arc(0, -153, p.d - 2, p.d + p.spining[i], -180, 0);
+        
+        if(!p.dead && scene === "game")
+        {
+            p.spining[i] -= 3;
+        }
+        
+        if(p.spining[i] < -100)
+        {
+            p.spining[i] = 0;
+        }
+        
+    }
+    noStroke();
+    
+    // shade
+    fill(255, 255, 255, 3);
+    for(var i = 0; i < 38; i++)
+    {
+        ellipse(0 + i / 4, -153 + i / 6, p.d - i, p.d - i);
+    }
+    
+    popMatrix();
+    
+    // keys and limits
+    if(keys[LEFT] && !p.dead)
+    {
+        p.angle += p.speed;
+    }
+    
+    if(keys[RIGHT] && !p.dead)
+    {
+        p.angle -= p.speed;
+    }
+    
+    if(p.angle >= 360)
+    {
+        p.angle = 0;
+    }
+    
+    if(p.angle < 0)
+    {
+        p.angle = 360;
+    }
+    
+};
+
+// blocks for game
+var blocks = function() {
+    
+    // lines in tunnel
+    stroke(235);
+    strokeWeight(1);
+    
+    for(var i = 0; i < 360; i += 15){
+        pushMatrix();
+        translate(250, 250);
+        rotate(i);
+        line(0, 0, 400, 0);
+        popMatrix();
+    }
+    
+    for(var i = 0; i < b.angle.length; i++)
+    {
+        // circles for tunnel
+        pushMatrix();
+        rectMode(CENTER);
+        translate(width / 2, height / 2);
+        scale(b.z[i] / 100);
+        strokeWeight(22);
+        noFill();
+        stroke(235, 235, 235);
+        ellipse(0, 0, 343, 343);
+        strokeWeight(6);
+        ellipse(0, 0, 230, 230);
+        ellipse(0, 0, 290, 289);
+        ellipse(0, 0, 195, 195);
+        ellipse(0, 0, 163, 163);
+        
+        popMatrix();
+        
+        // block math
+        for(var j = 0; j < b.angle[i].length; j++)
+        {
+            if(p.angle < b.angle[i][j] + 18 && p.angle > b.angle[i][j] - 18 && b.z[i] > 95 && b.z[i] < 100 || 
+            
+            p.angle <= 18 && p.angle <= b.angle[i][j] - 342 && b.z[i] > 95 && b.z[i] < 100 ||
+            
+            p.angle >= 342 && p.angle >= b.angle[i][j] + 342 && b.z[i] > 95 && b.z[i] < 100)
+            {
+                p.dead = true;
+            }
+        }
+        
+        // block move
+        if(!p.dead && scene === "game")
+        {
+            b.z[i] += (b.z[i] / 100) * 2;
+        }
+    }
+    
+    delayTimer ++;
+    
+    // increase hardness
+    if(delayTimer >= 50 && !p.dead && scene === "game")
+    {
+        delayTimer = 0;
+        
+        if(score < 10) // medium
+        {
+            b.angle.push([random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360)]);
+        }
+        
+        
+        if(score >= 10 && score < 20) // medium-ish
+        {
+            b.angle.push([random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360)]);
+        }
+        
+        if(score >= 20 && score < 40) // hard
+        {
+            b.angle.push([random(0, 360), random(0, 360), random(0, 360), random(18, 342), random(0, 360), random(0, 360), random(0, 360), random(0, 360)]);
+        }
+        
+        if(score >= 40) // super hard
+        {
+            b.angle.push([random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360), random(0, 360)]);
+        }
+        
+        b.z.push(1);
+        b.p.push(0);
+    }
+    
+    // blocks in back of player
+    for(var i = 0; i < b.angle.length; i++)
+    {
+        for(var j = 0; j < b.angle[i].length; j++)
+        {
+            if(b.z[i] < 100)
+            {
+                pushMatrix();
+                rectMode(CENTER);
+                translate(width / 2, height / 2);
+                scale(b.z[i] / 100);
+                rotate(b.angle[i][j]);
+                noStroke();
+                fill(34, 34, 212);
+                rect(0, -142, 50, 50);
+                fill(54, 51, 230);
+                rect(0, -153, 50, 50);
+                
+                if(p.angle < b.angle[i][j] + 18 && p.angle > b.angle[i][j] - 18 && b.z[i] > 95 && b.z[i] < 100  || 
+            
+                p.angle <= 18 && p.angle <= b.angle[i][j] - 342 && b.z[i] > 95 && b.z[i] < 100 ||
+            
+                p.angle >= 342 && p.angle >= b.angle[i][j] + 342 && b.z[i] > 95 && b.z[i] < 100)
+                {
+                    fill(230, 0, 0, redDyeAnime);
+                    rect(0, -142, 50, 50);
+                    fill(230, 53, 53, redDyeAnime);
+                    rect(0, -153, 50, 50);
+                    redDyeAnime += 5;
+                }
+                
+                fill(255, 255, 255, 130 - (b.z[i] * 3));
+                rect(0, -148, 52, 63);
+                popMatrix();
+            }
+        }
+    }
+    
+    player();
+    
+    // block in front of player
+    for(var i = 0; i < b.angle.length; i++)
+    {
+        for(var j = 0; j < b.angle[i].length; j++)
+        {
+            if(b.z[i] > 100)
+            {
+                pushMatrix();
+                rectMode(CENTER);
+                translate(width / 2, height / 2);
+                scale(b.z[i] / 100);
+                rotate(b.angle[i][j]);
+                noStroke();
+                fill(245, 200, 19);
+                rect(0, -142 - b.p[i], 50, 50 - b.p[i]);
+                fill(245, 226, 14);
+                rect(0, -153 - b.p[i] / 1.5, 50, 50 - b.p[i]);
+                
+                if(scene === "home")
+                {
+                    fill(34, 34, 212);
+                    rect(0, -142, 50, 50);
+                    fill(54, 51, 230);
+                    rect(0, -153, 50, 50);
+                }
+                popMatrix();
+                
+            }
+        }
+        
+        if(b.angle[i].length > 0)
+        {
+            if(b.z[i] > 100 && b.z[i] < 101 && !p.dead)
+            {
+                score ++;
+                passedAnim = 300;
+            }
+            
+            if(b.z[i] > 105)
+            {
+                b.p[i] += 3;
+            }
+            
+            if(b.p[i] >= 50)
+            {
+                b.p[i] = 50;
+            }
+        }
+        
+        if(b.z[i] >= 800)
+        {
+            b.p.splice(i, 1);
+            b.z.splice(i, 1);
+            b.angle.splice(i, 1);
+        }
+    }
+};
+
+// compile button
+var button = function(x, y, d, pageSwitch)
+{
+    strokeWeight(d / 12);
+    
+    if(dist(mouseX, mouseY, x, y) < d / 2)
+    {
+        fill(255, 255, 255, 100);
+        cursor(HAND);
+        
+        if(clicked)
+        {
+            nextPage = "game";
+            transState = "grow";
+        }
+    }
+    
+    // circle
+    fill(44, 61, 245);
+    stroke(16, 19, 201);
+    ellipse(x, y, d, d);
+    
+    strokeWeight(d / 33);
+    stroke(255, 255, 255);
+    ellipse(x, y, d / 1.1, d / 1.1);
+    
+    // restart icon
+    if(scene === "lose")
+    {
+        pushMatrix();
+        translate(x, y);
+        if(dist(mouseX, mouseY, x, y) < d / 2)
+        {
+            rotate(30);
+        }
+        arc(0, 0, d / 1.5, d / 1.5, 0, 329);
+        line(d / 5.6, - d / 5.6, d / 3.4, - d / 5.8);
+        line(d / 3.6, - d / 3.5, d / 3.4, - d / 5.8);
+        popMatrix();
+    }
+    
+    // play icon
+    if(scene === "home")
+    {
+        if(dist(mouseX, mouseY, x, y) < d / 2)
+        {
+            d += 5;
+        }
+        
+        pushMatrix();
+        fill(255, 255, 255);
+        noStroke();
+        beginShape();
+        vertex(x - d / 6.6, y - d / 5.3);
+        vertex(x - d / 6.6, y + d / 4.1);
+        vertex(x + d / 3.8, y + d / 24.6);
+        endShape();
+        popMatrix();
+    }
+    
+    noStroke();
+    
+};
+
+draw = function() {
+    
+    background(255, 255, 255);
+    
+    // text font and alignment
+    textAlign(CENTER, CENTER);
+    textFont(createFont("Tahoma Bold"));
+    
+    // cursor defualts
+    if(scene === "game")
+    {
+        cursor("NONE");
+    } else
+    {
+        cursor(ARROW);
+    }
+    
+    switch(scene)
+    {
+        case "home":
+            
+        // set menu block animations
+        b = {
+            angle: [
+            [1, 30, 223, 253, 64, 94],
+            [-77, -51, -25, 4, 33, 58, 82, 109, 136, 163],
+            [-119, -170, -93, 163],
+            ],
+            
+            z: [22, 56, 145],
+            
+            p: [0,0,0]
+        };
+        
+        // set player menu angle
+        p.angle = 214;
+        
+        // call blocks
+        blocks();
+        
+        button(250, 250, 43);
+        
+        // title
+        textSize(108);
+        fill(3, 9, 128, 200);
+        text("ROLLY", width / 2, 58 + 6);
+        fill(67, 76, 232);
+        text("ROLLY", width / 2, 58);
+        
+            break;
+        
+        case "game":
+        
+        blocks();
+        
+        // current game score
+        pushMatrix();
+        translate(width / 2, 35);
+        scale(1 + passedAnim / 230);
+        textSize(42);
+        fill(50, 56, 217, 200);
+        text(score, 0, 0);
+        fill(255, 225, 0, passedAnim);
+        text(score, 0, 0);
+        popMatrix();
+        
+        // score turns to gold if passed
+        passedAnim -= 5;
+        
+        if(passedAnim <= 0)
+        {
+            passedAnim = 0;
+        }
+        
+        // switch to lose screen once dead
+        if(p.dead && redDyeAnime >= 200)
+        {
+            scene = "lose";
+        }
+        
+            break;
+            
+        case "lose":
+        
+        blocks();
+        
+        // scene animations
+        openingSceneAnim[0] /= 1.1;
+        
+        if(openingSceneAnim[0] <= 100)
+        {
+            openingSceneAnim[1] /= 1.2;
+        }
+        
+        if(openingSceneAnim[1] <= 100)
+        {
+            openingSceneAnim[2] /= 1.1;
+        }
+        
+        // blur screen
+        fill(255, 255, 255, 150);
+        rect(250, 250 - openingSceneAnim[0], 500, 500);
+        // score
+        textSize(98);
+        fill(50, 56, 217);
+        text(score, 250, 121 - openingSceneAnim[1]);
+        
+        // highscore
+        textSize(28);
+        text("HIGHSCORE " + best, 250, 176 - openingSceneAnim[0]);
+        
+        // restart
+        button(250, 250 + openingSceneAnim[2], 78);
+        
+        // set best score
+        if(best < score)
+        {
+            best = score;
+        }
+            
+            break;
+    }
+    
+    // trans stuff
+    if(transState === "shrink")
+    {
+        trans /= 1.2;
+    }
+    
+    if(transState === "grow")
+    {
+        trans += 70;
+    }
+    
+    if(trans >= 800)
+    {
+        transState = "shrink";
+        scene = nextPage;
+        
+        if(nextPage === "game")
+        {
+            // reset game if nextPage is game
+            score = 0;
+            openingSceneAnim = [1000, 1000, 1000];
+            
+            b = {
+                angle: [[], [], [], [], [], []],
+                
+                z: [2, 5, 13, 29, 62, 140],
+                
+                p: []
+            };
+            
+            p = {
+                d: 50, speed: 2, angle: 174, dead: false,
+                spining: [0, -15, -30, -50, -72, -100]
+            };
+            
+            redDyeAnime = 0;
+        }
+    }
+    
+    // clicked defualt
+    clicked = false;
+    
+    // trans circle
+    fill(43, 50, 255);
+    ellipse(250, 250, trans, trans);
+};
