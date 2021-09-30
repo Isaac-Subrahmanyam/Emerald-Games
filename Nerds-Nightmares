@@ -1,0 +1,3154 @@
+
+
+
+
+
+
+
+/**
+ * 
+ * NERDS NIGHTMARES
+ * Isaac Emerald
+ * February 26 2018
+ * 
+*/
+
+
+
+
+
+
+
+
+// current scene
+var scene = "home";
+
+// keep track of villains killed
+var villainsKilled = [false, false, false, false];
+
+// player
+var p = {
+    
+    health: 100,
+    
+    x: 479, y: 193,
+    w: 48, h: 121,
+    
+    s: 3,
+    
+    face: "left", moving: 0, excel: 0, trans: 146
+};
+
+// vader
+var v = {
+    
+    health: 100,
+    
+    x: 146, y: 193,
+    w: 48, h: 121,
+    
+    s: 1,
+    
+    face: "right", moving: 0, excel: 0, trans: 146
+};
+
+// bowzer 
+var b = {
+    
+    health: 100,
+    
+    x: 94, y: 193,
+    w: 48, h: 121,
+    
+    s: 2,
+    
+    face: "right", moving: 0, excel: 0, trans: 146
+};
+
+// pickachu 
+var pk = {
+    
+    health: 100,
+    
+    x: 20, y: 193,
+    w: 48, h: 121,
+    
+    s: 2,
+    
+    face: "right", moving: 0, excel: 0, trans: 146
+};
+
+// dalek
+var d = {
+    
+    health: 100,
+    
+    x: 14, y: 193,
+    w: 48, h: 121,
+    
+    s: 2,
+    
+    face: "right", moving: 0, excel: 0, trans: 146
+};
+
+// bowzer fire ball
+var firBall = {
+    x: 15, y: 273,
+    w: 40, h: 40,
+    state: 0,
+};
+
+// bowzer fire ball
+var lazerBall = {
+    x: 15, y: 73,
+    w: 4, h: 30,
+    state: 0, shot: false, shotDealy: 0, limit: 90,
+};
+
+var dalekGun = {
+    x: 15, y: 239,
+    w: 20, h: 5,
+    state: 0, shot: false, shotDealy: 0,
+    pos: 0,
+};
+
+var playerGun = {
+    x: 15, y: 239,
+    w: 10, h: 5,
+    state: 0, shot: false, shotDealy: 0,
+    pos: 0,
+};
+
+var playerBall = {
+    x: 15, y: 239,
+    w: 17, h: 17,
+    state: 0, shot: false, shotDealy: 0,
+    pos: 0, ballPos: 0
+};
+
+var pickaGun = {
+    x: 15, y: 239,
+    w: 20, h: 5,
+    state: 0, shot: false, shotDealy: 0,
+    pos: 0,
+};
+
+// vader stuff
+var battleType = "defualt";
+
+var lightSaberState = false, lightSaberStateStrike = -3;
+
+var lightSaberStateV = false, lightSaberStateStrikeV = -3;
+
+var standingToLong = 0;
+
+// bowzer stuff
+var duck = false, bowzerStage = "normal",
+    speedShell = 3, shellHitState = true,
+    switchBowzerStage = 0, punchMode = 0,
+    punchModeP = 0, punchModePState = false;
+
+// dalek stuff    
+var dalekStage = "normal", switchDalekStage = 0;
+var shootAgain = 0, dalekShootAgain = 0;
+
+// picka stuff
+var pickaStage = "normal", switchPickaStage = 0,
+    pickaShootAgain = 0, pickaBallMove = 0,
+    pickaBallMoveS = 1;
+
+// start game thingamabobs
+var startTimer = 3, startTimerDelay = 0;
+
+var smoothAnim = [1000, 1000, 1000, 1000, 1000];
+
+var keys = [];
+
+keyPressed = function() {
+    keys[keyCode] = true;
+};
+
+keyReleased = function() {
+    keys[keyCode] = false;
+};
+
+var
+    clicked = false;
+    mouseClicked = function(){
+        clicked = true;
+    };
+
+noStroke();
+
+
+// status bars
+var statusBars = function(x, y, w, h){
+    
+    fill(0, 0, 0, 150);
+    rect(x, y, w, h, h / 10);
+    
+    fill(255, 219, 120);
+    rect(x + w / 51.3, y + h / 26, w / 1.04, h / 1.09, h / 10);
+    
+    fill(237, 184, 38);
+    rect(x + w / 51.3, y + h / 3, w / 1.04, h / 1.67, h / 10);
+    
+    fill(112, 112, 112);
+    rect(x + w / 17.5, y + h / 11, w / 1.12, h / 1.22, h / 10);
+};
+
+// buttons
+var button = function(x, y, w, h, pageSwitch){
+    
+    if(mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h)
+    {
+        x -= 5;
+        y -= 5;
+        w += 10;
+        h += 10;
+        cursor(HAND);
+        
+        if(clicked)
+        {
+            scene = pageSwitch;
+        }
+    }
+    
+    statusBars(x, y, w, h);
+    
+    switch(pageSwitch)
+    {
+        case "levelPick":
+            
+            fill(255, 219, 120);
+            
+            beginShape();
+            vertex(x + w / 2.7, y + h / 3.9);
+            vertex(x + w / 2.7, y + h / 1.35);
+            vertex(x + w / 1.4, y + h / 2);
+            endShape();
+            
+            fill(237, 184, 38);
+            
+            beginShape();
+            vertex(x + w / 2.7, y + h / 2.0);
+            vertex(x + w / 2.7, y + h / 1.35);
+            vertex(x + w / 1.4, y + h / 2);
+            endShape();
+            
+            break;
+            
+        case "store":
+            
+            pushMatrix();
+            
+            translate(51, 66);
+            scale(0.7);
+
+            noFill();
+            
+            stroke(255, 219, 120);
+            strokeWeight(3);
+            
+            beginShape();
+            vertex(x + w / 8, y + h/ 6);
+            vertex(x + w / 3, y + h/ 5);
+            vertex(x + w / 2.5, y + h / 1.4);
+            vertex(x + w / 1.2, y + h / 1.4);
+            vertex(x + w / 1.09, y + h / 5);
+            vertex(x + w / 1.3, y + h / 5);
+            endShape();
+            
+            ellipse(x + w / 2.3, y + h / 1.12, w / 10, h / 8);
+            ellipse(x + w / 1.2, y + h / 1.12, w / 10, h / 8);
+            line(x + w / 2.4, y + h / 1.2, x + w / 2.5, y + h / 1.5);
+            line(x + w / 1.22, y + h / 1.20, x + w / 2.4, y + h / 1.25);
+            
+            noStroke();
+            
+            popMatrix();
+            
+            
+            break;
+            
+        case "how":
+            
+            fill(255, 219, 120);
+            textSize(w / 1.2);
+            text("?", x + w / 2, y + h / 2);
+            
+            break;
+            
+        case "home":
+            
+            pushMatrix();
+            translate(59, 70);
+            scale(0.8);
+            stroke(255, 219, 120);
+            strokeWeight(5);
+            rect(x + w / 3.7, y + h / 2.2, w / 2.2, h / 2.5);
+            
+            line(x + w / 5.6, y + h / 2.1, x + w / 1.21, y + h / 2.1);
+            line(x + w / 1.2, y + h / 2.1, x + w / 2, y + h / 10);
+            line(x + w / 5.0, y + h / 2.2, x + w / 2, y + h / 10);
+            popMatrix();
+            
+            break;
+            
+        case "achievements":
+            
+            pushMatrix();
+            translate(36, 44);
+            scale(0.8);
+            
+            noStroke();
+            fill(255, 219, 120);
+            arc(x + w / 2, y + h / 7, w / 2, h / 1.3, 0, 180);
+            arc(x + w / 2, y + h / 1.1, w / 3, h / 3, -180, 0);
+            rect(x + w / 2.15, y + h / 2, w / 20, h / 3);
+            
+            stroke(255, 219, 120);
+            strokeWeight(3);
+            noFill();
+            
+            arc(x + w / 1.4, y + h / 3.7, w / 3, h / 5, -90, 98);
+            arc(x + w / 3.4, y + h / 3.7, w / 3, h / 5, 55, 180 + 90);
+            popMatrix();
+            
+            break;
+    }
+    
+    if(
+    pageSwitch === "vaderinfo" || 
+    pageSwitch === "bowzerinfo" ||
+    pageSwitch === "dalekinfo" ||
+    pageSwitch === "pickainfo"
+    )
+    {
+        fill(255, 219, 120);
+        textSize(w / 4.5);
+        text("INFO", x + w / 2, y + h / 2);
+    }
+    
+    noStroke();
+    
+    if(mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h)
+    {
+        fill(255, 255, 255, 30);
+        rect(x, y, w, h);
+    }
+
+};
+
+//cloud
+var cloud = function(x, y, s){
+    
+    fill(214, 235, 252);
+    pushMatrix();
+    translate(-x / 9.4, -y / 8.7);
+    scale(s / 45);
+    ellipse(x, y, s / 1.2, s);
+    ellipse(x - s / 3.0, y + s / 4.4, s / 1.2, s / 1.4);
+    ellipse(x - s / 1.5, y + s / 2.4, s / 1.4, s / 1.9);
+    ellipse(x + s / 3.3, y + s / 2.9, s / 1.4, s / 1.5);
+    ellipse(x - s / 7, y + s / 2.6, s / 0.7, s / 1.5);
+    popMatrix();
+    
+    fill(242, 253, 255);
+    ellipse(x, y, s / 1.2, s);
+    ellipse(x - s / 3.0, y + s / 4.4, s / 1.2, s / 1.4);
+    ellipse(x - s / 1.5, y + s / 2.4, s / 1.4, s / 1.9);
+    ellipse(x + s / 3.3, y + s / 2.9, s / 1.4, s / 1.5);
+    ellipse(x - s / 7, y + s / 2.6, s / 0.7, s / 1.5);
+    
+};
+
+// object plugins
+var
+    plugIn = function(OB, IM, moveLeft, moveRight, moveUP, jumpGravity){
+    
+    switch(OB.face)
+    {
+        case "right":
+            IM(OB.x - 176, OB.y - 145, 100, 100);
+            break;
+        
+        case "left":
+            IM(OB.x + 224, OB.y - 145, -100, 100);
+            break;
+    }
+    
+    if(p.health > 0)
+    {
+        if(moveLeft)
+        {
+            OB.x -= OB.s;
+            OB.face = "left";
+            OB.moving = sin(frameCount * 15) * 2;
+        }
+        else if(moveRight)
+        {
+            OB.x += OB.s;
+            OB.face = "right";
+            OB.moving = sin(frameCount * 15) * 2;
+        }
+        else 
+        {
+            OB.moving = 0;
+            standingToLong += 1;
+        }
+        
+        OB.y += OB.excel;
+        
+        if(moveUP && OB.y >= 193)
+        {
+            OB.excel = -jumpGravity;
+        }else
+        {
+           OB.excel += 0.5; 
+        }
+        
+        if(OB.x < 10)
+        {
+            OB.x = 10;
+            OB.moving = 0;
+            standingToLong += 1;
+        }
+        if(OB.x > width - OB.w - 10)
+        {
+            OB.x = width - OB.w - 10;
+            OB.moving = 0;
+            standingToLong += 1;
+        }
+        if(OB.y >= 193)
+        {
+            OB.y = 193;
+        }
+    }
+},
+
+    plugInVillainMovementV2 = function(OB, vLength){
+        if(p.health > 0)
+        {
+            if(OB.x >= p.x - OB.w + vLength && OB.x <= p.x + p.w + vLength && OB.face === "left")
+            {
+                OB.x += 1; 
+            }
+            
+            if(OB.x >= p.x - OB.w - vLength && OB.x <= p.x + p.w - vLength && OB.face === "right")
+            {
+                OB.x -= 1; 
+            }
+            
+            if(OB.x >= p.x - OB.w && OB.x <= p.x + p.w && OB.face === "left")
+            {
+                OB.x += 2;
+            }
+            
+            if(OB.x >= p.x - OB.w && OB.x <= p.x + p.w && OB.face === "right")
+            {
+                OB.x -= 2;
+            }
+        }
+    },
+    
+    plugInDefeatOrVic = function(faceimage, vartype, vicORdef){
+        
+        pushMatrix();
+        translate(vartype.x - 177, vartype.y - 83);
+        faceimage();
+        fill(255, 0, 0);
+        textSize(71);
+        text("X", 204, 183);
+        popMatrix();
+        
+        textSize(58);
+        switch(vicORdef)
+        {
+            case "def":
+            fill(230, 3, 3);
+            text("DEFEAT", 300, 100);
+                    break;
+                    
+            case "vic":
+            fill(78, 186, 0);
+            text("VICTORY", 300, 100);
+                break;
+        }
+        
+        button(300 - 70 / 2, 134, 70, 70, "levelPick");
+    },
+    
+    healthBar = function(OB, IM, x, y){
+    
+    pushMatrix();
+    translate(x, y);
+    
+    statusBars(8, 9, 60, 60);
+    statusBars(68, 9, 174, 33);
+    
+    fill(214, 45, 45);
+    rect(78, 12, OB.health * 1.55, 26, 5);
+    fill(255, 255, 255, 30);
+    rect(78, 12,  OB.health * 1.55, 12, 2);
+    
+    pushMatrix();
+    translate(-87, -9);
+    rotate(-21);
+    scale(0.5);
+    IM();
+    popMatrix();
+    
+    popMatrix();
+}; 
+
+// weapons
+var
+    lightSaber = function(x, y, r, LBC, LBCshade){
+    
+    pushMatrix();
+    translate(x, y);
+    rotate(r);
+    rectMode(CENTER);
+    
+    
+    fill(LBCshade);
+    rect(0, -47, 11, 81, 10);    
+    fill(LBC);
+    rect(0, -39, 5, 90, 10);
+    
+    fill(105, 105, 105);
+    rect(0, 0, 9, 21);
+    rect(0, -7, 15, 6);
+    
+    fill(255, 255, 255, 50);
+    rect(-2, 3, 4, 14);
+    rect(-4, -7, 7, 6);
+    
+    rectMode(CORNER);
+    popMatrix();
+},
+
+    sonicScrew = function(x, y, r, SBC, SBCshade){
+    
+    pushMatrix();
+    translate(x, y);
+    rotate(r);
+    rectMode(CENTER);
+    
+    
+    fill(SBCshade);
+    rect(0, -13, 14, 17, 10); 
+    fill(SBC);
+    rect(0, -13, 7, 10, 10);
+    
+    fill(105, 105, 105);
+    rect(0, 0, 9, 21);
+    rect(0, -7, 15, 6);
+    
+    fill(255, 255, 255, 50);
+    rect(-2, 3, 4, 14);
+    rect(-4, -7, 7, 6);
+    
+    rectMode(CORNER);
+    popMatrix();
+},
+    
+    punchClove = function(x, y){
+        
+        fill(204, 0, 0);
+        rect(x + -17, y - 7, 12, 15, 5);
+        
+        fill(255, 0, 0);
+        arc(x, y, 27, 27, -106, 106);
+        arc(x, y, 19, 27, -255, -105);
+        rect(x - 11, y - 11, 12, 22, 10);
+        
+        fill(148, 0, 0);
+        rect(x + 3, y - 4, 10, 2);
+        rect(x + 3, y + 3, 10, 2);
+    },
+    
+    pokeBall = function(x, y, s, r){
+        
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        fill(255, 255, 255);
+        ellipse(0, 0, s, s);
+        fill(255, 0, 0);
+        arc(0, 0, s, s, -180, 0);
+        fill(0, 0, 0);
+        ellipse(0, 0, s / 3, s / 3);
+        ellipse(0, 0, s, s / 11);
+        fill(255, 255, 255);
+        ellipse(0, 0, s / 5, s / 5);
+        popMatrix();
+        
+        pushMatrix();
+        translate(x, y);
+        rotate(-20);
+        fill(255, 255, 255, 100);
+        ellipse(-s / 13, -s / 2.6, s / 3, s / 5);
+        ellipse(-s / -6, -s / 2.6, s / 10, s / 10);
+        popMatrix();
+    };
+
+// player graphics and logic
+var
+    playerFace = function() {
+    
+    // ears
+    fill(255, 229, 178);
+    ellipse(170, 192, 32, 26);
+    ellipse(224, 192, 32, 26);
+    fill(255, 220, 156);
+    ellipse(164, 192, 10, 13);
+    
+    // face
+    fill(255, 220, 156);
+    rect(164, 145, 70, 70, 20);
+    fill(255, 229, 178);
+    rect(168, 145, 65, 65, 20);
+    
+    // glasses
+    fill(41, 41, 41);
+    pushMatrix();
+    translate(166, 178);
+    rotate(46);
+    rect(0, 0, 18, 5);
+    popMatrix();
+    fill(74, 73, 74);
+    rect(174, 188, 63, 6);
+    ellipse(220, 191, 25, 25);
+    ellipse(192, 191, 25, 25);
+    
+    // eyes
+    fill(219, 219, 219);
+    ellipse(220, 191, 20, 20);
+    ellipse(192, 191, 20, 20);
+    fill(255, 255, 255);
+    ellipse(217, 189, 10, 10);
+    ellipse(188, 189, 10, 10);
+    ellipse(225, 195, 5, 5);
+    ellipse(196, 195, 5, 5);
+    
+    // hair
+    fill(145, 51, 0);
+    arc(200, 129, 26, 40, 64, 187 - 68);
+    fill(133, 53, 0, 100);
+    ellipse(190, 151, 4, 4);
+    ellipse(211, 152, 3, 3);
+    ellipse(202, 156, 2, 2);
+    
+},
+    playerImage = function(x, y, w, h) {
+    
+    pushMatrix();
+    
+    translate(x, y);
+    scale(w / 100, h / 100);
+    
+    if(battleType === "bowzer")
+    {
+        punchClove(239 - punchModeP, 233 - b.moving);
+    }
+    
+    // shoes
+    fill(158, 93, 2);
+    arc(202, 275 + p.moving - 10, 50, 26, -90, 0);
+    fill(255, 255, 255, 10);
+    arc(203, 275 + p.moving - 10, 40, 26, -90, 0);
+    fill(201, 122, 10);
+    arc(180, 275 - p.moving - 10, 50, 26, -90, 0);
+    arc(180, 275 - p.moving - 10, 4, 15, -180, -90);
+    fill(255, 255, 255, 20);
+    arc(180, 275 - p.moving - 10, 40, 26, -90, 0);
+    
+    fill(255, 220, 156);
+    ellipse(190, 266 - p.moving - 10, 14, 6);
+    ellipse(211, 266 + p.moving - 10, 14, 6);
+    
+    // pants
+    fill(0, 102, 145);
+    rect(179, 246 - p.moving - 10, 20, 20);
+    rect(201, 246 + p.moving - 10, 20, 20);
+    fill(255, 255, 255, 20);
+    rect(182, 246 - p.moving - 10, 15, 17);
+    rect(204, 246 + p.moving - 10, 14, 17);
+    
+    // shirt
+    fill(199, 44, 44);
+    arc(200, 246, 43, 95, -180, 0);
+    fill(222, 73, 73);
+    arc(200, 242, 35, 95, -180, 0);
+    
+    if(battleType === "vader")
+    {
+        lightSaber(234, 231, 12 + lightSaberStateStrike, color(17, 255, 0), color(30, 255, 0, 100));
+    }
+    
+    if(battleType === "dalek")
+    {
+        sonicScrew(237, 226 - p.moving, 35, color(17, 255, 0), color(30, 255, 0, 100));
+    }
+    
+    if(battleType === "bowzer")
+    {
+        punchClove(179 + punchModeP, 233 + b.moving);
+    }
+    
+    if(battleType !== "bowzer")
+    {
+        fill(255, 220, 156);
+        ellipse(170, 234 + p.moving, 15, 15);
+        ellipse(231, 234 - p.moving, 15, 15);
+    }
+    
+    pushMatrix();
+    if(duck)
+    {
+        translate(0, 17);
+    }
+    playerFace();
+    popMatrix();
+    
+    popMatrix();
+},
+    player = function(){
+        
+        fill(0, 0, 0, 30);
+        ellipse(p.x + 24, 312, 7 - p.y / 2.4, 13);
+        
+        if(p.health > 0 && battleType === "vader")
+        {
+            plugIn(p, playerImage,
+            keys[LEFT] || keys[65], 
+            keys[RIGHT] || keys[68],
+            keys[UP] || keys[87], 12);
+        
+            if(standingToLong >= 50)
+            {
+                fill(0, 102, 255, 50);
+                for(var i = 0; i < 3; ++i)
+                {   
+                    ellipse(p.x + 24, p.y + 59, 90 - i * 20 + sin(frameCount * 4) * 10, 146 - i * 20 + sin(frameCount * 4) * 20);
+                }
+            }
+            
+            if(keys[32] && lightSaberStateStrike <= 0)
+            {
+                lightSaberState = true;
+            }
+            
+            switch(lightSaberState)
+            {
+                case true:
+                lightSaberStateStrike += 20;
+                    break;
+                    
+                case false:
+                lightSaberStateStrike -= 10;
+                    break;
+            }
+            
+            if(lightSaberStateStrike >= 80)
+            {
+                lightSaberState = false;
+            }
+            
+            if(lightSaberStateStrike <= 0)
+            {
+                lightSaberStateStrike = 0;
+            }
+            
+            plugInVillainMovementV2(v, 50);
+            
+            if(v.x >= p.x - v.w + 80 && v.x <= p.x + p.w + 80 && v.face === "left")
+            {
+                if(lightSaberStateStrikeV >= 80)
+                {
+                    p.health -= 1;
+                    p.trans += 146;
+                }
+            }
+            
+            if(v.x >= p.x - v.w - 80 && v.x <= p.x + p.w - 80 && v.face === "right")
+            {
+                if(lightSaberStateStrikeV >= 80)
+                {
+                    p.health -= 1;
+                    p.trans += 146;
+                }
+            }
+            
+            }
+        
+        else if(p.health > 0 && battleType === "bowzer")
+        {
+            plugIn(p, playerImage,
+            keys[LEFT] || keys[65], 
+            keys[RIGHT] || keys[68],
+            keys[UP] || keys[87], 8);
+            
+            
+            
+            if(keys[32] && punchModeP <= 0)
+            {
+                punchModePState = true;
+            }
+            
+            switch(punchModePState)
+            {
+                case true:
+                punchModeP += 4;
+                    break;
+                    
+                case false:
+                punchModeP -= 10;
+                    break;
+            }
+            
+            if(punchModeP >= 20)
+            {
+                punchModePState = false;
+            }
+            
+            if(punchModeP <= 0)
+            {
+                punchModeP = 0;
+            }
+            
+            if(bowzerStage === "normal")
+            {
+                plugInVillainMovementV2(b, 50);
+            }
+            
+            if(p.x >= b.x - p.w + 80 && p.x <= b.x + b.w + 80 && p.face === "left" && b.y >= 160)
+            {
+                if(punchModeP >= 20 && bowzerStage === "normal")
+                {
+                    b.health -= 1;
+                    b.trans = 143;
+                    b.excel = -3;
+                    switchBowzerStage ++;
+                }
+            }
+            
+            if(p.x >= b.x - p.w - 80 && p.x <= b.x + b.w - 80 && p.face === "right" && b.y >= 160)
+            {
+                if(punchModeP >= 20 && bowzerStage === "normal")
+                {
+                    b.health -= 1;
+                    b.trans = 143;
+                    b.excel = -3;
+                    switchBowzerStage ++;
+                }
+            }
+            
+            
+            if((keys[DOWN] || keys[83]) && p.y >= 193)
+            {
+                duck = true;
+            } else
+            {
+                duck = false;
+            }
+        }
+        
+        else if(p.health > 0 && battleType === "dalek")
+        {
+            plugIn(p, playerImage,
+            keys[LEFT] || keys[65], 
+            keys[RIGHT] || keys[68],
+            keys[UP] || keys[87], 12);
+            
+            fill(19, 224, 0);
+            rect(playerGun.x, playerGun.y, playerGun.w, playerGun.h, 10);
+            
+            if(d.x >= playerGun.x - d.w && d.y >= playerGun.y - d.h && d.x <= playerGun.x + playerGun.w && d.y <= playerGun.y + playerGun.h && !playerGun.state && playerGun.shot)
+            {
+                shootAgain = 30;
+                d.trans = 120;
+                d.health -= 2;
+                playerGun.shot = false;
+                playerGun.shotDealy = 0;
+                playerGun.state = true;
+                d.excel = -5;
+                switchDalekStage ++;
+                d.trans = 146;
+                
+                if(d.face === "right")
+                {
+                    d.x -= 50;
+                }
+                
+                if(d.face === "left")
+                {
+                    d.x += 50;
+                }
+            }
+            
+            if(playerGun.x < 0 || playerGun.x > 580)
+            {
+                playerGun.shot = false;
+                playerGun.shotDealy = 0;
+                playerGun.state = true;
+            }
+            
+            if(keys[32] && shootAgain <= 0)
+            {
+                if(playerGun.x <= p.x + 65 && p.face === "right" || playerGun.x >= p.x + -24 && p.face === "left")
+                {
+                    playerGun.shot = true;
+                    playerGun.state = false;
+                }
+            }
+            
+            shootAgain --;
+            
+            if(shootAgain <= 0)
+            {
+                shootAgain = 0;
+            }
+            
+            
+            if(playerGun.shot)
+            {
+                playerGun.x += playerGun.pos;
+            }
+            
+            if(!playerGun.shot)
+            {
+                if(p.face === "right")
+                {
+                    playerGun.pos = 5;
+                    playerGun.x = p.x + 65;
+                    playerGun.y = p.y + 67;
+                }
+                
+                if(p.face === "left")
+                {
+                    playerGun.pos = -5;
+                    playerGun.x = p.x + -24;
+                    playerGun.y = p.y + 67;
+                }
+            }
+            
+            if(dalekStage === "normal")
+            {
+                plugInVillainMovementV2(d, 50);
+            }
+        }
+        
+        else if(p.health > 0 && battleType === "picka")
+        {
+            plugIn(p, playerImage,
+            keys[LEFT] || keys[65], 
+            keys[RIGHT] || keys[68],
+            keys[UP] || keys[87], 12);
+            
+            if(pickaStage === "normal")
+            {
+            
+            if(pk.x >= playerBall.x - pk.w && pk.y >= playerBall.y - pk.h && pk.x <= playerBall.x + playerBall.w && pk.y <= playerBall.y + playerBall.h && !playerBall.state && playerBall.shot)
+            {
+                shootAgain = 30;
+                pk.trans = 120;
+                pk.health -= 2;
+                playerBall.shot = false;
+                playerBall.shotDealy = 0;
+                playerBall.state = true;
+                pk.excel = -5;
+                pk.trans = 146;
+                
+                switchPickaStage ++;
+                
+                if(pk.face === "right")
+                {
+                    pk.x -= 100;
+                }
+                
+                if(pk.face === "left")
+                {
+                    pk.x += 100;
+                }
+            }
+            
+            if(playerBall.x < 0 || playerBall.x > 580)
+            {
+                playerBall.shot = false;
+                playerBall.shotDealy = 0;
+                playerBall.state = true;
+            }
+            
+            if(keys[32] && shootAgain <= 0)
+            {
+                if(playerBall.x <= p.x + 65 && p.face === "right" || playerBall.x >= p.x + -24 && p.face === "left")
+                {
+                    playerBall.shot = true;
+                    playerBall.state = false;
+                }
+            }
+            
+            shootAgain --;
+            
+            if(shootAgain <= 0)
+            {
+                shootAgain = 0;
+            }
+            
+            
+            if(playerBall.shot)
+            {
+                playerBall.x += playerBall.pos;
+                playerBall.ballPos += playerBall.pos * 3;
+            } else
+            {
+                playerBall.ballPos = 0;
+            }
+            
+            pokeBall(playerBall.x + 8, playerBall.y + 9, playerBall.w, playerBall.ballPos);
+            
+            if(!playerBall.shot)
+            {
+                if(p.face === "right")
+                {
+                    playerBall.pos = 5;
+                    playerBall.x = p.x + 47;
+                    playerBall.y = p.y + 80;
+                }
+                
+                if(p.face === "left")
+                {
+                    playerBall.pos = -5;
+                    playerBall.x = p.x + -14;
+                    playerBall.y = p.y + 80;
+                }
+            }
+            
+            }
+            
+            plugInVillainMovementV2(pk, 50);
+            
+        }
+        
+        else {
+                
+            plugInDefeatOrVic(playerFace, p, "def");
+            
+            lightSaberStateStrike = 0;
+            standingToLong = 0;
+            punchModeP = 0;
+        }
+            
+        fill(255, 0, 0, 60);
+        ellipse(p.x + 24, p.y + 59, p.trans / 1.5, p.trans);
+        
+        p.trans -= 10;
+        if(p.trans <= 0)
+        {
+            p.trans  = 0;
+        }
+        
+        if(p.trans >= 146)
+        {
+            p.trans  = 146;
+        }
+        
+        if(p.health < 0)
+        {
+            p.health = 0;
+        }
+    
+    };
+
+// darth graphics and logic
+var
+    vaderFace = function() {
+    
+    fill(0, 0, 0);
+    arc(199, 204, 91, 116, -180, 0);
+    
+    // face
+    fill(0, 0, 0);
+    rect(164, 145, 70, 70, 20);
+    fill(48, 48, 48);
+    rect(168, 145, 65, 65, 20);
+    
+    // eyes
+    fill(0);
+    ellipse(220, 191 - 10, 25, 25);
+    ellipse(192, 191 - 10, 27, 27);
+    
+    // eyes
+    fill(15, 15, 15);
+    ellipse(220, 191 - 10, 20, 20);
+    ellipse(192, 191 - 10, 22, 23);
+    fill(255, 255, 255, 20);
+    ellipse(217, 189 - 10, 10, 10);
+    ellipse(188, 189 - 10, 10, 10);
+    ellipse(225, 195 - 10, 5, 5);
+    ellipse(196, 195 - 10, 5, 5);
+    
+    // mouth
+    strokeWeight(2);
+    stroke(0, 0, 0);
+    triangle(197, 207, 218, 207, 207, 193);
+    line(203, 199,203, 205);
+    line(207, 196,207, 205);
+    line(211, 199,211, 205);
+    noStroke();
+    
+    // helmet
+    fill(0, 0, 0);
+    arc(207, 166, 81, 62, -180 + 40, -90);
+    arc(207, 166, 54, 62, -180 + 91, -26);
+    arc(199, 154, 68, 42, -180, 0);
+    arc(179, 153, 29, 66, -220, -181);
+    arc(218, 153, 30, 101, 1, 14);
+    
+    noFill();
+    strokeWeight(4);
+    stroke(15, 15, 15);
+    arc(199, 152, 23, 38, -62, 40);
+    noStroke();
+    
+    fill(255, 255, 255, 20);
+    ellipse(200, 152 - 10, 39, 13);
+},
+    vaderImage = function(x, y, w, h) {
+    
+    pushMatrix();
+    
+    translate(x, y);
+    scale(w / 100, h / 100);
+    
+    // shoes
+    fill(31, 31, 31);
+    arc(202, 275 - 10 + v.moving, 50, 26, -90, 0);
+    fill(255, 255, 255, 10);
+    arc(203, 275 - 10 + v.moving, 40, 26, -90, 0);
+    fill(0, 0, 0);
+    arc(180, 275 - 10 - v.moving, 50, 26, -90, 0);
+    arc(180, 275 - 10 - v.moving, 4, 15, -180, -90);
+    fill(255, 255, 255, 20);
+    arc(180, 275 - 10 - v.moving, 40, 26, -90, 0);
+    
+    fill(3, 3, 3);
+    ellipse(190, 266 - 10 - v.moving, 14, 6);
+    ellipse(211, 266 - 10 + v.moving, 14, 6);
+    
+    // pants
+    fill(0, 0, 0);
+    rect(179, 246 - 10 - v.moving, 20, 20);
+    rect(201, 246 - 10 + v.moving, 20, 20);
+    fill(255, 255, 255, 20);
+    rect(182, 246 - 10 - v.moving, 15, 17);
+    rect(204, 246 - 10 + v.moving, 14, 17);
+    
+    fill(56, 56, 56);
+    arc(200, 254, 35, 35, -121, -60);
+    
+    // shirt
+    fill(0, 0, 0);
+    arc(200, 246, 43, 95, -180, 0);
+    fill(41, 41, 41);
+    arc(200, 242, 35, 95, -180, 0);
+    fill(255, 255, 255, 70);
+    rect(193, 219, 3, 19, 30);
+    rect(207, 219, 3, 19, 30);
+    rect(198, 219, 7, 3, 30);
+    rect(198, 223, 7, 3, 30);
+    rect(198, 227, 7, 3, 30);
+    rect(198, 232, 3, 5, 30);
+    rect(202, 232, 3, 5, 30);
+    
+    lightSaber(234, 231, 12 + lightSaberStateStrikeV, color(255, 0, 0), color(255, 0, 0, 100));
+    
+    // hands
+    fill(0, 0, 0);
+    ellipse(170, 234 + v.moving, 15, 15);
+    ellipse(231, 234 - v.moving, 15, 15);
+    
+    if(standingToLong >= 50)
+    {
+        fill(0, 102, 255, 50);
+        ellipse(170, 234 + v.moving, 22, 22);
+        ellipse(170, 234 + v.moving, 20, 20);
+        ellipse(170, 234 + v.moving, 18, 18);
+        ellipse(170, 234 + v.moving, 16, 16);
+        ellipse(170, 234 + v.moving, 13, 13);
+    }
+    
+    fill(255, 0, 0);
+    
+    vaderFace();
+    
+    popMatrix();
+},
+    vader = function(){
+        
+        fill(0, 0, 0, 30);
+        ellipse(v.x + 24, 312, 7 - v.y / 2.4, 13);
+        
+        if(v.health > 0)
+        {
+            
+        plugIn(v, vaderImage,
+        v.x > p.x,
+        v.x < p.x, 0);
+        
+        if(standingToLong >= 50 && v.face === "right")
+        {
+            if(standingToLong <= 50)
+            {
+                p.excel = -12; 
+            }
+            
+            p.x += 10;
+            
+            if(p.x >= width - p.w - 10)
+            {
+                standingToLong = 0;
+                p.health -= 7;
+                p.trans += 146;
+                p.x -= 50;
+            }
+        }
+        
+        if(standingToLong >= 50 && v.face === "left")
+        {
+            if(standingToLong <= 50)
+            {
+                p.excel = -12; 
+            }
+            
+            p.x -= 10;
+            
+            if(p.x < 10)
+            {
+                standingToLong = 0;
+                p.health -= 7;
+                p.trans += 146;
+                p.x += 50;
+            }
+        }
+        
+        fill(255, 0, 0, 60);
+        ellipse(v.x + 24, v.y + 59, v.trans / 1.5, v.trans);
+        
+        if(lightSaberStateStrikeV <= 0)
+        {
+            lightSaberStateV = true;
+        }
+        
+        switch(lightSaberStateV)
+        {
+            case true:
+            lightSaberStateStrikeV += 20;
+                break;
+                
+            case false:
+            lightSaberStateStrikeV -= 10;
+                break;
+        }
+        
+        if(lightSaberStateStrikeV >= 80)
+        {
+            lightSaberStateV = false;
+        }
+        
+        if(lightSaberStateStrikeV <= 0)
+        {
+            lightSaberStateStrikeV = 0;
+        }
+        
+        if(p.x >= v.x - p.w + 80 && p.x <= v.x + v.w + 80 && p.face === "left")
+        {
+            if(lightSaberStateStrike >= 80)
+            {
+                v.health -= 2;
+                v.trans += 146;
+            }
+        }
+        
+        if(p.x >= v.x - p.w - 80 && p.x <= v.x + v.w - 80 && p.face === "right")
+        {
+            if(lightSaberStateStrike >= 80)
+            {
+                v.health -= 2;
+                v.trans += 146;
+            }
+        }
+        
+        v.trans -= 10;
+        if(v.trans <= 0)
+        {
+            v.trans  = 0;
+        }
+        
+        if(v.trans >= 146)
+        {
+            v.trans  = 146;
+        }
+        
+        } else {
+            
+            plugInDefeatOrVic(vaderFace, v, "vic");
+            villainsKilled[2] = true;
+            lightSaberStateStrikeV = 0;
+            standingToLong = 0;
+        }
+        
+        if(v.health < 0)
+        {
+            v.health = 0;
+        }
+    };
+    
+var
+    bowzerFace = function() {
+    
+    // face
+    fill(21, 140, 0);
+    rect(175, 158, 57, 52, 40);
+    fill(6, 179, 0);
+    rect(178, 160, 53, 47, 40);
+    
+    // eyes
+    fill(255, 255, 255);
+    ellipse(220, 185, 20, 15);
+    ellipse(192, 185, 20, 15);
+    fill(0, 0, 0);
+    ellipse(220, 185, 15, 15);
+    ellipse(192, 185, 15, 15);
+    fill(255, 0, 0);
+    arc(177, 173, 50, 50, 12, 23);
+    arc(178, 168, 50, 50, 22, 32);
+    arc(232, 168, 50, 50, 12 + 180 - 45, 23 + 180 - 45);
+    arc(233, 173, 50, 50, 22 + 180 - 45, 32 + 180 - 45);
+    
+    // hair
+    fill(255, 0, 0, 100);
+    ellipse(190, 166, 4, 4);
+    ellipse(216, 167, 3, 3);
+    ellipse(202, 169, 2, 2);
+    fill(255, 0, 0);
+    arc(179, 145, 50, 50, 32, 46);
+    arc(194, 140, 50, 50, 66, 82);
+    arc(207, 140, 50, 50, 87, 103);
+    
+    // mouth
+    fill(255, 255, 255);
+    arc(202, 205, 15, 14, -113, -70);
+    arc(211, 205, 15, 14, -114, -68);
+    fill(255, 208, 0);
+    arc(202, 200, 15, 14, -180, 0);
+    arc(212, 200, 15, 14, -180, 0);
+    arc(207, 203, 23, 10, 0, 180);
+    fill(255, 208, 0);
+    ellipse(191, 200, 15, 13);
+    ellipse(223, 200, 13, 13);
+    
+    fill(255, 145, 0);
+    ellipse(200, 197, 3, 3);
+    ellipse(214, 197, 3, 3);
+    
+},
+    bowzerImage = function(x, y, w, h) {
+    
+    pushMatrix();
+    
+    translate(x, y);
+    scale(w / 100, h / 100);
+    
+    punchClove(239 - punchMode, 233 - b.moving);
+    
+    // shoes
+    fill(227, 174, 41);
+    arc(225, 275 + b.moving - 10, 50, 26, -127, -106);
+    arc(218, 275 + b.moving - 10, 50, 26, -121, -98);
+    arc(211, 275 + b.moving - 10, 50, 26, -113, -93);
+    arc(225 - 22, 275 - b.moving - 10, 50, 26, -127, -106);
+    arc(218 - 22, 275 - b.moving - 10, 50, 26, -121, -98);
+    arc(211 - 22, 275 - b.moving - 10, 50, 26, -113, -93);
+    
+    
+    // pants
+    fill(9, 130, 0);
+    rect(179, 246 - b.moving - 10, 20, 20);
+    rect(201, 246 + b.moving - 10, 20, 20);
+    fill(255, 255, 255, 20);
+    rect(182, 246 - b.moving - 10, 15, 17);
+    rect(204, 246 + b.moving - 10, 14, 17);
+    
+    // shirt
+    fill(181, 127, 0);
+    arc(171, 216, 30, 30, 1, 23);
+    arc(171, 222, 30, 30, 1, 23);
+    arc(171, 229, 30, 30, 1, 23);
+    fill(3, 168, 0);
+    arc(200, 246, 43, 95, -180, 0);
+    fill(255, 255, 255);
+    arc(204, 246, 23, 75, -180, 0);
+    rect(179, 243.4, 14, 3);
+    fill(255, 239, 59);
+    arc(207, 246, 23, 75, -180, 0);
+    
+    fill(255, 136, 0, 100);
+    rect(199, 219, 16, 2);
+    rect(198, 225, 19, 2);
+    rect(197, 231, 21, 2);
+    rect(196, 237, 22, 2);
+    rect(196, 242, 23, 2);
+        
+    // hands
+    punchClove(179 + punchMode, 233 + b.moving);
+    
+    bowzerFace();
+    
+    popMatrix();
+},
+    bowzer = function(){
+        
+        fill(0, 0, 0, 30);
+        ellipse(b.x + 24, 306, 19 - b.y / 2.4, 22);
+        
+        if(b.health > 0)
+        {
+        
+        switch(bowzerStage)
+        {
+            case "normal":
+                
+                plugIn(b, bowzerImage,
+                b.x > p.x,
+                b.x < p.x, keys[UP], 5);
+                
+                punchMode = sin(frameCount * 10) * 6;
+                
+                if(b.x >= p.x - b.w + 60 && b.x <= p.x + p.w + 60 && b.face === "left")
+                {
+                    if(punchMode >= 6)
+                    {
+                        p.health -= 1;
+                        p.trans += 146;
+                        p.excel = -5;
+                        p.x -= 10;
+                        
+                    }
+                }
+                
+                if(b.x >= p.x - b.w - 60 && b.x <= p.x + p.w - 60 && b.face === "right")
+                {
+                    if(punchMode >= 6)
+                    {
+                        p.health -= 1;
+                        p.trans += 146;
+                        p.excel = -5;
+                        p.x += 10;
+                    }
+                }
+                
+                fill(255, 0, 0, 60);
+                ellipse(b.x + 24, b.y + 59, b.trans / 1.5, b.trans);
+                
+                b.trans -= 10;
+                if(b.trans <= 0)
+                {
+                    b.trans  = 0;
+                }
+                
+                if(b.trans >= 146)
+                {
+                    b.trans  = 146;
+                }
+                
+                if(b.health < 0)
+                {
+                    b.health = 0;
+                }
+                
+                if(switchBowzerStage >= 25)
+                {
+                    switchBowzerStage = 0;
+                    bowzerStage = "shell";
+                    b.x = 30;
+                    b.face = "right";
+                    b.y = 193;
+                }
+                
+                        
+                break;
+            
+            case "fire":
+            
+            firBall.x += 10;
+            
+            if(firBall.x >= 600)
+            {
+                firBall.x = 0;
+                shellHitState = true;
+                switchBowzerStage ++;
+                firBall.state = floor(random(0, 2));
+            }
+            
+            if(switchBowzerStage >= 5)
+            {
+                switchBowzerStage = 0;
+                bowzerStage = "normal";
+                b.x = 30;
+            }
+            
+            if(p.x >= firBall.x - p.w && p.x <= firBall.x + firBall.w && p.y >= 160 && shellHitState && firBall.state === 0)
+            {
+                p.health -= 7;
+                shellHitState = false;
+                p.trans += 146;
+            }
+            
+            if(p.x >= firBall.x - p.w && p.x <= firBall.x + firBall.w && shellHitState && firBall.state === 1)
+            {
+                if(!duck)
+                {
+                    p.health -= 7;
+                    shellHitState = false;
+                    p.trans += 146;
+                }
+            }
+            
+            switch(firBall.state)
+            {
+                case 0:
+                    firBall.y = 273;
+                    break;
+                
+                case 1:
+                    firBall.y = 273 - 100;
+                    break;
+            }
+            
+            for(var i = 0; i < 50; ++i)
+            {
+                fill(255, random(0, 200), 0, 100);
+                
+                ellipse(
+                firBall.x + random(0, firBall.w),
+                firBall.y + random(0, firBall.h ), 20, 20);
+            }
+            
+            plugIn(b, bowzerImage,
+            0, 
+            0,
+            0, 12);
+                break;
+                
+            case "shell":
+            
+            b.x += speedShell;
+            
+            if(b.x >= 600)
+            {
+                b.x = -20;
+                speedShell = floor(random(5, 13));
+                shellHitState = true;
+                switchBowzerStage ++;
+            }
+            
+            if(switchBowzerStage >= 5)
+            {
+                switchBowzerStage = 0;
+                bowzerStage = "fire";
+            }
+            
+            if(p.x >= b.x - p.w && p.x <= b.x + b.w && p.y >= 160 && shellHitState)
+            {
+                p.health -= 10;
+                shellHitState = false;
+                p.excel = -5;
+                p.trans += 146;
+            }
+            
+            fill(102, 212, 34);
+            arc(b.x + 25, b.y + 114, 46, 69, -180, 0);
+            fill(237, 247, 45);
+            arc(b.x + 36, b.y + 114, 21, 49, -180, 0);
+            fill(255, 255, 255);
+            ellipse(b.x + 25, b.y + 114, 49, 4);
+            fill(235, 193, 26);
+            rect(b.x + 28, b.y + 96, 16, 2);
+            rect(b.x + 26, b.y + 102, 20, 2);
+            rect(b.x + 26, b.y + 108, 21, 2);
+                break;
+        }
+        
+        
+        } else {
+            plugInDefeatOrVic(bowzerFace, b, "vic");
+            villainsKilled[0] = true;
+            punchMode = 0;
+        }
+        
+        
+        if(b.health < 0)
+        {
+            b.health = 0;
+        }
+    };
+    
+var
+    dalekFace = function() {
+    
+    // face
+    fill(59, 59, 59);
+    pushMatrix();
+    translate(200, 173);
+    rotate(16);
+    rect(0, 0, 6, 12, 10);
+    popMatrix();
+    
+    fill(115, 115, 115);
+    arc(200, 210, 31, 61, -180, 0);
+    fill(255, 255, 255, 20);
+    ellipse(199, 187, 20, 10);
+    ellipse(192, 198, 6, 6);
+    
+    fill(28, 28, 28);
+    pushMatrix();
+    translate(189, 176);
+    rotate(-16);
+    rect(0, 0, 6, 12, 10);
+    popMatrix();
+    
+    fill(26, 26, 26);
+    rect(210, 187, 23, 3, 3);
+    arc(210, 189, 14, 8, -97, 73);
+    arc(237, 188.5, 14, 8, -180 - 90, -90);
+    
+    
+    fill(0, 0, 0);
+    rect(184, 206, 32, 2, 10);
+    rect(184, 202, 32, 2, 10);
+    rect(185, 198, 31, 2, 10);
+    rect(184, 210, 32, 2, 10);
+    
+},
+    dalekImage = function(x, y, w, h) {
+    
+    pushMatrix();
+    
+    translate(x, y);
+    scale(w / 100, h / 100);
+    
+    // shirt
+    fill(145, 145, 145);
+    arc(200, 261, 56, 120, -180, 0);
+    fill(110, 110, 110);
+    rect(169, 258, 62, 7, 10);
+    fill(0, 0, 0, 30);
+    ellipse(193 - 1, 215, 6, 6);
+    ellipse(201 - 1, 215, 6, 6);
+    ellipse(210 - 1, 215, 6, 6);
+    ellipse(189 - 1, 224, 6, 6);
+    ellipse(201 - 1, 224, 6, 6);
+    ellipse(212 - 1, 224, 6, 6);
+    ellipse(185 - 1, 234, 6, 6);
+    ellipse(201 - 1, 234, 6, 6);
+    ellipse(216 - 1, 234, 6, 6);
+    ellipse(182 - 1, 244, 6, 6);
+    ellipse(201 - 1, 244, 6, 6);
+    ellipse(219 - 1, 244, 6, 6);
+    ellipse(180 - 1, 253, 6, 6);
+    ellipse(201 - 1, 253, 6, 6);
+    ellipse(221 - 1, 253, 6, 6);
+    
+    dalekFace();
+    
+    popMatrix();
+},
+    dalek = function(){
+        
+        if(d.health > 0)
+        {
+        
+        noFill();
+        stroke(0, random(0, 200), 201);
+        strokeWeight(6);
+        
+        if(p.x < 20 || p.x > 520)
+        {
+            p.x = p.x + random(-3, 3);
+            p.health -= 1;
+            p.trans = random(100, 140);
+        }
+        
+        for (var j = 0; j < 2; ++j)
+        {
+            pushMatrix();
+            translate(j * 579, 0);
+            beginShape();
+            vertex(9, 79);
+            for(var i = 0; i < 21; ++i)
+            {
+                vertex(9 + random(-10, 10), 100 + i * 10);
+            }
+            vertex(9, 316);
+            endShape();
+            popMatrix();
+        }
+        
+        noStroke();           
+        
+        switch(dalekStage)
+        {
+            case "normal":
+                
+                if(switchDalekStage >= 15)
+                {
+                    lazerBall.limit -= 10;
+                    switchDalekStage = 0;
+                    dalekStage = "airshoot";
+                    d.x = 30;
+                    d.face = "right";
+                }
+                
+                fill(64, 144, 255);
+                rect(dalekGun.x, dalekGun.y, dalekGun.w, dalekGun.h, 10);
+                
+                plugIn(d, dalekImage,
+                d.x > p.x,
+                d.x < p.x, 0, 5);
+                
+                if(p.x >= dalekGun.x - p.w && p.y >= dalekGun.y - p.h && p.x <= dalekGun.x + dalekGun.w && p.y <= dalekGun.y + dalekGun.h && !dalekGun.state && dalekGun.shot)
+                {
+                    dalekShootAgain = 30;
+                    
+                    p.health -= 2;
+                    dalekGun.shot = false;
+                    dalekGun.shotDealy = 0;
+                    dalekGun.state = true;
+                    p.excel = -5;
+                    
+                    p.trans = 146;
+                    
+                    if(d.face === "right")
+                    {
+                        p.x += 50;
+                    }
+                    
+                    if(d.face === "left")
+                    {
+                        p.x -= 50;
+                    }
+                }
+                
+                if(dalekGun.x < 0 || dalekGun.x > 580)
+                {
+                    dalekGun.shot = false;
+                    dalekGun.shotDealy = 0;
+                    dalekGun.state = true;
+                }
+                
+                if(p.y >= 130)
+                {
+                    dalekGun.shotDealy ++;
+                }
+                
+                dalekShootAgain --;
+                
+                if(dalekGun.shotDealy >= 20 &&
+                dalekShootAgain <= 0)
+                {
+                    dalekGun.shot = true;
+                    dalekGun.state = false;
+                }
+                
+                if(dalekShootAgain <= 0)
+                {
+                    dalekShootAgain = 0;
+                }
+                
+                if(dalekGun.shot)
+                {
+                    dalekGun.x += dalekGun.pos;
+                }
+                
+                if(!dalekGun.shot)
+                {
+                    if(d.face === "right")
+                    {
+                        dalekGun.pos = 3.5;
+                    }
+                    
+                    if(d.face === "left")
+                    {
+                        dalekGun.pos = -3.5;
+                    }
+                
+                    dalekGun.x = d.x + 13;
+                    dalekGun.y = d.y + 46 - 5;
+                }
+                break;
+            
+            case "airshoot":
+                
+                noStroke();
+                
+                fill(77, 145, 247, 100);
+                rect(lazerBall.x - 2, lazerBall.y - 2, lazerBall.w + 4, lazerBall.h + 4, 10);
+                
+                fill(77, 145, 247);
+                rect(lazerBall.x, lazerBall.y, lazerBall.w, lazerBall.h, 10);
+                
+                fill(0, 63, 224, 100);
+                ellipse(lazerBall.x, 312, lazerBall.y / 10, 10);
+                
+                lazerBall.shotDealy ++;
+                
+                if(lazerBall.shotDealy >= lazerBall.limit)
+                {
+                    lazerBall.shotDealy = 0;
+                    lazerBall.shot = true;
+                    lazerBall.state = true;
+                }
+                
+                if(lazerBall.shot)
+                {
+                    lazerBall.y += 5;
+                }
+                
+                if(lazerBall.y >= 282)
+                {
+                    lazerBall.y = 73;
+                    lazerBall.shot = false;
+                    switchDalekStage ++;
+                }
+                
+                if(switchDalekStage >= 10)
+                {
+                    switchDalekStage = 0;
+                    dalekStage = "normal";
+                }
+                
+                if(p.x >= lazerBall.x - p.w - 10 && p.x <= lazerBall.x + lazerBall.w + 10 && lazerBall.y >= p.y && lazerBall.state)
+                {
+                    p.health -= 2;
+                    lazerBall.state = false;
+                    p.trans += 146;
+                }
+                
+                d.y = -14;
+                
+                lazerBall.x = d.x + 23;
+                
+                if(d.x < p.x)
+                {
+                    d.x ++;
+                }
+                
+                if(d.x > p.x)
+                {
+                    d.x --;
+                }
+                
+                fill(74, 74, 74);
+                rect(d.x + 40, d.y + 84, 9, 28, 10);
+                rect(d.x + -1, d.y + 84, 9, 28, 10);
+                fill(92, 92, 92);
+                arc(d.x + 24, d.y + 119, 60, 66, -180, 0);
+                fill(0, 0, 0);
+                ellipse(d.x + 24, d.y + 110, 15, 15);
+                rect(d.x + 21, d.y + 107, 6, 31, 5);
+                arc(d.x + 24, d.y + 143, 11, 24, -180, 0);
+                
+                break;
+        }
+        
+    } else
+        {
+            villainsKilled[1] = true;
+            plugInDefeatOrVic(dalekFace, d, "vic");
+        }
+        
+        
+            
+        fill(38, 255, 63, 60);
+        ellipse(d.x + 24, d.y + 75, d.trans / 1.5, d.trans);
+        
+        d.trans -= 10;
+        
+        if(d.trans <= 0)
+        {
+            d.trans  = 0;
+        }
+        
+        if(d.health < 0)
+        {
+            d.health = 0;
+        }
+        
+    };
+    
+var
+    pickaFace = function() {
+    
+    pushMatrix();
+    translate(212, 174);
+    rotate(50);
+    fill(237, 245, 3);
+    arc(0, 0, 11, 70, -180, 0);
+    fill(38, 38, 38);
+    arc(0, -22, 9, 23, -180, 0);
+    popMatrix();
+    
+    // face
+    fill(255, 209, 71);
+    rect(177, 162, 46, 47, 143);
+    fill(237, 245, 3);
+    rect(180, 164, 42, 44, 143);
+    
+    pushMatrix();
+    translate(183, 172);
+    rotate(-50);
+    fill(237, 245, 3);
+    arc(0, 0, 11, 70, -180, 0);
+    fill(38, 38, 38);
+    arc(0, -22, 9, 23, -180, 0);
+    popMatrix();
+    
+    // eyse
+    fill(0, 0, 0);
+    ellipse(214, 185, 8, 8);
+    ellipse(199, 185, 8, 8);
+    arc(207, 191, 5, 5, 0, 180);
+    fill(255, 255, 255);
+    ellipse(215, 184, 4, 4);
+    ellipse(200, 184, 4, 4);
+    
+    // cheeks
+    fill(255, 0, 0);
+    ellipse(194, 196, 8, 8);
+    ellipse(217, 196, 6, 6);
+    
+},
+    pickaImage = function(x, y, w, h) {
+    
+    pushMatrix();
+    
+    translate(x, y);
+    scale(w / 100, h / 100);
+    
+    fill(247, 255, 0);
+    rect(145, 214, 30, 17, 5);
+    rect(165, 224, 10, 17, 5);
+    rect(165, 235, 17, 9, 5);
+    
+    // shoes
+    fill(224, 189, 13);
+    arc(208, 274 + pk.moving - 10, 30, 12, -90, 16);
+    arc(192, 274 - pk.moving - 10, 30, 12, -90 - 90 - 10, 16 - 90 - 10);
+    
+    // body
+    fill(255, 238, 0);
+    rect(179, 246 - pk.moving / 2 - 10, 25, 20, 10);
+    rect(201 - 2.8, 246 + pk.moving / 2 - 10, 23, 20, 10);
+    arc(200, 246, 43, 95, -180, 0);
+    
+    // hands
+    fill(255, 196, 0);
+    ellipse(170, 227 + pk.moving, 15, 15);
+    ellipse(231, 227 - pk.moving, 15, 15);
+        
+    pickaFace();
+    
+    popMatrix();
+},
+    pickachu = function(){
+        
+        fill(0, 0, 0, 30);
+        ellipse(pk.x + 24, 306, 19 - pk.y / 2.4, 22);
+        
+        if(pk.health > 0)
+        {
+            
+            switch(pickaStage)
+            {
+                
+            case "normal":
+                
+                if(switchPickaStage >= 15)
+                {
+                    switchPickaStage = 0;
+                    pickaStage = "ball";
+                    pk.x = 30;
+                    pk.face = "right";
+                }
+                    
+                stroke(64, 144, 255);
+                strokeWeight(4);
+                beginShape();
+                vertex(pickaGun.x, pickaGun.y + pickaGun.h / 2);
+                for(var i = 0; i < pickaGun.w; ++i)
+                {
+                    vertex(pickaGun.x + i, pickaGun.y + pickaGun.h / 2 + random(-2,2));
+                }
+                endShape();
+                noStroke();
+                
+                plugIn(pk, pickaImage,
+                pk.x > p.x,
+                pk.x < p.x, p.y < 193, 6);
+                
+                if(p.x >= pickaGun.x - p.w && p.y >= pickaGun.y - p.h && p.x <= pickaGun.x + pickaGun.w && p.y <= pickaGun.y + pickaGun.h && !pickaGun.state && pickaGun.shot)
+                {
+                    pickaShootAgain = 30;
+                    
+                    p.health -= 3;
+                    pickaGun.shot = false;
+                    pickaGun.shotDealy = 0;
+                    pickaGun.state = true;
+                    p.excel = -5;
+                    
+                    p.trans = 146;
+                    
+                    if(pk.face === "right")
+                    {
+                        p.x += 100;
+                    }
+                    
+                    if(pk.face === "left")
+                    {
+                        p.x -= 100;
+                    }
+                }
+                
+                if(pickaGun.x < 0 || pickaGun.x > 580)
+                {
+                    pickaGun.shot = false;
+                    pickaGun.shotDealy = 0;
+                    pickaGun.state = true;
+                }
+                
+                pickaGun.shotDealy ++;
+                
+                pickaShootAgain --;
+                
+                if(pickaGun.shotDealy >= 20 &&
+                pickaShootAgain <= 0)
+                {
+                    pickaGun.shot = true;
+                    pickaGun.state = false;
+                }
+                
+                if(pickaShootAgain <= 0)
+                {
+                    pickaShootAgain = 0;
+                }
+                
+                if(pickaGun.shot)
+                {
+                    pickaGun.x += pickaGun.pos;
+                }
+                
+                if(!pickaGun.shot)
+                {
+                    if(pk.face === "right")
+                    {
+                        pickaGun.pos = 3.5;
+                        pickaGun.x = pk.x + 48;
+                        pickaGun.y = pk.y + 84 - 5;
+                    }
+                    
+                    if(pk.face === "left")
+                    {
+                        pickaGun.pos = -3.5;
+                        pickaGun.x = pk.x + -18;
+                        pickaGun.y = pk.y + 84 - 5;
+                    }
+                }
+                
+                fill(255, 0, 0, 60);
+                ellipse(pk.x + 24, pk.y + 75, pk.trans / 1.3, pk.trans);
+                
+                pk.trans -= 10;
+                
+                if(pk.trans <= 0)
+                {
+                    pk.trans  = 0;
+                }
+                
+                if(pk.health < 0)
+                {
+                    pk.health = 0;
+                }
+                break;
+            
+            case "ball":
+                
+                pk.x = pickaBallMove;
+                pk.y = 193;
+                
+                pickaBallMove += pickaBallMoveS;
+                
+                if(p.x >= pk.x - p.w && p.x <= pk.x + pk.w && p.y >= 140 && shellHitState)
+                {
+                    p.health -= 10;
+                    shellHitState = false;
+                    p.excel = -10;
+                    p.trans += 146;
+                }
+                
+                if(pickaBallMove >= width - 40)
+                {
+                   pickaBallMoveS = -random(3, 12);
+                   shellHitState = true;
+                   switchPickaStage ++;
+                }
+                
+                if(pickaBallMove <= 10)
+                {
+                   pickaBallMoveS = random(3, 12);
+                   shellHitState = true;
+                   switchPickaStage ++;
+                }
+                
+                pokeBall(pk.x + pk.w / 2, pk.y + pk.h / 1.3, 55, pickaBallMove);
+                
+                if(switchPickaStage >= 10)
+                {
+                    switchPickaStage = 0;
+                    pickaStage = "normal";
+                }
+                
+                break;
+            
+            }
+        } else
+        {
+            villainsKilled[3] = true;
+            plugInDefeatOrVic(pickaFace, pk, "vic");
+        }
+        
+        if(pk.health < 0)
+        {
+            pk.health = 0;
+        }
+    };
+    
+// backdrop
+var backdrop = function() {
+    
+    // sky
+    background(189, 241, 255);
+    fill(214, 247, 255);
+    arc(437, 0, 483, 303, 0, 180);
+    arc(76, 0, 460, 234, 0, 180);
+    fill(237, 251, 255);
+    arc(437, -46, 483, 303, 0, 180);
+    arc(76, -28, 460, 234, 0, 180);
+    
+    cloud(- 100 + frameCount % 750, 56 + sin(frameCount * 5) * 5, 50);
+        
+    cloud(- 300 + frameCount % 500 * 2, 102 + sin(frameCount * 7) * 6, 50);
+        
+    
+    // ground
+    fill(92, 41, 5);
+    rect(0, 334, 600, 89);
+    
+    // dirt level 2
+    pushMatrix();
+    translate(0, 19);
+    fill(115, 51, 8);
+    beginShape();
+    vertex(0, 313);
+    vertex(600, 313);
+    vertex(600, 381);
+    vertex(516, 367);
+    vertex(449, 375);
+    vertex(399, 362);
+    vertex(301, 369);
+    vertex(219, 355);
+    vertex(140, 363);
+    vertex(21, 354);
+    vertex(0, 363);
+    endShape();
+    
+    // dirt level 3
+    fill(133, 60, 12);
+    beginShape();
+    vertex(0, 313);
+    vertex(600, 313);
+    vertex(600, 351);
+    vertex(516, 350);
+    vertex(449, 362);
+    vertex(399, 336);
+    vertex(301, 352);
+    vertex(237, 336);
+    vertex(140, 348);
+    vertex(21, 335);
+    vertex(0, 351);
+    endShape();
+    
+    // grass level 1
+    fill(39, 133, 13);
+    beginShape();
+    vertex(0, 313);
+    vertex(600, 313);
+    vertex(600, 333);
+    vertex(516, 328);
+    vertex(449, 331);
+    vertex(399, 322);
+    vertex(301, 332);
+    vertex(237, 325);
+    vertex(140, 333);
+    vertex(21, 328);
+    vertex(0, 327);
+    endShape();
+    
+    // grass level 2
+    fill(57, 179, 23);
+    beginShape();
+    vertex(0, 274);
+    vertex(600, 275);
+    vertex(600, 323);
+    vertex(516, 322);
+    vertex(449, 324);
+    vertex(399, 318);
+    vertex(301, 326);
+    vertex(237, 319);
+    vertex(140, 326);
+    vertex(21, 323);
+    vertex(0, 319);
+    endShape();
+    
+    // grass level 3
+    fill(70, 194, 29);
+    beginShape();
+    vertex(0, 274);
+    vertex(600, 275);
+    vertex(600, 289);
+    vertex(516, 293);
+    vertex(449, 284);
+    vertex(399, 291);
+    vertex(301, 288);
+    vertex(237, 284);
+    vertex(140, 293);
+    vertex(21, 281);
+    vertex(0, 289);
+    endShape();
+    
+    popMatrix();
+};
+
+var buttonLP = function(x, y, w, h, morePicker){
+    
+    if(mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h)
+    {
+        cursor(HAND);
+        
+        if(clicked)
+        {
+            scene = "game";
+            battleType = morePicker;
+        }
+    }
+    
+    statusBars(x, y, w, h);
+    
+    switch(morePicker)
+    {
+        case "vader":
+            
+            pushMatrix();
+            translate(x - 129, y - 91);
+            scale(0.9);
+            vaderFace(0, 0, w, h);
+            popMatrix();
+            
+            textSize(22);
+            fill(255, 255, 255);
+            text("VADER", x + w / 2, y + h / 2 + 35);
+            
+            break;
+        
+        case "bowzer":
+            
+            pushMatrix();
+            translate(x - 153, y - 113);
+            scale(1.0);
+            bowzerFace(0, 0, w, h);
+            popMatrix();
+            
+            textSize(17);
+            fill(255, 255, 255);
+            text("BABY\nBOWZER", x + w / 2, y + h / 2 + 35);
+            
+            break;
+            
+        case "dalek":
+            
+            pushMatrix();
+            translate(x - 223, y - 186);
+            scale(1.3);
+            dalekFace(0, 0, w, h);
+            popMatrix();
+            
+            textSize(22);
+            fill(255, 255, 255);
+            text("DALEK", x + w / 2, y + h / 2 + 35);
+            
+            break;
+            
+        case "picka":
+            
+            pushMatrix();
+            translate(x - 145, y - 111);
+            scale(1.0);
+            pickaFace(0, 0, w, h);
+            popMatrix();
+            
+            textSize(22);
+            fill(255, 255, 255);
+            text("PICKA", x + w / 2, y + h / 2 + 35);
+            
+            break;
+    }
+    
+    noStroke();
+    
+    if(mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h)
+    {
+        fill(255, 255, 255, 30);
+        rect(x, y, w, h);
+    }
+
+};
+
+// pages
+var
+    homePage = function(){
+        
+        smoothAnim[0] /= 1.1;
+        
+        if(smoothAnim[0] <= 5)
+        {
+           smoothAnim[1] /= 1.2; 
+        }
+        
+        if(smoothAnim[1] <= 100)
+        {
+           smoothAnim[2] /= 1.2; 
+        }
+        
+        if(smoothAnim[2] <= 100)
+        {
+           smoothAnim[3] /= 1.2; 
+        }
+        
+        if(smoothAnim[3] <= 100)
+        {
+           smoothAnim[4] /= 1.2; 
+        }
+        
+        pushMatrix();
+        translate(-24, -105 - smoothAnim[0]);
+        scale(0.9);
+        playerImage();
+        popMatrix();
+        
+        fill(0, 0, 0);
+        textSize(81);
+        text("NERDS", 333, 69 - smoothAnim[0]);
+        textSize(40);
+        text("NIGHTMARES", 333, 118 - smoothAnim[0]);
+        
+        button(300 - 100 / 2 - 55, 172 + smoothAnim[1], 100, 100, "levelPick");
+        
+        button(300 - 100 / 2 + 55, 172 + smoothAnim[2], 100, 100, "how");
+        
+        fill(0, 0, 0, 70);
+        ellipse(66, 318 + smoothAnim[3], 57, 13);
+        ellipse(520, 315 + smoothAnim[4], 73, 13);
+        
+        vaderImage(-96, 107 + smoothAnim[3], 80, 80);
+        dalekImage(709, 65 + smoothAnim[4], -95, 95);
+        
+    },
+    
+    howPage = function(){
+        
+        textSize(20);
+        
+        fill(255, 219, 120);
+        text("Fight your worst nightmares!\nEach of the characters you fight have different abilities!\nBe sure to click their 'Info' to see how to fight them!", 300, 168);
+        fill(237, 184, 38);
+        text("Fight your worst nightmares!\nEach of the characters you fight have different abilities!\nBe sure to click their 'Info' to see how to fight them!", 300, 166);
+        
+        button(300 - 70 / 2, 313, 70, 70, "home");
+        
+    },
+    
+    gamePage = function(){
+        
+        if(battleType === "vader")
+        {
+            healthBar(v, vaderFace, 354, 0);
+            vader();
+        }
+        
+        if(battleType === "bowzer")
+        {
+            healthBar(b, bowzerFace, 354, 0);
+            bowzer();
+        }
+        
+        if(battleType === "dalek")
+        {
+            healthBar(d, dalekFace, 354, 0);
+            dalek();
+        }
+        
+        if(battleType === "picka")
+        {
+            healthBar(pk, pickaFace, 354, 0);
+            pickachu();
+        }
+        
+        healthBar(p, playerFace, 0, 0);
+        player();
+    },
+    
+    levelPickerPage = function(){
+        
+        // reset picka
+        pickaStage = "normal";
+        switchPickaStage = 0;
+        pickaShootAgain = 0;
+        pickaBallMove = 0;
+        pickaBallMoveS = 3;
+        
+        playerBall = {
+            x: 15, y: 239,
+            w: 17, h: 17,
+            state: 0, shot: false, shotDealy: 0,
+            pos: 0, ballPos: 0
+        };
+        
+        pickaGun = {
+            x: 15, y: 239,
+            w: 20, h: 5,
+            state: 0, shot: false, shotDealy: 0,
+            pos: 0,
+        };
+        
+        // timer preset
+        startTimer = 3;
+        startTimerDelay = 0;
+        battleType = "defualt";
+        
+        //bowzer preset
+        duck = false;
+        bowzerStage = "normal";
+        speedShell = 3;
+        shellHitState = true;
+        switchBowzerStage = 0;
+        punchMode = 0;
+        punchModeP = 0;
+        punchModePState = false;
+        
+        // vader preset
+        lightSaberState = false;
+        lightSaberStateStrike = -3;
+        lightSaberStateV = false;
+        lightSaberStateStrikeV = -3;
+        standingToLong = 0;
+        
+        p = {
+
+            health: 100,
+            
+            x: 479, y: 193,
+            w: 48, h: 121,
+            
+            s: 3,
+            
+            face: "left", moving: 0, excel: 0, trans: 146
+        };
+        
+        v = {
+
+            health: 100,
+            
+            x: 56, y: 193,
+            w: 48, h: 121,
+            
+            s: 1,
+            
+            face: "right", moving: 0, excel: 0, trans: 146
+        };
+        
+        b = {
+            
+            health: 100,
+            
+            x: 50, y: 193,
+            w: 48, h: 121,
+            
+            s: 2,
+            
+            face: "right", moving: 0, excel: 0, trans: 146
+        };
+        
+        d = {
+            
+            health: 100,
+            
+            x: 54, y: 193,
+            w: 48, h: 121,
+            
+            s: 2,
+            
+            face: "right", moving: 0, excel: 0, trans: 146
+        };
+        
+        pk = {
+    
+            health: 100,
+            
+            x: 50, y: 193,
+            w: 48, h: 121,
+            
+            s: 2,
+            
+            face: "right", moving: 0, excel: 0, trans: 146
+        };
+        
+        firBall = {
+            x: 15, y: 273,
+            w: 40, h: 40,
+            state: 0,
+        };
+        
+        lazerBall = {
+            x: 15, y: 73,
+            w: 4, h: 30,
+            state: 0, shot: false, shotDealy: 0, limit: 90,
+        };
+        
+        dalekStage = "normal";
+        switchDalekStage = 0;
+        
+        shootAgain = 0;
+        dalekShootAgain = 0;
+        
+        playerGun = {
+            x: 15, y: 239,
+            w: 10, h: 5,
+            state: 0, shot: false, shotDealy: 0,
+            pos: 0,
+        };
+        
+        fill(0, 0, 0);
+        textSize(30);
+        text("FIGHT YOUR NIGHTMARES!", 300, 45);
+        
+        duck = false;
+        
+        buttonLP(303, 79, 100, 170, "vader");
+        buttonLP(68, 79, 100, 170, "bowzer");
+        buttonLP(183, 79, 100, 170, "dalek");
+        buttonLP(425, 79, 100, 170, "picka");
+        
+        button(183, 252, 100, 28, "dalekinfo");
+        button(68, 252, 100, 28, "bowzerinfo");
+        button(303, 252, 100, 28, "vaderinfo");
+        button(425, 252, 100, 28, "pickainfo");
+        
+        button(300 - 70 / 2, 313, 70, 70, "home");
+        
+        for(var i = 0; i < villainsKilled.length; ++i)
+        {
+            fill(117, 117, 117);
+            strokeWeight(3);
+            stroke(79, 79, 79);
+            rect(136 + i * 119, 79, 30, 30, 10);
+            stroke(16, 230, 20);
+            
+            if(villainsKilled[i])
+            {
+                line(151 + i * 119, 102, 144 + i * 119, 86);
+                line(152 + i * 119, 100, 167 + i * 119, 76);
+            }
+            noStroke();
+        }
+        
+    };
+ 
+// final statements that won't be changed   
+var PROGRAM_CONSTANTS = function(){
+    
+    backdrop();
+    textFont(createFont("Tahoma Bold"));
+    textAlign(CENTER, CENTER);
+    cursor(ARROW);
+};
+
+//logo vars and functions
+var grow = 0, growSpeed = 3, delayTimerEmerald = 0;
+var emeraldX = 200, emeraldXSpeed = 3;
+var textEmeraldGamesX = 490, textEmeraldGamesSpeedX = 3;
+var shade = 0;
+
+var
+    emeraldGemLogo = function(x, y, s)
+    {
+    
+    //stroke
+    stroke(255, 255, 255, 35);
+    strokeWeight(s / 25);
+    
+    //base
+    fill(111, 252, 98);
+    beginShape();
+    vertex(x - s, y - s / 2);
+    vertex(x - s / 2, y - s);
+    vertex(x + s / 2, y - s);
+    vertex(x + s, y - s / 2);
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s, y + s);
+    vertex(x - s, y - s / 2);
+    endShape();
+    
+    //1
+    fill(113, 245, 98);
+    noStroke();
+    beginShape();
+    vertex(x - s, y - s / 2);
+    vertex(x - s / 2, y - s);
+    vertex(x - s / 3, y - s / 2);
+    vertex(x - s / 2, y - s / 3);
+    endShape();
+    
+    //2
+    fill(82, 235, 65);
+    beginShape();
+    vertex(x - s / 2, y - s);
+    vertex(x - s / 3, y - s / 2);
+    vertex(x + s / 3, y - s / 2);
+    vertex(x + s / 2, y - s);
+    endShape();
+    
+    //3
+    beginShape();
+    fill(72, 227, 54);
+    vertex(x + s / 2, y - s);
+    vertex(x + s, y - s / 2);
+    vertex(x + s / 2, y - s / 3);
+    vertex(x + s / 3, y - s / 2);
+    endShape();
+    
+    //4
+    fill(67, 217, 48);
+    beginShape();
+    vertex(x + s, y - s / 2);
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s / 1.1);
+    vertex(x + s / 2, y - s / 3);
+    endShape();
+    
+    //5
+    fill(57, 207, 37);
+    beginShape();
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s / 1.2);
+    endShape();
+    
+    //6
+    fill(57, 196, 35);
+    beginShape();
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s / 3, y + s);
+    endShape();
+    
+    //7
+    fill(79, 214, 55);
+    beginShape();
+    vertex(x - s, y + s);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s / 3, y + s);
+    vertex(x - s / 2, y + s / 1.2);
+    endShape();
+    
+    //8
+    fill(96, 240, 67);
+    beginShape();
+    vertex(x - s, y + s);
+    vertex(x - s / 2, y + s / 1.2);
+    vertex(x - s / 2, y - s / 3);
+    vertex(x - s, y - s / 2);
+    endShape();
+    
+    //shade
+    fill(0, 0, 0, 4);
+    beginShape();
+    vertex(x + s / 2.3, y - s / 2.3);
+    vertex(x + s / 2, y - s / 3);
+    vertex(x + s / 2, y + s / 1.2);
+    vertex(x + s / 3, y + s);
+    vertex(x - s / 3, y + s);
+    vertex(x - s / 2.3, y + s / 1.1);
+    endShape();
+    
+    //shade 2
+    fill(0, 0, 0, 5);
+    beginShape();
+    vertex(x + s / 6, y + s);
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s / 1.2);
+    vertex(x + s / 2, y + s / 1.5);
+    endShape();
+
+},
+
+    logoPage = function()
+    {
+    
+    pushMatrix();
+    translate(0, -60);
+    scale(width / 400, height / 300);
+    textAlign(CENTER, CENTER);
+    
+    background(255, 255, 255);
+    
+    //emerald efect
+    pushMatrix();
+    translate(emeraldX, 182);
+    rotate(grow * 4.53);
+    emeraldGemLogo(0, 0, grow);
+    popMatrix();
+    
+    //grow emerald
+    grow += growSpeed;
+    
+    //when emerald is at the right length
+    if(grow >= 35)
+    {
+        growSpeed -= 0.1;
+        delayTimerEmerald += 1;
+    }
+    
+    //textX move to the side
+    if(delayTimerEmerald >= 50)
+    {
+        textEmeraldGamesX -= textEmeraldGamesSpeedX;
+    }
+    
+    //once text touches the emerald
+    if(textEmeraldGamesX <= 365)
+    {
+        textEmeraldGamesSpeedX -= 0.07;
+        emeraldX -= emeraldXSpeed;
+    }
+    
+    //limmit the emerald moving to the Xpos
+    if(emeraldX < 180)
+    {
+        emeraldXSpeed -= 0.07;
+    }
+    
+    //once the speed is less then 0
+    if(emeraldXSpeed <= 0)
+    {
+        emeraldXSpeed = 0;
+        shade += 5;
+    }
+    
+    //once the speed is less then 0
+    if(textEmeraldGamesSpeedX <= 0)
+    {
+        textEmeraldGamesSpeedX = 0;
+    }
+    
+    //once the speed is less then 0
+    if(growSpeed <= 0)
+    {
+        growSpeed = 0;
+    }
+    
+    //text
+    textSize(37);
+    fill(47, 117, 11);
+    text("\x45\x4d\x45\x52\x41\x4c\x44\x0a\x47\x41\x4d\x45\x53\x20\x20\x20\x20", textEmeraldGamesX, 200);
+    text("\x45\x4d\x45\x52\x41\x4c\x44\x0a\x47\x41\x4d\x45\x53\x20\x20\x20\x20", textEmeraldGamesX + 2, 200);
+    text("\x45\x4d\x45\x52\x41\x4c\x44\x0a\x47\x41\x4d\x45\x53\x20\x20\x20\x20", textEmeraldGamesX, 202);
+    text("\x45\x4d\x45\x52\x41\x4c\x44\x0a\x47\x41\x4d\x45\x53\x20\x20\x20\x20", textEmeraldGamesX + 2, 202);
+    
+    noStroke();
+    popMatrix();
+
+    fill(255, 255, 255, shade);
+    rect(0, 0, 800, 500);
+
+};
+
+draw = function() {
+    
+    //logo
+    if(shade <= 300)
+    {
+        logoPage();
+        
+        if(clicked)
+        {
+            shade = 400;
+        }
+    }
+    
+    if(shade > 300)
+    {
+        PROGRAM_CONSTANTS();
+        
+        switch(scene)
+        {
+            case "thumbnail":
+            thumbnail: {
+                
+                fill(0, 0, 0, 70);
+                ellipse(89, 310, 93, 16);
+                ellipse(512, 314, 93, 18);
+                
+                vaderImage(-194, 99, 140, 80);
+                bowzerImage(805, 68, -145, 95);
+                
+                button(300 - 150 / 2, 180, 150, 100, "levelPick");
+                
+                pushMatrix();
+                translate(-141, 32);
+                scale(1.5, 1);
+                pushMatrix();
+                translate(-24, -105);
+                scale(0.9, 0.9);
+                playerImage();
+                popMatrix();
+                
+                fill(0, 0, 0);
+                textSize(81);
+                text("NERDS", 333, 69);
+                textSize(40);
+                text("NIGHTMARES", 333, 118);
+                popMatrix();
+            }
+                break;
+                
+            case "home":
+                
+                homePage();
+                
+                if(keys[35])
+                {
+                    scene = "thumbnail";
+                }
+                
+                break;
+                
+            case "how":
+                
+                howPage();
+                
+                break;
+            
+            case "levelPick":
+                
+                levelPickerPage();
+                
+                break;
+                
+            case "vaderinfo":
+            vaderInfo: {    
+                vaderImage(-19, -16 - 26, 50, 50);
+                vaderImage(78, 48, 50, 50);
+                playerImage(393, -44 - 15, -50, 50);
+                
+                pushMatrix();
+                scale(0.5);
+                lightSaber(438, 326, -34 + sin(frameCount * 10) * 40, color(17, 209, 0), color(2, 194, 5, 100));
+                popMatrix();
+                
+                playerImage(336, 48, -50, 50);
+                
+                fill(22, 141, 245, 100);
+                ellipse(293, 58 - 15, 50, 78);
+                ellipse(293, 58 - 15, 35, 61);
+                ellipse(66, 101 - 26, 15, 15);
+                ellipse(66, 101 - 26, 10, 10);
+                
+                fill(0, 0, 0);
+                textSize(14);
+                text("Don't stay in one place for to long,\nor Vader will force you to the wall,\ntaking lots of damage!\nHe will also force you to the wall\nif you fight him into a corner!", 448, 50);
+                
+                text("Press and/or Hold [SPACE] to swing your\nlightsaber at Vader!", 448, 144);
+                
+                fill(0, 0, 0);
+                rect(0, 98, 600, 2);
+                rect(0, 194, 600, 2);
+                
+                pushMatrix();
+                translate(109, 0);
+                scale(-1, 1);
+                button(20, 313, 70, 70, "levelPick");
+                popMatrix();
+            } 
+               break;
+               
+            case "dalekinfo":
+            dalekInfo: {
+                noStroke();
+                
+                pushMatrix();
+                
+                translate(-31, 0);
+                rect(154 + sin(frameCount * 1.1) * 100, 135 + frameCount % 40 * 2, 3, 10, 3);
+                
+                pushMatrix();
+                translate(143 + sin(frameCount * 1.1) * 100, 82);
+                scale(0.5);
+                fill(74, 74, 74);
+                rect(40, 84, 9, 28, 10);
+                rect(-1, 84, 9, 28, 10);
+                fill(92, 92, 92);
+                arc(24, 119, 60, 66, -180, 0);
+                fill(0, 0, 0);
+                ellipse(24, 110, 15, 15);
+                rect(21, 107, 6, 31, 5);
+                arc(24, 143, 11, 24, -180, 0);
+                popMatrix();
+                
+                pushMatrix();
+                scale(0.5);
+                sonicScrew(486, 137, -34, color(17, 209, 0), color(2, 194, 5, 100));
+                popMatrix();
+                
+                fill(0, 116, 199);
+                rect(144 + frameCount % 100, 46, 10, 2, 5);
+                
+                fill(2, 171, 5);
+                rect(236 - frameCount % 65 * 1.5, 62, 7, 2, 5);
+                
+                dalekImage(38, -47, 50, 50);
+                playerImage(361, -47, -50, 50);
+                playerImage(235 + sin(frameCount * 1) * 100, 123, -40, 40);
+                
+                popMatrix();
+                
+                fill(0, 0, 0);
+                rect(0, 109, 600, 2);
+                
+                textSize(14);
+                text("Press and/or hold [SPACE] to shoot the Dalek!\nTry to dodge his bullets because he can\nshoot almost as fast as you can!\nTry to take out as much damage as you\ncan while he is in this stage, because\nit's the only stage you can kill him in!", 426, 55);
+                
+                text("This is his sky shooter form!\nHe follows you around, and shoots bullets\nfrom the sky! So try to dodge them!", 426, 145);
+                
+                
+                pushMatrix();
+                translate(109, 0);
+                scale(-1, 1);
+                button(20, 313, 70, 70, "levelPick");
+                popMatrix();
+            }
+                break;
+            
+            case "bowzerinfo":
+            bowzerInfo: {
+                bowzerImage(122, -16 - 21 + sin(frameCount * 20) * 4, 50, 50);
+                
+                bowzerImage(-44, 70, 50, 50);
+                
+                duck = false;
+                playerImage(356, -31 - 5, -50, 50);
+                playerImage(325, 181 - frameCount % 200 / 7, -40, 40);
+                
+                duck = true;
+                playerImage(347, 75, -50, 50);
+                
+                fill(255, random(0, 200), 0);
+                rect(200, 137, 20, 20, 5);
+                rect(200 - 102, 137 + 44, 20, 20, 5);
+                
+                strokeWeight(2);
+                stroke(255, random(0, 200), 0);
+                line(170, 140, 193, 145);
+                line(170, 148, 193, 149);
+                line(170, 156, 193, 153);
+                line(170 - 102, 140 + 44, 193 - 102, 145 + 44);
+                line(170 - 102, 148 + 44, 193 - 102, 149 + 44);
+                line(170 - 102, 156 + 44, 193 - 102, 153 + 44);
+                noStroke();
+                
+                pushMatrix();
+                translate(112, 105);
+                rotate(-180);
+                scale(0.5);
+                punchClove(-252 + sin(frameCount * 30) * 4, 52);
+                punchClove(-315 - sin(frameCount * 30) * 4, 52);
+                popMatrix();
+                
+                pushMatrix();
+                translate(18 + frameCount % 200, 208);
+                scale(0.7);
+                fill(102, 212, 34);
+                arc(25, 114, 46, 69, -180, 0);
+                fill(237, 247, 45);
+                arc(36, 114, 21, 49, -180, 0);
+                fill(255, 255, 255);
+                ellipse(25, 114, 49, 4);
+                fill(235, 193, 26);
+                rect(28, 96, 16, 2);
+                rect(26, 102, 20, 2);
+                rect(26, 108, 21, 2);
+                popMatrix();
+                
+                fill(222, 7, 7);
+                textSize(14);
+                text("NOTE:\nTry to knock out as much health\nas you can while he is in this form,\nbecause it's the only time you can take\nhim out before he turns into his two other\nforms!", 448, 73);
+                
+                fill(0, 0, 0);
+                
+                text("Press and/or hold [SPACE]\nto punch Bowzer!", 102, 73);
+                
+                text("This is Bowzer's fire form!\nPress/hold the Down Arrow to duck\nfrom the fire balls above, and jump over\nthe fire balls below!", 448, 173);
+                
+                text("This is Bowzer's shell form!\nJump over the shell, and don't\nlet it hit you!", 448, 253);
+                
+                fill(0, 0, 0);
+                rect(0, 133, 600, 2);
+                rect(0, 210, 600, 2);
+                
+                pushMatrix();
+                translate(109, 0);
+                scale(-1, 1);
+                button(20, 313, 70, 70, "levelPick");
+                popMatrix();
+            }
+                break;
+                
+            case "pickainfo":
+            pickaInfo: { 
+                playerImage(347 - 50, -30 - 5, -50, 50);
+                playerImage(287, 78 - 5 - sin(frameCount * 6) * 30, -50, 50);
+                pickaImage(21 - 50, -8 - 26, 50, 50);
+                
+                pokeBall(231 - 50 - frameCount % 50 * 2, 83, 10, - frameCount % 50 * 2);
+                fill(0, 116, 199);
+                rect(126 - 50 + frameCount % 35 * 3, 79, 10, 2, 5);
+                
+                fill(0, 0, 0);
+                rect(0, 109, 600, 2);
+                
+                textSize(14);
+                text("Press and/or hold [SPACE] to shoot balls at Pickachu!\nTry to dodge his bolts because he can\nshoot almost as fast as you can!\nTry to take out as much damage as you\ncan while he is in this stage, because\nit's the only stage you can kill him in!", 402, 55);
+                
+                text("This is Picka's poké ball form!\nJump over the ball, and don't\nlet it hit you!", 402, 156);
+                
+                pokeBall(177 + sin(frameCount * 3) * 130, 233, 35, sin(frameCount * 3) * 100);
+                
+                pushMatrix();
+                translate(109, 0);
+                scale(-1, 1);
+                button(20, 313, 70, 70, "levelPick");
+                popMatrix();
+            }
+                break;
+            
+            case "game":
+            game: {
+                startTimerDelay ++;
+                
+                if(startTimerDelay >= 60)
+                {
+                    startTimer --;
+                    startTimerDelay = 0;
+                }
+                
+                if(startTimer <= 0)
+                {
+                    gamePage();
+                }else
+                {
+                    
+                    playerImage(p.x + 224, p.y - 145, -100, 100);
+                    
+                    if(battleType === "vader")
+                    {
+                        vaderImage(v.x - 176, v.y - 145, 100, 100);
+                    }
+                    
+                    if(battleType === "bowzer")
+                    {
+                        bowzerImage(b.x - 176, b.y - 145, 100, 100);
+                    }
+                    
+                    if(battleType === "dalek")
+                    {
+                        dalekImage(d.x - 176, d.y - 145, 100, 100);
+                    }
+                    
+                    if(battleType === "picka")
+                    {
+                        pickaImage(pk.x - 176, pk.y - 145, 100, 100);
+                    }
+                    
+                    fill(0, 0, 0, 100);
+                    rect(0, 0, 600, 400);
+                    textSize(50);
+                    fill(255, 255, 255);
+                    text(startTimer, 300, 200);
+                }
+            }
+                break;
+        }
+        
+        if(
+        villainsKilled[0] === true &&
+        villainsKilled[1] === true &&
+        villainsKilled[2] === true &&
+        villainsKilled[3] === true)
+        {
+            backdrop();
+            playerImage(-289, -224, 200, 200);
+            
+            scene = "none";
+            battleType = "defualt";
+            
+            fill(0, 0, 0);
+            textSize(30);
+            text("You have defeated\nyour nightmares!", 380, 111);
+            textSize(49);
+            text("CONGRATS!", 380, 182);
+            
+            textSize(15);
+            text("I just wanted to be your friend :(\n", 467, 280);
+            textSize(30);
+            text("`", 534, 297);
+            
+            pushMatrix();
+            translate(690, 436);
+            rotate(90);
+            pickaImage(0, 0, -62, 80);
+            popMatrix();
+            
+            fill(0, 0, 0);
+            textSize(10);
+            text(")", 530, 307);
+        }
+    }
+    
+    clicked = false;
+};
