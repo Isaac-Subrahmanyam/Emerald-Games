@@ -1,0 +1,2415 @@
+/**
+
+
+********************************************
+*      @Author: Isaac Emerald ©2016.       *
+*                                          *
+*    >>>  EMERALD GAMES PRODUCTION  <<<    *
+*            ~ BURGER MASTER!              *
+********************************************
+
+Subscribe here:
+https://www.khanacademy.org/computer-programming/-/6018029635043328
+
+(1). Make the correct burger and side from the order on the right by clicking on the item, and progress through bigger and bigger orders.
+(2). But it's not that simple... If you don't want to be fired by the Boss, you'd better be quick!
+
+Post a spin-off of your high score in the Tips&Thanks!
+
+{
+
+Inspired by Burger on Google Play:
+https://play.google.com/store/apps/details?id=com.magmamobile.game.Burger&hl=en
+
+Graphics inspired by Burger Bistro on Scratch:
+https://scratch.mit.edu/projects/94475330/
+
+} -> CREDITS
+
+**/
+
+
+
+
+
+
+
+
+
+
+var scaleProgramBy = width / 400;
+
+//leader board
+{
+        
+    var placeHolder = 'This could be you';
+    
+    //Main Leader-Board array
+    var scores = [
+        
+        ["Jared Pearson", 130],
+        
+        ["EthanRocks46", 500],
+        
+        ["Matt", 89],
+        
+        ["Jermey", 111],
+        
+        ["Shadow Tiger", 100],
+    
+    ];
+
+}
+
+//achievement vars
+var achievements = [0, 0, 0, 0, 0, 0, 0, 0];
+var achievementNames = ["GETTING STARTED", "HIGH FRIES", "FIVE LAYER", "QUARTER PASS", "WIPE THOSE TEARS", "LATE NIGHT", "WORKING LIKE A PRO", "FED UP"];
+var achievementShade = [0, 0, 0, 0, 0, 0, 0, 0];
+var achievementState = [false, false, false, false, false, false, false, false];
+
+var achievementsX = [], achievementsY = [];
+
+var highFriesCount = 0, onionRingCount = 0, gameCount = 0, burgerPieceTimer = 0, ticMarkRotate = 0;
+
+//achievement pic vars
+var friesRotate = 0, onionRotate = 0, burgerPiece_1 = 0, burgerPiece_2 = 0, burgerPiece_3 = 0;
+
+//burger vars
+var burger = [1], burgerY = [0], burgerGrow = 50, burgerState = 0;
+ 
+//menu vars
+var loadCursor = 0;
+
+var score = 0, best = 0;
+
+var orderCorrect = false, orderCorrectOffset = false, orderCorrectX = 0, orderCorrectXSpeed = 0, orderCorrectX2 = 0, delayTimer = 0;
+
+//order vars
+var burger_On_Menu_Size = 47, menu = [1,2,7], menuY = [], menuYSpeed = [], menuLength = [];
+
+//length of burger buttons
+var buttonLength = 66.4, buttonAnimation = [], buttonAnimation2 = [], buttonAnimation2X = 341;
+
+//score vars
+var TXTsize = 25, topScore = 0, orderedScores = scores;
+var sortScores = function() {
+    for (var a = 1; a < orderedScores.length; a++) 
+    {
+        if (orderedScores[a][1] > orderedScores[a - 1][1]) 
+        {
+            var saveScore = orderedScores[a];
+            orderedScores[a] = orderedScores[a - 1];
+            orderedScores[a - 1] = saveScore;
+        }
+    }
+};
+
+//home page vars
+var page = "home";
+var start = false;
+
+var burger_page = -300, burger_page2 = 300, burger_page3 = 300, burger_page4 = 300;
+
+var bestOffset = false;
+
+//game timer
+var timer = 0;
+
+//logo vars
+var grow = 0;
+var growSpeed = 3;
+var delayTimerEmerald = 0;
+var emeraldX = 200;
+var emeraldXSpeed = 3;
+var textEmeraldGamesX = 490;
+var textEmeraldGamesSpeedX = 3;
+var shade = 0;
+
+
+//side vars
+var sideMenu = 1, sidePlate = 0, sideY = 0, sideState = 0, checkMark = 0;
+
+var puase = false;
+
+var emeraldGem = function(x, y, s){
+    
+    //stroke
+    stroke(255, 255, 255, 35);
+    strokeWeight(s / 25);
+    
+    //base
+    fill(111, 252, 98);
+    beginShape();
+    vertex(x - s, y - s / 2);
+    vertex(x - s / 2, y - s);
+    vertex(x + s / 2, y - s);
+    vertex(x + s, y - s / 2);
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s, y + s);
+    vertex(x - s, y - s / 2);
+    endShape();
+    
+    //1
+    fill(113, 245, 98);
+    noStroke();
+    beginShape();
+    vertex(x - s, y - s / 2);
+    vertex(x - s / 2, y - s);
+    vertex(x - s / 3, y - s / 2);
+    vertex(x - s / 2, y - s / 3);
+    endShape();
+    
+    //2
+    fill(82, 235, 65);
+    beginShape();
+    vertex(x - s / 2, y - s);
+    vertex(x - s / 3, y - s / 2);
+    vertex(x + s / 3, y - s / 2);
+    vertex(x + s / 2, y - s);
+    endShape();
+    
+    //3
+    beginShape();
+    fill(72, 227, 54);
+    vertex(x + s / 2, y - s);
+    vertex(x + s, y - s / 2);
+    vertex(x + s / 2, y - s / 3);
+    vertex(x + s / 3, y - s / 2);
+    endShape();
+    
+    //4
+    fill(67, 217, 48);
+    beginShape();
+    vertex(x + s, y - s / 2);
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s / 1.1);
+    vertex(x + s / 2, y - s / 3);
+    endShape();
+    
+    //5
+    fill(57, 207, 37);
+    beginShape();
+    vertex(x + s, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s / 1.2);
+    endShape();
+    
+    //6
+    fill(57, 196, 35);
+    beginShape();
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s * 1.5);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s / 3, y + s);
+    endShape();
+    
+    //7
+    fill(79, 214, 55);
+    beginShape();
+    vertex(x - s, y + s);
+    vertex(x - s / 2, y + s * 1.5);
+    vertex(x - s / 3, y + s);
+    vertex(x - s / 2, y + s / 1.2);
+    endShape();
+    
+    //8
+    fill(96, 240, 67);
+    beginShape();
+    vertex(x - s, y + s);
+    vertex(x - s / 2, y + s / 1.2);
+    vertex(x - s / 2, y - s / 3);
+    vertex(x - s, y - s / 2);
+    endShape();
+    
+    //shade
+    fill(0, 0, 0, 4);
+    beginShape();
+    vertex(x + s / 2.3, y - s / 2.3);
+    vertex(x + s / 2, y - s / 3);
+    vertex(x + s / 2, y + s / 1.2);
+    vertex(x + s / 3, y + s);
+    vertex(x - s / 3, y + s);
+    vertex(x - s / 2.3, y + s / 1.1);
+    endShape();
+    
+    //shade 2
+    fill(0, 0, 0, 5);
+    beginShape();
+    vertex(x + s / 6, y + s);
+    vertex(x + s / 3, y + s);
+    vertex(x + s / 2, y + s / 1.2);
+    vertex(x + s / 2, y + s / 1.5);
+    endShape();
+
+};
+
+//logo text
+var CoolFont = function(x,y,s,m,C,S,C2)
+{
+    textAlign(CENTER);
+    fill(C2);
+    textSize(s);text(m,  x+S,y+S);text(m,  x-S,y-S);text(m,  x-S,y+S);text(m,  x+S,y-S);text(m,  x-S,y);text(m,  x+S,y);text(m,  x,y-S);text(m,  x,y+S);
+    fill(C);
+    text(m,x,y);
+};
+
+//Burger Images
+var burgerImage = function(x, y, w, h, imageSwitch)
+{
+    switch( imageSwitch )
+    {
+        case "bottomBread":
+            
+            noStroke();
+            fill(184, 69, 2);
+            ellipse(x, y + h / 8, w, h);
+            
+            fill(255, 255, 255, 20);
+            ellipse(x, y + h / 8, w / 1.2, h);
+            ellipse(x, y + h / 8, w / 1.5, h / 1.05);
+            ellipse(x, y + h / 8, w / 2, h / 1.1);
+            
+            fill(255, 141, 79);
+            ellipse(x, y, w, h);
+            
+            break;
+        
+            
+        case "topBread":
+            
+            noStroke();
+            fill(184, 69, 2);
+            arc(x, y + h / 50, w, h * 2, -180, 0);
+            
+            if(w >= 70)
+            {
+                ellipse(x, y + h / 50, w, h);
+            }
+            
+            if(w < 70)
+            {
+                ellipse(x, y + h / 50, w, h / 2);
+            }
+            
+            fill(250, 211, 120);
+            
+            
+            //seeds
+            pushMatrix();translate(x, y - h / 1.4);rotate(30);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x - w / 7, y - h / 1.7);rotate(-20);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x + w / 7, y - h / 1.7);rotate(11);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x + w / 16, y - h / 2.0);rotate(-11);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x - w / 16, y - h / 2.0);rotate(-13);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x - w / 8, y - h / 2.8);rotate(17);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x, y - h / 2.8);rotate(-5);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x + w / 8, y - h / 2.8);rotate(-27);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x + w / 4.9, y - h / 2.3);rotate(-44);ellipse(0, 0, w / 30, h / 8);popMatrix();pushMatrix();translate(x - w / 4.9, y - h / 2.3);rotate(-44);ellipse(0, 0, w / 30, h / 8);popMatrix();
+            
+            break;
+            
+            
+        case "meat":
+            
+            fill(133, 50, 3);
+            ellipse(x, y + h / 8, w, h);
+            fill(92, 31, 0);
+            ellipse(x, y, w, h);
+            
+            pushMatrix();
+            translate(x, y);
+            fill(54, 20, 0);
+            rotate(34);
+            
+            ellipse(-w / 4, h / 4, w / 20, h / 1.3);
+            ellipse(w / 4, -h / 4, w / 20, h / 1.3);
+            ellipse(-w / 8, h / 10, w / 20, h);
+            ellipse(w / 8, -h / 10, w / 20, h);
+            ellipse(-w / 113, -h / 37, w / 20, h * 1.05);
+            
+            rectMode(0);
+            popMatrix();
+            
+            break;
+    
+    
+    case "cheese":
+            
+            fill(255, 183, 0);
+            
+            pushMatrix();
+            
+            translate(0, -h / 20);
+            beginShape();
+            vertex(x, y / 1.05);
+            vertex(x + w / 2, y + h / 6.5);
+            vertex(x, y + h / 1.4);
+            vertex(x - w / 2, y + h / 6.5);
+            endShape();
+            
+            fill(255, 153, 0);
+            translate(0, -h / 10);
+            beginShape();
+            vertex(x, y / 1.05);
+            vertex(x + w / 2, y + h / 5);
+            vertex(x, y + h / 1.4);
+            vertex(x - w / 2, y + h / 5);
+            endShape();
+            
+            popMatrix();
+            
+            break;   
+            
+            
+        case "tomatetoe":
+            
+            fill(232, 5, 5);
+            ellipse(x + w / 6, y + h / 5, w / 1.5, h / 1.4);
+            fill(250, 40, 40);
+            ellipse(x + w / 6, y + h / 8, w / 1.5, h / 1.4);
+            fill(196, 4, 4);
+            arc(x + w / 6, y + h / 8, w / 1.7, h / 1.6, -90, 11);
+            arc(x + w / 6, y + h / 8, w / 1.7, h / 1.6, -222, -106);
+            arc(x + w / 6, y + h / 8, w / 1.7, h / 1.6, -326, -240);
+            fill(250, 40, 40);
+            ellipse(x + w / 6, y + h / 8, w / 5.1, h / 5);
+            fill(255, 221, 0);
+            ellipse(x - w / 50, y + h / 5, w / 15, h / 15);
+            ellipse(x - w / 31, y + h / 21, w / 15, h / 15);
+            ellipse(x + w / 43, y - h / 15, w / 15, h / 15);
+            ellipse(x + w / 4.2, y - h / 15, w / 15, h / 15);
+            ellipse(x + w / 3, y - h / 83, w / 15, h / 15);
+            ellipse(x + w / 2.7, y + h / 11, w / 15, h / 15);
+            ellipse(x + w / 7.1, y + h / 3.1, w / 22, h / 10);
+            ellipse(x + w / 4.8, y + h / 3, w / 22, h / 10);
+            ellipse(x + w / 3.6, y + h / 3.4, w / 22, h / 10);
+            
+            pushMatrix();
+            
+            translate(-w / 2.9, 0);
+            
+            fill(232, 5, 5);
+            ellipse(x + w / 6, y + h / 5, w / 1.5, h / 1.4);
+            fill(252, 53, 53);
+            ellipse(x + w / 6, y + h / 8, w / 1.5, h / 1.4);
+            fill(196, 4, 4);
+            arc(x + w / 6, y + h / 8, w / 1.7, h / 1.6, -90, 11);
+            arc(x + w / 6, y + h / 8, w / 1.7, h / 1.6, -222, -106);
+            arc(x + w / 6, y + h / 8, w / 1.7, h / 1.6, -326, -240);
+            fill(252, 53, 53);
+            ellipse(x + w / 6, y + h / 8, w / 5.1, h / 5);
+            fill(255, 221, 0);
+            ellipse(x - w / 50, y + h / 5, w / 15, h / 15);
+            ellipse(x - w / 31, y + h / 21, w / 15, h / 15);
+            ellipse(x + w / 43, y - h / 15, w / 15, h / 15);
+            ellipse(x + w / 4.2, y - h / 15, w / 15, h / 15);
+            ellipse(x + w / 3, y - h / 83, w / 15, h / 15);
+            ellipse(x + w / 2.7, y + h / 11, w / 15, h / 15);
+            ellipse(x + w / 7.1, y + h / 3.1, w / 22, h / 10);
+            ellipse(x + w / 4.8, y + h / 3, w / 22, h / 10);
+            ellipse(x + w / 3.6, y + h / 3.4, w / 22, h / 10);
+            
+            
+            popMatrix();
+            
+            
+            break;
+            
+        
+        case "Lettuce":
+            
+            
+            pushMatrix();
+            
+            translate(-w / 20, 0);
+            
+            fill(37, 156, 67);
+            
+            beginShape();
+            
+            vertex(x - w / 2.5, y - h / 2.8);
+            vertex(x - w / 5, y - h / 2.0);
+            vertex(x + w / 3, y - h / 2.6);
+            vertex(x - w / 29, y + h / 8.4);
+            vertex(x - w / 2, y + h / 6.9);
+            
+            endShape();
+            
+            fill(9, 133, 40);
+            arc(x, y, w, h, -50, 162);
+            ellipse(x - w / 2.8, y + h / 6, w / 3.5, h / 3);
+            ellipse(x - w / 4.1, y + h / 2.8, w / 3.5, h / 3);
+            ellipse(x - w / 12.3, y + h / 2.2, w / 3.5, h / 3);
+            ellipse(x + w / 10, y + h / 2.1, w / 3.5, h / 3);
+            ellipse(x + w / 3.8, y + h / 2.4, w / 3.5, h / 3);
+            ellipse(x + w / 2.7, y + h / 3.2, w / 3.5, h / 3);
+            ellipse(x + w / 2.3, y + h / 5.5, w / 3.5, h / 3);
+            ellipse(x + w / 2.2, y, w / 3.5, h / 3);
+            ellipse(x + w / 2.5, y - h / 4.5, w / 3.5, h / 3);
+            
+            popMatrix();
+            
+            pushMatrix();
+            
+            translate(-w / 20, -h / 17);
+            
+            fill(37, 156, 67);
+            
+            beginShape();
+            
+            vertex(x - w / 2.5, y - h / 2.8);
+            vertex(x - w / 5, y - h / 2.0);
+            vertex(x + w / 3, y - h / 2.6);
+            vertex(x - w / 29, y + h / 8.4);
+            vertex(x - w / 2, y + h / 6.9);
+            
+            endShape();
+            
+            fill(37, 156, 67);
+            arc(x, y, w, h, -50, 162);
+            ellipse(x - w / 2.8, y + h / 6, w / 3.5, h / 3);
+            ellipse(x - w / 4.1, y + h / 2.8, w / 3.5, h / 3);
+            ellipse(x - w / 12.3, y + h / 2.2, w / 3.5, h / 3);
+            ellipse(x + w / 10, y + h / 2.1, w / 3.5, h / 3);
+            ellipse(x + w / 3.8, y + h / 2.4, w / 3.5, h / 3);
+            ellipse(x + w / 2.7, y + h / 3.2, w / 3.5, h / 3);
+            ellipse(x + w / 2.3, y + h / 5.5, w / 3.5, h / 3);
+            ellipse(x + w / 2.2, y, w / 3.5, h / 3);
+            ellipse(x + w / 2.5, y - h / 4.5, w / 3.5, h / 3);
+            
+            fill(255, 255, 255, 100);
+            pushMatrix();
+            translate(x, y);
+            rotate(-90 - 55);
+            ellipse(0, 0, w / 1.8, h / 15);
+            popMatrix();
+            
+            stroke(0, 0, 0, 100);
+            strokeWeight(w / 40);
+            noFill();
+            arc(x - w / 2, y - h / 3.5, w, h, -2,18);
+            arc(x - w / 2.5, y - h / 6, w, h, -7, 18);
+            arc(x - w / 3.5, y - h / 50, w, h, -9, 18);
+            
+            arc(x + w / 8, y - h / 2, w, h, 119,133);
+            arc(x + w / 20, y - h / 2.5, w, h, 97,116);
+            arc(x + w / 5, y - h / 5.2, w, h, 102,121);
+            
+            noStroke();
+            
+            popMatrix();
+            
+            
+            break;
+            
+            
+        case "onions":
+            
+            
+            pushMatrix();
+            noFill();
+            
+            translate(w / 100, h / 8);
+            strokeWeight(w / 25);
+            
+            
+            stroke(158, 158, 158);
+            ellipse(x - w / 5, y + h / 20, w / 1.5, h / 1.7);
+            stroke(191, 189, 191);
+            ellipse(x - w / 5, y, w / 1.5, h / 1.7);
+            
+            
+            stroke(158, 158, 158);
+            ellipse(x, y - h / 8, w / 1.5, h / 1.7);
+            stroke(191, 189, 191);
+            ellipse(x, y - h / 6, w / 1.5, h / 1.7);
+            
+            stroke(158, 158, 158);
+            ellipse(x + w / 5, y - h / 30, w / 1.5, h / 1.7);
+            stroke(191, 189, 191);
+            ellipse(x + w / 5, y - h / 11, w / 1.5, h / 1.7);
+            
+            
+            popMatrix();
+            
+            noStroke();
+            
+            break;
+    }
+};
+
+//snack images
+var side = function(x, y, w, h, imageSwitch)
+{
+    switch(imageSwitch)
+    {
+        case "fries":
+            
+            fill(255, 183, 0);
+            rect(x, y - h / 2, w / 7, h, 10);
+            
+            fill(255, 162, 0);
+            rect(x + w / 8, y - h / 1.8, w / 7, h, 10);
+            
+            fill(255, 204, 0);
+            rect(x + w / 4, y - h / 2.3, w / 7, h, 10);
+            
+            fill(255, 183, 0);
+            rect(x + w / 2.5, y - h / 1.6, w / 7, h, 10);
+            
+            fill(255, 204, 0);
+            rect(x + w / 1.9, y - h / 2.6, w / 7, h, 10);
+            
+            fill(255, 170, 0);
+            rect(x + w / 1.5, y - h / 2.2, w / 7, h, 10);
+            
+            fill(255, 204, 0);
+            rect(x + w / 1.3, y - h / 2, w / 7, h, 10);
+            
+            fill(255, 170, 0);
+            rect(x + w / 1.2, y - h / 2.5, w / 7, h, 10);
+            
+            stroke(255, 170, 0);
+            noFill();
+            strokeWeight(w / 8.5);
+            arc(x + w / 1.1, y - h / 4.2, w / 2.5, h, -180, -135);
+            arc(x + w / 0.9, y - h / 4.2, w / 2.5, h, -180, -124);
+            
+            stroke(255, 132, 0);
+            arc(x + w / 1.05, y + h / 10, w / 2.5, h, -180, -124);
+            stroke(255, 162, 0);
+            arc(x + w / 1.4, y + h / 31, w / 2.5, h, -180, -124);
+            
+            stroke(255, 204, 0);
+            arc(x + w / 7.5, y - h / 5, w / 2.5, h, -55, 0);
+            
+            stroke(255, 191, 0);
+            arc(x - w / 8, y - h / 10, w / 2.5, h, -55, 0);
+            
+            stroke(255, 132, 0);
+            arc(x + w / 8, y - h / 36, w / 2.5, h, -55, 0);
+            
+            stroke(255, 132, 0);
+            arc(x - w / 4, y + h / 3, w, h * 1.3, -83, 0);
+            
+            
+            stroke(255, 119, 0);
+            arc(x + w / 0.72, y + h / 31, w, h, -180, -124);
+            
+            noStroke();
+            
+            fill(255, 5, 5);
+            rect(x, y, w, h, 5);
+            ellipse(x + w / 2, y + h / 1.1, w, h / 3);
+            
+            fill(255, 255, 255, 50);
+            ellipse(x + w / 2, y + h / 2, w / 10, h);
+            ellipse(x + w / 3, y + h / 2, w / 10, h);
+            ellipse(x + w / 1.5, y + h / 2, w / 10, h);
+            ellipse(x + w / 1.2, y + h / 2, w / 10, h);
+            ellipse(x + w / 6, y + h / 2, w / 10, h);
+            
+            
+            break;
+        
+        case "hash":
+            
+            
+            fill(245, 165, 44);
+            rect(x, y, w / 1.1, h + h / 6, w / 3);
+            
+            noStroke();
+            
+            fill(224, 134, 7);
+            pushMatrix();translate(x + w / 2, y + h / 2.4);rotate(30);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.7, y + h / 3.6);rotate(-30);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 2.6, y + h / 3.6);rotate(-23);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 3.6, y + h / 2.5);rotate(-17);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.4, y + h / 2.5);rotate(17);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.4, y + h / 5.0);rotate(17);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 2.1, y + h / 6.2);rotate(17);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 4.9, y + h / 5.4);rotate(-17);ellipse(0, 0, w / 15, h / 8);popMatrix();pushMatrix();translate(x + w / 7.8, y + h / 2.7);rotate(13);ellipse(0, 0, w / 14, h / 6);popMatrix();
+            
+            
+            fill(250, 181, 77);
+            pushMatrix();translate(x + w / 2.9, y + h / 7.5);rotate(13);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 2.6, y + h / 2.3);rotate(13);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.6, y + h / 2.3);rotate(-16);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.65, y + h / 6.2);rotate(-11);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 2.1, y + h / 3.6);rotate(-11);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 3.5, y + h / 3.6);rotate(-18);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 5.0, y + h / 2.2);rotate(-18);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 6.4, y + h / 3.8);rotate(-18);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.3, y + h / 3.2);rotate(-18);ellipse(0, 0, w / 14, h / 6);popMatrix();
+            
+            fill(204, 122, 6);
+            
+            pushMatrix();translate(x + w / 1.15, y + h / 2.2);rotate(-11);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.15, y + h / 3.0);rotate(-11);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.15, y + h / 4.4);rotate(-11);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.2, y + h / 6.0);rotate(-14);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 1.3, y + h / 12);rotate(-49);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 30, y + h / 2.2);rotate(5);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 30, y + h / 3.0);rotate(5);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 26, y + h / 4.4);rotate(5);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 14, y + h / 6.0);rotate(14);ellipse(0, 0, w / 14, h / 6);popMatrix();pushMatrix();translate(x + w / 8, y + h / 12);rotate(49);ellipse(0, 0, w / 14, h / 6);popMatrix();
+            
+            fill(204, 4, 4);
+            rect(x, y + h / 1.6, w / 1.1, h / 1.5);
+            
+            fill(255, 0, 0);
+            rect(x, y + h / 1.9, w / 1.1, h / 1.5);
+            
+            fill(255, 255, 255, 50);
+            rect(x + w / 10, y + h / 1.7, w / 1.8, h / 2.2, w / 10);
+            
+            break;
+        
+        case "onionrings":
+            
+            pushMatrix();
+            noFill();
+            
+            translate(w / 100, h / 7);
+            strokeWeight(w / 13);
+            
+            stroke(209, 137, 4);
+            ellipse(x - w / 4, y, w / 3, h / 3);
+            stroke(247, 156, 19);
+            ellipse(x - w / 4, y, w / 3, h / 3);
+            
+            stroke(209, 137, 4);
+            ellipse(x + w / 6, y - h / 10 + h / 20, w / 3, h / 3);
+            stroke(247, 156, 19);
+            ellipse(x + w / 6, y - h / 10, w / 3, h / 3);
+            
+            stroke(209, 137, 4);
+            ellipse(x - w / 27, y - h / 10 + h / 20, w / 3, h / 3);
+            stroke(247, 156, 19);
+            ellipse(x - w / 27, y - h / 10, w / 3, h / 3);
+            
+            stroke(209, 137, 4);
+            ellipse(x + w / 4, y - h / 19 + h / 20, w / 3, h / 3);
+            stroke(247, 156, 19);
+            ellipse(x + w / 4, y - h / 19, w / 3, h / 3);
+            
+            stroke(209, 137, 4);
+            ellipse(x + w / 10, y - h / 4 + h / 20, w / 3, h / 3);
+            stroke(247, 156, 19);
+            ellipse(x + w / 10, y - h / 4, w / 3, h / 3);
+            
+            stroke(209, 137, 4);
+            ellipse(x - w / 5, y - h / 6 + h / 20, w / 3, h / 3);
+            stroke(247, 156, 19);
+            ellipse(x - w / 5, y - h / 6, w / 3, h / 3);
+            
+            popMatrix();
+            
+            noStroke();
+            
+            fill(255, 5, 5);
+            rect(x - w / 2, y + h / 10, w, h / 1.6, 2);
+            ellipse(x, y + h / 1.5, w, h / 3);
+            
+            fill(255, 255, 255, 50);
+            ellipse(x, y + h / 2, w / 15, h / 1.5);
+            ellipse(x - w / 7, y + h / 2, w / 15, h / 1.6);
+            ellipse(x + w / 7, y + h / 2, w / 15, h / 1.6);
+            ellipse(x - w / 3.5, y + h / 2.2, w / 15, h / 1.6);
+            ellipse(x + w / 3.5, y + h / 2.2, w / 15, h / 1.6);
+            ellipse(x - w / 2.4, y + h / 2.5, w / 15, h / 1.8);
+            ellipse(x + w / 2.4, y + h / 2.5, w / 15, h / 1.8);
+            
+            break;
+    }
+};
+
+//Delete burger buttons
+var button = function(txt,centerX, centerY, buttonSize, color, color2)
+{
+    noStroke();
+    
+    //Determine the vector between two points
+    var vectorX = (mouseX-centerX * scaleProgramBy); //calculates x component of vector
+    var vectorY = (mouseY-centerY * scaleProgramBy); //calculates y component of vector
+    var length = sqrt((vectorX * vectorX) + (vectorY * vectorY * 4));
+    
+    
+    //calculate the unit vector
+    vectorX /= length;
+    vectorY /= length;
+    
+    fill(color2);
+    
+    noStroke();
+    ellipse(centerX, centerY, buttonSize, buttonSize / 2);  
+
+    pushMatrix();
+    
+    if(length <= (buttonSize / 2) && orderCorrect === false)
+    {
+        cursor(HAND);
+        
+        if(!mouseIsPressed)
+        {
+            fill(255, 255, 255, 50);
+            
+            noStroke();
+            ellipse(centerX, centerY - 5, buttonSize, buttonSize / 2);  
+        }
+        
+        if(mouseIsPressed)
+        {
+            translate(0, 5);
+        
+            burger = [1];
+            burgerY = [0];
+            sidePlate = 0;
+                
+        }
+        
+    }
+
+    fill(color);
+    ellipse(centerX, centerY - 5, buttonSize, buttonSize / 2);
+    
+    fill(0, 0, 0);
+    textSize(17);
+    text(txt, centerX, centerY - buttonSize / 10);
+    
+    
+    if(length <= (buttonSize / 2))
+    {
+        fill(255, 255, 255, 50);
+        
+        noStroke();
+        ellipse(centerX, centerY - 5, buttonSize, buttonSize); 
+    }
+    
+    popMatrix();
+
+};
+
+//menu buttons
+var buttonPage = function(txt, txtSize, centerX, centerY, buttonSize, state, image)
+{
+    noStroke();
+    
+    //Determine the vector between two points
+    var vectorX = (mouseX-centerX * scaleProgramBy); //calculates x component of vector
+    var vectorY = (mouseY-centerY * scaleProgramBy); //calculates y component of vector
+    var length = sqrt((vectorX * vectorX) + (vectorY * vectorY));
+    
+    
+    //calculate the unit vector
+    vectorX /= length;
+    vectorY /= length;
+    
+    if(length <= (buttonSize / 2) && loadCursor < 1)
+    {
+        cursor(HAND);
+        
+        buttonSize += 10;
+        txtSize += 5;
+        
+        if(mouseIsPressed)
+        {
+            page = state;
+            
+            loadCursor = 20;
+            
+            if(state === "game" && puase === false && image >= 4)
+            {
+                start = true;
+                score = 0;
+                gameCount += 1;
+                delayTimer = 0;
+                burgerState = 0;
+                sideState = 0;
+                bestOffset = false;
+            }
+            
+            if(state === "game" && puase === true && image <= 1)
+            {
+                if(best < score)
+                {
+                    best = score;
+                    bestOffset = true;
+                }
+                
+                start = true;
+                score = 0;
+                gameCount += 1;
+                delayTimer = 0;
+                burgerState = 0;
+                sideState = 0;
+                bestOffset = false;
+                puase = false;
+                
+                timer = 0;
+                orderCorrectX = 0;
+                menu = [1, 2, 7];
+                burger = [1];
+                burgerY = [0];
+                sidePlate = 0;
+                sideMenu = floor(random(1, 4));
+                
+                highFriesCount = 0;
+                onionRingCount = 0;
+                delayTimer = 0;
+                
+                burger_page = -300;
+                burger_page2 = 300;
+                burger_page3 = 300;
+                burger_page4 = 300;
+                
+                orderCorrect = false;
+                
+                orderCorrectOffset = false;
+                orderCorrectX = 0;
+                orderCorrectXSpeed = 0;
+                orderCorrectX2 = 0;
+                delayTimer = 0;
+                checkMark = 0;
+            }
+            
+        }
+    }
+    
+    switch(image)
+    {
+    case 1:
+    burgerImage(centerX, centerY + buttonSize / 8, buttonSize, buttonSize / 2, "bottomBread");
+    
+    burgerImage(centerX, centerY + buttonSize / 55, buttonSize, buttonSize / 2, "meat");
+    
+    burgerImage(centerX, centerY - buttonSize / 16, buttonSize, buttonSize / 2, "topBread");
+        break;
+    
+    case 2:
+        side(centerX - buttonSize / 3, centerY - buttonSize / 16, buttonSize / 1.5, buttonSize / 2, "fries");
+        break;
+        
+    case 3:
+        side(centerX - buttonSize / 2.7, centerY - buttonSize / 3, buttonSize / 1.2, buttonSize / 1.6, "hash");
+        break;
+        
+    case 4:
+        side(centerX, centerY - buttonSize / 4, buttonSize, buttonSize / 1.2, "onionrings");
+        break;
+    }
+    
+    if(state === "achievements")
+    {
+        pushMatrix();
+        translate(centerX, centerY);
+        noStroke();
+        rectMode(CENTER);
+    
+        fill(255, 255, 255);
+        arc(0, 0 - buttonSize / 7, buttonSize / 2.5, buttonSize / 2, 0, 180);
+        arc(0, 0 + buttonSize / 3, buttonSize / 5, buttonSize / 5, -180, 0);
+        rect(-0.5, 0 + buttonSize / 8, buttonSize / 25, buttonSize / 3.2);
+        
+        stroke(255, 255, 255);
+        noFill();
+        strokeWeight(3);
+        ellipse(0, 0 - buttonSize / 13, buttonSize / 1.7, buttonSize / 8);
+        
+        rectMode(0);
+            
+        popMatrix();
+        
+    }
+    
+    
+    if(state === "game" && image >= 4)
+    {
+        noStroke();
+        fill(255, 255, 255);
+        arc(centerX + buttonSize / 5, centerY + buttonSize / 15, buttonSize / 1.5, buttonSize / 1.3, 150, 200);
+    }
+    
+    if(state === "game" && image <= 1)
+    {
+        stroke(255, 255, 255);
+        strokeWeight(5);
+        noFill();
+        arc(centerX, centerY, buttonSize / 2, buttonSize / 2, -100, 180);
+        noStroke();
+        fill(255, 255, 255);
+        arc(centerX - buttonSize / 5, centerY - buttonSize / 7.5, buttonSize / 2, buttonSize / 2, -60, 0);
+    }
+    
+    if(state === "home" && image <= 1)
+    {
+        fill(255, 255, 255);
+        rect(centerX - buttonSize / 4, centerY - buttonSize / 10, buttonSize / 2, buttonSize / 3);
+        arc(centerX, centerY - buttonSize / 3.1, buttonSize, buttonSize / 1.5, 50, 130);
+        
+        stroke(0, 0, 0);
+        strokeWeight(2);
+        rect(centerX - buttonSize / 8, centerY - buttonSize / 10, buttonSize / 10, buttonSize / 10);
+        rect(centerX + buttonSize / 20, centerY + buttonSize / 30, buttonSize / 10, buttonSize / 5);
+        
+        noStroke();
+    }
+    
+    if(state === "scores")
+    {
+        noStroke();
+        fill(255, 255, 255);
+        rect(centerX - buttonSize / 12, centerY + buttonSize / 6, buttonSize / 25, buttonSize / 5);
+        rect(centerX, centerY + buttonSize / 15, buttonSize / 25, buttonSize / 3.4);
+        rect(centerX + buttonSize / 12, centerY, buttonSize / 25, buttonSize / 2.8);
+    }
+    
+    textSize(txtSize / 1.1);
+    fill(255, 255, 255);
+    text(txt, centerX, centerY + buttonSize / 5);
+    
+};
+
+//load cursor mechanics
+var loadCursorMechanics = function(){
+
+    //defualt cursor
+    cursor(ARROW);
+    
+    //load cursor
+    loadCursor -= 1;
+    if(loadCursor > 1)
+    {
+        cursor(WAIT);
+    }
+    if(loadCursor < 1)
+    {
+        loadCursor = 0;
+    }
+};
+
+//text allighn and font
+var textMechanics = function(){
+
+    //keep text align
+    textAlign(CENTER, CENTER);
+    
+    //font
+    textFont(createFont("Comic Sans MS"));
+    
+};
+
+//logo
+var logoPage = function(){
+
+    textAlign(CENTER, CENTER);
+    
+    background(255, 255, 255);
+    
+    //emerald efect
+    pushMatrix();
+    translate(emeraldX, 182);
+    rotate(grow * 4.53);
+    emeraldGem(0, 0, grow);
+    popMatrix();
+    
+    //grow emerald
+    grow += growSpeed;
+    
+    //when emerald is at the right length
+    if(grow >= 35)
+    {
+        growSpeed -= 0.1;
+        delayTimerEmerald += 1;
+    }
+    
+    //textX move to the side
+    if(delayTimerEmerald >= 50)
+    {
+        textEmeraldGamesX -= textEmeraldGamesSpeedX;
+    }
+    
+    //once text touches the emerald
+    if(textEmeraldGamesX <= 365)
+    {
+        textEmeraldGamesSpeedX -= 0.07;
+        emeraldX -= emeraldXSpeed;
+    }
+    
+    //limmit the emerald moving to the Xpos
+    if(emeraldX < 180)
+    {
+        emeraldXSpeed -= 0.07;
+    }
+    
+    //once the speed is less then 0
+    if(emeraldXSpeed <= 0)
+    {
+        emeraldXSpeed = 0;
+        shade += 3;
+    }
+    
+    //once the speed is less then 0
+    if(textEmeraldGamesSpeedX <= 0)
+    {
+        textEmeraldGamesSpeedX = 0;
+    }
+    
+    //once the speed is less then 0
+    if(growSpeed <= 0)
+    {
+        growSpeed = 0;
+    }
+    
+    //text
+    textSize(37);
+    fill(47, 117, 11);
+    text("EMERALD\nGAMES    ", textEmeraldGamesX, 200);
+    text("EMERALD\nGAMES    ", textEmeraldGamesX + 2, 200);
+    text("EMERALD\nGAMES    ", textEmeraldGamesX, 202);
+    text("EMERALD\nGAMES    ", textEmeraldGamesX + 2, 202);
+    
+    noStroke();
+    fill(255, 255, 255, shade);
+    rect(0, 0, 400, 400);
+
+
+};
+
+//game page
+var gamePage = function(){
+    
+    if(puase === false)
+    {
+        stroke(122, 122, 122);
+        strokeWeight(3);
+        
+        fill(166, 166, 166);
+        
+        if(mouseX > 295 * scaleProgramBy && mouseX < (295 + 30) * scaleProgramBy && mouseY > 10 * scaleProgramBy && mouseY < 40 * scaleProgramBy)
+        {
+            fill(107, 107, 107);
+            cursor(HAND);
+        }
+        
+        rect(295, 10, 30, 30);
+        noStroke();
+        fill(0, 0, 0);
+        rect(302, 10 + 5, 5, 20);
+        rect(314, 10 + 5, 5, 20);
+        
+        
+        if(score > best)
+        {
+            bestOffset = true;
+        }
+        
+        delayTimer += 1;
+        
+        if(sidePlate !== sideMenu && delayTimer > 100)
+        {
+            sideState = 400;
+        }
+        
+        if(delayTimer > 100)
+        {
+            
+            if(burger[1] !== menu[1]|| burger[2] !== menu[2] || burger[3] !== menu[3] || burger[4] !== menu[4] || burger[5] !== menu[5] || burger[6] !== menu[6] || burger[7] !== menu[7] || burger[8] !== menu[8] || burger[9] !== menu[9] || burger[10] !== menu[10] || burger[11] !== menu[11] || burger[12] !== menu[12] || burger[13] !== menu[13] || burger[14] !== menu[14] || burger[15] !== menu[15] || burger[16] !== menu[16] || burger[17] !== menu[17] || burger[18] !== menu[18] || burger[19] !== menu[19] || burger[20] !== menu[20] && delayTimer > 100)
+            {
+                burgerState = 300;
+            }
+        
+        }
+        
+        if(orderCorrect === false && burger[0] === menu[0] && burger[1] === menu[1] && burger[2] === menu[2] && burger[3] === menu[3] && burger[4] === menu[4] && burger[5] === menu[5] && burger[6] === menu[6] && burger[7] === menu[7] && burger[8] === menu[8] && burger[9] === menu[9] && burger[10] === menu[10] && burger[11] === menu[11] && burger[12] === menu[12] && burger[13] === menu[13] && burger[14] === menu[14] && burger[15] === menu[15] && burger[16] === menu[16] && burger[17] === menu[17] && burger[18] === menu[18] && burger[19] === menu[19] && burger[20] === menu[20] && sideMenu === sidePlate && sideY >= 0)
+        {
+            orderCorrect = true;
+            
+            achievements[0] = 1;
+            timer = 0;
+            
+            if(sidePlate <= 1)
+            {
+                highFriesCount += 1;
+            }
+            
+            if(sidePlate > 2)
+            {
+                onionRingCount += 1;
+            }
+            
+            if(menu[1] >= 1 && menu[2] >= 1 && menu[3] >= 1 && menu[4] >= 1 && timer <= (150 / 4))
+            {
+                achievements[3] = 1;
+            }
+        }
+        
+        if(timer >= 150)
+        {
+            page = "home";
+            timer = 0;
+            orderCorrectX = 0;
+            menu = [1, 2, 7];
+            burger = [1];
+            burgerY = [0];
+            sidePlate = 0;
+            sideMenu = floor(random(1, 4));
+            
+            highFriesCount = 0;
+            onionRingCount = 0;
+            delayTimer = 0;
+            
+            burger_page = -300;
+            burger_page2 = 300;
+            burger_page3 = 300;
+            burger_page4 = 300;
+            
+        }
+        
+        //achievement earned states
+        
+        if(highFriesCount >= 5)
+        {
+            achievements[1] = 1;
+        }
+        
+        if(onionRingCount >= 10)
+        {
+            achievements[4] = 1;
+        }
+        
+        if(gameCount >= 15)
+        {
+            achievements[5] = 1;
+        }
+        
+        if(score >= 30)
+        {
+            achievements[6] = 1;
+        }
+        
+        if(score >= 50)
+        {
+            achievements[7] = 1;
+        }
+        
+        //achieve achievement
+        for(var i = 0; i < achievements.length; ++i)
+        {
+            if(achievements[i] >= 1)
+            {
+                achievementShade[i] += 10;
+            }
+            
+            if(achievementState[i] === false)
+            {
+                fill(0, 0, 0, achievementShade[i]);
+                rect(100, 75, 200, 50);
+    
+                textSize(15);
+                fill(255, 255, 255, achievementShade[i]);
+                text("ACHIEVEMENT EARNED!", 200, 100);
+            }
+            
+            if(achievementShade[i] > 700)
+            {
+                achievementState[i] = true;
+            }
+        }
+        
+        //timer
+        fill(199, 199, 199);
+        rect(125, 15, 150, 10);
+        fill(42 + timer, 199 - timer, 6);
+        rect(125, 15, timer, 10);
+        
+        //Delete
+        button("X", 296, 300, 64, color(255, 0, 0), color(189, 0, 0));
+    
+        orderCorrectX2 -= 10;
+        
+        //if burger is correct
+        if(orderCorrect === true)
+        {
+            checkMark += 20;
+        }
+        
+        if(checkMark > 300)
+        {
+            delayTimer = 0;
+            orderCorrectX += orderCorrectXSpeed;
+            orderCorrectX2 += 12;
+            orderCorrectXSpeed += 1;
+        }
+        
+        strokeWeight(5);
+        stroke(0, 255, 0, checkMark);
+        line(180, 50, 200, 70);
+        line(220, 30, 200, 70);
+        noStroke();
+        
+        
+        //reset burger
+        if(orderCorrectX > 400)
+        {
+            burger = [1];
+            burgerY = [0];
+            sidePlate = 0;
+            sideMenu = floor(random(1, 4));
+            orderCorrectX = -400;
+            orderCorrectOffset = true;
+            score += 1;
+            orderCorrectXSpeed = 0.5;
+            
+            if(score >= 1 && score < 3)
+            {
+                menu = [1, 2, floor(random(2,7)), 7];
+            }
+            
+            if(score >= 3 && score < 7)
+            {
+                menu = [1, 2, floor(random(2,7)), floor(random(2,7)), 7];
+            }
+            
+            if(score >= 7 && score < 12)
+            {
+                menu = [1, 2, floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), 7];
+            }
+            
+            if(score >= 12 && score < 20)
+            {
+                menu = [1, 2, floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), 7];
+                achievements[2] = 1;
+            }
+            
+            if(score >= 20 && score < 28)
+            {
+                menu = [1, 2, floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), 7];
+            }
+            
+            if(score >= 28)
+            {
+                menu = [1, 2, floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), floor(random(2,7)), 7];
+            }
+        }
+        
+        //reset
+        if(orderCorrectOffset === true && orderCorrectX > 0)
+        {
+            orderCorrectX = 0;
+            orderCorrect = false;
+            orderCorrectOffset = false;
+            orderCorrectXSpeed = 0;
+            checkMark = 0;
+        }
+        
+        if(orderCorrectX2 < 1)
+        {
+            orderCorrectX2 = 0;
+            timer += 0.4;
+        }
+}
+
+    //tray
+    fill(97, 95, 97);
+    rect(105 - orderCorrectX - 10 + 10, 243 - 60, 210 - 10, 85, 10);
+    
+    fill(117, 117, 117);
+    rect(100 - orderCorrectX - 10 + 10, 239 - 60, 210, 85, 10);
+    
+    fill(145, 145, 145);
+    rect(100 - orderCorrectX + 10, 246 - 60, 190, 71, 10);
+    
+    //burger
+    for(var i = 0; i < burger.length; ++i)
+    {   
+        pushMatrix();
+        
+        translate(-orderCorrectX - 40 + 10, -80);
+        
+        switch(burger[i])
+        {
+        //bottom bread
+        case 1:
+            burgerImage(200, 300 + burgerY[i], burgerGrow * 2, burgerGrow, "bottomBread");
+            break;
+        
+        //meat
+        case 2:
+            burgerImage(200, 300 + burgerY[i], burgerGrow * 2, burgerGrow, "meat");
+            break;
+        
+        //cheese
+        case 3:
+            burgerImage(200, 300 + burgerY[i], burgerGrow * 2, burgerGrow, "cheese");
+            break;
+        
+        //tomatetoe
+        case 4:
+            burgerImage(200, 300 + burgerY[i], burgerGrow * 2, burgerGrow, "tomatetoe");
+            break;
+        
+        //Lettuce
+        case 5:
+            burgerImage(200, 300 + burgerY[i], burgerGrow * 2, burgerGrow, "Lettuce");
+            break;
+        
+        //onions
+        case 6:
+            burgerImage(200, 300 + burgerY[i], burgerGrow * 2, burgerGrow, "onions");
+            break;
+        
+        //top bread
+        case 7:
+            burgerImage(200, 300 + burgerY[i], burgerGrow * 2, burgerGrow, "topBread");
+            break;
+        
+        }
+        
+        popMatrix();
+        
+        burgerY[i] += 15;
+        
+        if(burgerY[i] >= i * -burgerGrow / 5.16)
+        {
+            burgerY[i] = i * -burgerGrow / 5.16;
+        }
+    }
+
+    
+    //side
+    translate(-orderCorrectX, sideY);
+    
+    switch(sidePlate)
+    {
+        case 1:
+            side(225 + 10, 164 + 80 - 60, 50, 50, "fries");
+            break;
+            
+        case 2:
+            side(225 + 10, 170 + 80 - 60, 50, 50, "hash");
+            break;
+            
+        case 3:
+            side(248 + 10, 178 + 80 - 60, 60, 50, "onionrings");
+            break;
+    }
+    
+    popMatrix();
+    
+    pushMatrix();
+    
+    scale(scaleProgramBy);
+    
+    //sideState fill
+    fill(255, 0, 0, sideState);
+    rect(252, 120 + sin(frameCount * 10) * 7, 10, 30);
+    arc(257, 164 + sin(frameCount * 10) * 7, 30, 30, -140, -40);
+    
+    fill(255, 0, 0, burgerState);
+    rect(252 - 87, 120 - 70 + sin(frameCount * 10) * 7, 10, 30);
+    arc(257 - 87, 164 - 70 + sin(frameCount * 10) * 7, 30, 30, -140, -40);
+    
+    //shade out
+    sideState -= 10;
+    if(sideState < 1)
+    {
+        sideState = 0;
+    }
+    
+    burgerState -= 10;
+    if(burgerState < 1)
+    {
+        burgerState = 0;
+    }
+    
+    //orange rect
+    fill(247, 145, 77);
+    rect(0, 0, 70, 400);
+    rect(0, 339, 400, 400);
+    
+    //@menu
+    fill(209, 207, 209);
+    rect(328 + orderCorrectX2 + 20, 0, 111, 400);
+    fill(153, 153, 153);
+    rect(328 + orderCorrectX2 + 20, 0, 111, 29);
+    
+    fill(176, 176, 176);
+    rect(328 + orderCorrectX2 + 20, 41 - 10, 111, 58 + 10);
+    
+    textSize(11);
+    fill(0, 0, 0);
+    text("ORDER\n#" + (score + 1), 375 + orderCorrectX2, 15);
+    
+    
+    textSize(11);
+    fill(0, 0, 0);
+    text("> SIDE", 375 + orderCorrectX2, 38);
+    text("> BURGER", 375 + orderCorrectX2, 106);
+    text("> SIDE", 375 + orderCorrectX2, 38);
+    text("> BURGER", 375 + orderCorrectX2, 106);
+    
+    popMatrix();
+    
+    //side menu
+    pushMatrix();
+    
+    scale(scaleProgramBy);
+    
+    translate(orderCorrectX2, 0);
+    
+    switch(sideMenu)
+    {
+        case 1:
+            side(350 + 10, 63, 30, 30, "fries");
+            break;
+            
+        case 2:
+            side(346 + 10, 44, 40, 40, "hash");
+            break;
+            
+        case 3:
+            side(364 + 10, 59, 47, 40, "onionrings");
+            break;
+    }
+    popMatrix();
+    
+    
+    //menu
+    pushMatrix();
+    
+    sideY += 20;
+    if(sideY > 0)
+    {
+        sideY = 0;
+    }
+    
+    for(var i = 0; i < menu.length; ++i)
+    {
+        pushMatrix();
+        
+        scale(scaleProgramBy);
+        
+        translate(166 + orderCorrectX2 + 10, 74);
+        
+        switch(menu[i])
+        {
+        //bottom bread
+        case 1:
+            burgerImage(200, menu[i] + 300 + menuY[i], burger_On_Menu_Size, burger_On_Menu_Size / 2, "bottomBread");
+            break;
+        
+        //meat
+        case 2:
+            burgerImage(200, menu[i] + 300 + menuY[i], burger_On_Menu_Size, burger_On_Menu_Size / 2, "meat");
+            break;
+        
+        //cheese
+        case 3:
+            burgerImage(200, menu[i] + 300 + menuY[i], burger_On_Menu_Size, burger_On_Menu_Size / 2, "cheese");
+            break;
+        
+        //tomatetoe
+        case 4:
+            burgerImage(200, menu[i] + 300 + menuY[i], burger_On_Menu_Size, burger_On_Menu_Size / 2, "tomatetoe");
+            break;
+        
+        //Lettuce
+        case 5:
+            burgerImage(200, menu[i] + 300 + menuY[i], burger_On_Menu_Size, burger_On_Menu_Size / 2, "Lettuce");
+            break;
+        
+        //onions
+        case 6:
+            burgerImage(200, menu[i] + 300 + menuY[i], burger_On_Menu_Size, burger_On_Menu_Size / 2, "onions");
+            break;
+        
+        //top bread
+        case 7:
+            burgerImage(200, menu[i] + 300 + menuY[i], burger_On_Menu_Size, burger_On_Menu_Size / 2, "topBread");
+            break;
+        }
+        
+        popMatrix();
+        
+        //burger growing system
+        menuLength[i] = i;
+        if(menuLength[i] === i)
+        {
+            menuY[i] = i * -30;
+        }
+    }
+    
+    //@food buttons
+    for(var i = 0; i < 6; ++i)
+    {
+        pushMatrix();
+    
+        scale(scaleProgramBy);
+        
+        fill(110, 109, 109);
+        beginShape();
+        vertex(0, 12 + i* buttonLength);
+        vertex(54 + buttonAnimation[i], 12 + i* buttonLength);
+        vertex(buttonLength + buttonAnimation[i], 56 + i* buttonLength);
+        vertex(0, 56 + i * buttonLength);
+        endShape();
+        fill(143, 140, 143);
+        rect(-10 + buttonAnimation[i], 0 + i * buttonLength + 55, buttonLength + 10, buttonLength / 15);
+        
+        if(mouseX > 0 * scaleProgramBy && mouseX < buttonLength * scaleProgramBy && mouseY > (0 + i * buttonLength) * scaleProgramBy && mouseY < (buttonLength + i * buttonLength) * scaleProgramBy && puase === false)
+        {
+            cursor(HAND);
+            buttonAnimation[i] = 10;
+        }else
+        {
+            buttonAnimation[i] = 0;
+        }
+    
+    popMatrix();
+    
+    pushMatrix();
+    
+    scale(scaleProgramBy);
+    
+    translate(buttonAnimation[i], 0);
+    
+    switch(i + 1)
+    {
+    case 1:
+    burgerImage(buttonLength / 2.2, buttonLength / 1.5, buttonLength / 1.2, buttonLength / 2, "topBread");      break;
+    
+    case 2:
+    burgerImage(buttonLength / 2.2, buttonLength * 1.5, buttonLength / 1.2, buttonLength / 2, "onions");
+        break;
+    
+    case 3:
+    burgerImage(buttonLength / 2.2, buttonLength * 2.5, buttonLength / 1.2, buttonLength / 2, "Lettuce");          break;
+    
+    case 4:
+    burgerImage(buttonLength / 2.2, buttonLength * 3.5, buttonLength / 1.2, buttonLength / 2, "tomatetoe");         break;
+    
+    case 5:
+    burgerImage(buttonLength / 2.2, buttonLength * 4.5, buttonLength / 1.2, buttonLength / 2, "cheese");
+        break;
+    
+    case 6:
+    burgerImage(buttonLength / 2.2, buttonLength * 5.5, buttonLength / 1.2, buttonLength / 2, "meat");
+        break;
+    
+    }
+    popMatrix();
+        
+    }
+    
+    for(var i = 0; i < 3; ++i)
+    {
+        pushMatrix();
+        scale(scaleProgramBy);
+        
+        fill(145, 142, 145);
+        rect(108 + i * 70, buttonAnimation2X + 3, 50 - 2, 50);
+        
+        fill(184, 184, 184);
+        rect(107 + i * 70, buttonAnimation2X + buttonAnimation2[i], 50, 50);
+        
+        if(mouseX > (107 + i * 70) * scaleProgramBy && mouseX < (107 + 50 + i * 70) * scaleProgramBy && mouseY > buttonAnimation2X * scaleProgramBy && mouseY < (buttonAnimation2X + 50) * scaleProgramBy && sidePlate !== 1 + i && puase === false)
+        {
+            fill(255, 255, 255, 50);
+            rect(107 + i * 70, buttonAnimation2X, 50, 50);
+            cursor(HAND);
+            buttonAnimation2[i] = 3;
+        }else
+        {
+            buttonAnimation2[i] = 0;
+        }
+        
+        if(sidePlate === 1 + i)
+        {
+            fill(255, 255, 255, 100);
+            rect(107 + i * 70, buttonAnimation2X[i], 50, 50);
+        }
+        
+        popMatrix();
+        
+        pushMatrix();
+        
+        scale(scaleProgramBy);
+        
+        translate(0, buttonAnimation2[i]);
+        
+        switch(i)
+        {
+            case 0:
+                side(118, buttonAnimation2X + 20, 28, 28, "fries");
+                break;
+                
+            case 1:
+                side(186, buttonAnimation2X + 2, 35, 35, "hash");
+                break;
+                
+            case 2:
+                side(272, buttonAnimation2X + 16, 43, 39, "onionrings");
+                break;
+        }
+        
+        popMatrix();
+    }
+    
+    
+    if(puase === true)
+    {
+        pushMatrix();
+    
+        scale(scaleProgramBy);
+        
+        fill(255, 255, 255, 100);
+        rect(0, 0, 400, 400);
+        
+        fill(255, 255, 255);
+        rect(340, 0, 60, 400);
+        
+        stroke(122, 122, 122);
+        strokeWeight(3);
+        
+        fill(166, 166, 166);
+        
+        if(mouseX > 295 && mouseX < 295 + 30 && mouseY > 10 && mouseY < 40)
+        {
+            fill(107, 107, 107);
+            cursor(HAND);
+        }
+        
+        rect(295, 10, 30, 30);
+        noStroke();
+        fill(0, 0, 0);
+        arc(318, 27, 30, 30, -210, -140);
+        
+        CoolFont(200, 150, 50, "PAUSED", color(255, 255, 255), 3, color(255, 0, 0));
+        
+        buttonPage("", 30, 244, 50, 70, "game", 1);
+        buttonPage("", 30, 145, 50, 70, "home", 1);
+        popMatrix();
+    }
+};
+
+//mouse click states
+var mouseClickedStates = function(){
+
+    mouseClicked = function()
+    {
+        for(var i = 0; i < 6; ++i)
+        {
+            if(mouseX > 0 * scaleProgramBy && mouseX < buttonLength * scaleProgramBy && mouseY > (0 + i * buttonLength) * scaleProgramBy && mouseY < (buttonLength + i * buttonLength) * scaleProgramBy && page === "game" && orderCorrect === false && puase === false)
+            {
+                burger.push(7 - i);
+                burgerY.push(-360);
+                delayTimer = 0;
+                burgerState = 0;
+            }
+        }
+        
+        for(var i = 0; i < 3; ++i)
+        {
+            if(mouseX > (107 + i * 70) * scaleProgramBy && mouseX < (107 + 50 + i * 70) * scaleProgramBy && mouseY > buttonAnimation2X * scaleProgramBy && mouseY < (buttonAnimation2X + 50) * scaleProgramBy && loadCursor < 1 && sidePlate !== 1 + i && orderCorrect === false && page === "game" && puase === false)
+            {
+                sidePlate = 1 + i;
+                sideY = -400;
+                delayTimer = 0;
+                sideState = 0;
+            }
+        }
+        
+        switch(puase)
+        {
+        
+        case false:
+        if(mouseX > 295 * scaleProgramBy && mouseX < (295 + 30) * scaleProgramBy && mouseY > 10 * scaleProgramBy && mouseY < 40 * scaleProgramBy && page === "game" && timer < 150)
+        {
+            puase = true;
+        }
+            break;
+            
+        case true:
+        
+        if(mouseX > 295 * scaleProgramBy && mouseX < (295 + 30) * scaleProgramBy && mouseY > 10 * scaleProgramBy && mouseY < 40 * scaleProgramBy && page === "game" && timer < 150)
+        {
+            puase = false;
+        }
+            break;
+        }
+        shade = 400;
+        
+    };
+
+
+};
+
+//home
+var homePage = function(){
+
+    if(puase === false)
+    {
+        //burger on logo
+        pushMatrix();
+        translate(0, 21);
+        var burgerWidth_menu = 295;
+        var burgerHight_menu = 115;
+        burgerImage(200, 185 + burger_page - 3, burgerWidth_menu, burgerHight_menu, "bottomBread");
+        burgerImage(200, 170 + burger_page - 3, burgerWidth_menu, burgerHight_menu, "meat");
+        burgerImage(200, 155 + burger_page - 3, burgerWidth_menu, burgerHight_menu, "cheese");
+        burgerImage(200, 140 + burger_page - 3, burgerWidth_menu, burgerHight_menu, "tomatetoe");
+        burgerImage(200, 125 + burger_page - 3, burgerWidth_menu, burgerHight_menu, "Lettuce");
+        burgerImage(200, 110 + burger_page - 3, burgerWidth_menu, burgerHight_menu, "onions");
+        burgerImage(200, 95 + burger_page - 3, burgerWidth_menu, burgerHight_menu, "topBread");
+        popMatrix();
+    }    
+    burger_page /= 1.1;
+    
+    if(burger_page >= -50)
+    {
+        burger_page2 /= 1.1;
+    }
+    
+    if(burger_page2 < 50)
+    {
+        burger_page3 /= 1.1;
+    }
+    
+    if(burger_page3 < 50)
+    {
+        burger_page4 /= 1.1;
+    }
+    
+
+    if(start === false && puase === false)
+    {
+        
+        pushMatrix();
+        
+        translate(71, 42 + burger_page - 3);
+        
+        //word stroke
+        stroke(255, 255, 255);
+        strokeWeight(26);
+        noFill();
+        
+        //B
+        arc(16, 64, 40, 20, -90, 90);
+        arc(16, 84, 40, 20, -90, 90);
+        rect(10, 54, 1, 40, 10);
+        
+        //U
+        arc(64, 59, 29, 67, 0, 180);
+        
+        //R
+        arc(94, 65, 49, 20, -90, 90);
+        rect(91, 54, 1, 40, 10);
+        line(111, 78, 122, 95);
+        
+        //G
+        arc(151, 76, 34, 39, -342, -76);
+        rect(152, 77, 15, 1, 10);
+        
+        //E
+        rect(186, 73, 13, 1, 10);
+        rect(186, 53, 18, 1, 10);
+        rect(186, 92, 18, 1, 10);
+        rect(183, 54, 1, 39, 10);
+        
+        //R
+        arc(94 + 130, 65, 49, 20, -90, 90);
+        rect(91 + 130, 54, 1, 40, 10);
+        line(111 + 130, 78, 122 + 130, 95);
+        
+        
+        //M
+        rect(13, 122, 1, 40, 10);
+        rect(47, 122, 1, 40, 10);
+        line(17, 124, 31, 150);
+        line(45, 124, 31, 150);
+        
+        //A
+        line(75, 124, 62, 161);
+        line(75, 124, 93, 161);
+        rect(68, 152, 20, 1, 10);
+        
+        //S
+        arc(114, 133, 23, 26, -200, -38);
+        arc(99, 149, 51, 18, -73, 75);
+        
+        //T
+        rect(137, 123, 30, 1, 10);
+        rect(151, 126, 1, 35, 10);
+        
+        //E
+        rect(186, 73 + 68, 13, 1, 10);
+        rect(186, 53 + 68, 18, 1, 10);
+        rect(186, 92 + 68, 18, 1, 10);
+        rect(183, 54 + 68, 1, 39, 10);
+        
+        //R
+        arc(94 + 130, 65 + 68, 49, 20, -90, 90);
+        rect(91 + 130, 54 + 68, 1, 40, 10);
+        line(111 + 130, 78 + 68, 122 + 130, 95 + 68);
+        
+        
+        //words
+        stroke(255, 0, 0);
+        strokeWeight(12);
+        noFill();
+        
+        //B
+        arc(16, 64, 40, 20, -90, 90);
+        arc(16, 84, 40, 20, -90, 90);
+        rect(10, 54, 1, 40, 10);
+        
+        //U
+        arc(64, 59, 29, 67, 0, 180);
+        
+        //R
+        arc(94, 65, 49, 20, -90, 90);
+        rect(91, 54, 1, 40, 10);
+        line(111, 78, 122, 95);
+        
+        //G
+        arc(151, 76, 34, 39, -342, -76);
+        rect(152, 77, 15, 1, 10);
+        
+        //E
+        rect(186, 73, 13, 1, 10);
+        rect(186, 53, 18, 1, 10);
+        rect(186, 92, 18, 1, 10);
+        rect(183, 54, 1, 39, 10);
+        
+        //R
+        arc(94 + 130, 65, 49, 20, -90, 90);
+        rect(91 + 130, 54, 1, 40, 10);
+        line(111 + 130, 78, 122 + 130, 95);
+        
+        
+        //M
+        rect(13, 122, 1, 40, 10);
+        rect(47, 122, 1, 40, 10);
+        line(17, 124, 31, 150);
+        line(45, 124, 31, 150);
+        
+        //A
+        line(75, 124, 62, 161);
+        line(75, 124, 93, 161);
+        rect(68, 152, 20, 1, 10);
+        
+        //S
+        arc(114, 133, 23, 26, -200, -38);
+        arc(99, 149, 51, 18, -73, 75);
+        
+        //T
+        rect(137, 123, 30, 1, 10);
+        rect(151, 126, 1, 35, 10);
+        
+        //E
+        rect(186, 73 + 68, 13, 1, 10);
+        rect(186, 53 + 68, 18, 1, 10);
+        rect(186, 92 + 68, 18, 1, 10);
+        rect(183, 54 + 68, 1, 39, 10);
+        
+        //R
+        arc(94 + 130, 65 + 68, 49, 20, -90, 90);
+        rect(91 + 130, 54 + 68, 1, 40, 10);
+        line(111 + 130, 78 + 68, 122 + 130, 95 + 68);
+        
+        popMatrix();
+    }
+    
+    if(start === true && puase === false)
+    {
+        
+        CoolFont(200, 150 + burger_page, 85, "" + score, color(255, 0, 0), 4, color(255, 255, 255));
+        
+        textSize(54);
+        CoolFont(200, 206 + burger_page, 54, "TOP " + best, color(255, 0, 0), 3, color(255, 255, 255));
+    }
+    
+    if(bestOffset === true && score > 1 && puase === false)
+    {
+        pushMatrix();
+        translate(200, 60 + burger_page);
+        rotate(sin(frameCount * 10) * 15);
+        CoolFont(0, 0, 44, "NEW!", color(255, 255, 255), 3, color(255, 0, 0));
+        popMatrix();
+    }
+    
+    if(best < score)
+    {
+        best = score;
+    }
+    
+    if(puase === false)
+    {
+        textAlign(CENTER, CENTER);
+        buttonPage("", 39, 200, 340 + burger_page2, 97, "game", 4);
+        buttonPage("", 19, 200 - 100, 340 + burger_page3, 70, "achievements", 3);
+        buttonPage("", 24, 200 + 100, 340 + burger_page4, 70, "scores", 2);
+    }
+    
+    
+    if(puase === true)
+    {
+        buttonPage("", 39, 200, 200 + burger_page2, 97, "game", 4);
+        buttonPage("", 19, 200 - 100, 200 + burger_page3, 70, "achievements", 3);
+        buttonPage("", 24, 200 + 100, 200 + burger_page4, 70, "scores", 2);
+        
+        textAlign(CENTER, CENTER);
+        buttonPage("?\n", 54, 200, 300 - burger_page2, 78, "?", 1);
+    }
+    
+
+};
+
+//leaderboard page
+var leaderboardPage = function(){
+
+
+    //Size
+    textSize(TXTsize);
+    
+    //Aranges
+    sortScores();
+    
+    //Keeps the TXT Center
+    textAlign(0,0);
+    
+    //Calls the TXT for the Leader-Board
+    fill(0, 60, 255);
+    noStroke();
+    textAlign(CENTER,CENTER);
+    textSize(25);
+    for (var a = topScore; a < 5; a++) 
+    {
+        fill(0, 0, 0);
+        if(orderedScores[a][a])
+        {
+            fill(255, 153, 0);
+        }
+        if(orderedScores[a][a - 1])
+        {
+            fill(89, 89, 89);
+        }
+        if(orderedScores[a][a - 2])
+        {
+            fill(194, 99, 4);
+        }
+        if(orderedScores[a][a - 3])
+        {
+            fill(0, 0, 0); 
+        }
+        
+        text("(" + (a + 1) + ").  " + orderedScores[a][0] + "  ...  " + orderedScores[a][1], 200, 140 + a * 1.2 * TXTsize); 
+        
+    }
+    
+    fill(255, 0, 0);
+    textSize(35);
+    text("TOP 5 SCORES!", 200, 70);
+    
+    
+    fill(255, 0, 0);
+    textSize(18);
+    text("Post a spin-off of your high score in the\nTips&Thanks!", 200, 300);              
+    buttonPage("BACK", 17, 200, 355, 70, "home", 2);
+    
+};
+
+//achievements page
+var achievementsPage = function(){
+
+    fill(0, 0, 0);
+    
+    for(var i = 0; i < achievements.length; ++i)
+    {
+        achievementsX[i] = i * 45;
+        
+        if(i <= 7)
+        {
+            achievementsY[i] = 0;
+            achievementsX[i] = i * 75 - 20;
+        }
+        
+        if(i >= 5)
+        {
+            achievementsY[i] = 102;
+            achievementsX[i] = i * 75 - (75 * 5) - 20;
+        }
+        
+        switch(achievements[i])
+        {
+            case 0:
+            
+            noStroke();
+            fill(0, 0, 0);
+            rect(40 + achievementsX[i], 40 + achievementsY[i], 70, 70, 5);
+            
+            fill(255, 255, 255);
+            ellipse(75 + achievementsX[i], 75 + achievementsY[i], 35, 35);
+            
+            fill(0, 0, 0);
+            ellipse(75 + achievementsX[i], 72 + achievementsY[i], 10, 10);
+            arc(75 + achievementsX[i], 81 + achievementsY[i], 10, 10, -180, 0);
+            
+            stroke(255, 255, 255);
+            strokeWeight(3);
+            noFill();
+            arc(75 + achievementsX[i], 62 + achievementsY[i], 22, 28, -180, 0);
+            
+                break;
+                
+            case 1:
+            fill(173, 173, 173);
+            rect(40 + achievementsX[i], 40 + achievementsY[i], 70, 70, 5);
+            
+            //achievement image
+            
+            switch(i)
+            {
+                case 0:
+                    
+                    pushMatrix();
+                    translate(55, 77);
+                    rotate(sin(frameCount * 5) * 50);
+                    burgerImage(0, 3, 50 + sin(frameCount * 10) * 10, 25 + sin(frameCount * 10) * 10, "bottomBread");
+                    burgerImage(0, 0, 50 + sin(frameCount * 10) * 10, 25 + sin(frameCount * 10) * 10, "meat");
+                    burgerImage(0, -3, 50 + sin(frameCount * 10) * 10, 25 + sin(frameCount * 10) * 10, "topBread");
+                    popMatrix();
+                    
+                    break;
+                    
+                case 1:
+                    
+                    pushMatrix();
+                    translate(131, 75);
+                    rotate(friesRotate);
+                    side(0, 0, 15, 15, "fries");
+                    
+                    rotate(360 / 5);
+                    side(0, 10, 15, 15, "fries");
+                    
+                    rotate(360 / 5);
+                    side(10, 10, 15, 15, "fries");
+                    
+                    rotate(360 / 5);
+                    side(15, 3, 15, 15, "fries");
+                    
+                    rotate(360 / 5);
+                    side(8, -7, 15, 15, "fries");
+                    
+                    popMatrix();
+                    
+                    friesRotate += 3;
+                    
+                    break;
+                
+                case 2:
+                    
+                    
+                    pushMatrix();
+                    translate(205, 93);
+                    rotate(sin(frameCount * 10) * 10);
+                    burgerImage(0, 0 + sin (frameCount * 2) * 2, 50, 20, "bottomBread");
+                    burgerImage(0, -5 + sin (frameCount * 3) * 2, 50, 20, "meat");
+                    burgerImage(0, -10 + sin (frameCount * 4) * 2, 50, 20, "cheese");
+                    burgerImage(0, -15 + sin (frameCount * 5) * 2, 50, 20, "tomatetoe");
+                    burgerImage(0, -20 + sin (frameCount * 6) * 2, 50, 20, "Lettuce");
+                    burgerImage(0, -25 + sin (frameCount * 7) * 2, 50, 20, "onions");
+                    burgerImage(0, -30 + sin (frameCount * 8) * 2, 50, 20, "topBread");
+                    popMatrix();
+                    
+                    break;
+                    
+                case 3:
+                    
+                    textSize(8);
+                    
+                    pushMatrix();
+                    translate(280, 75);
+                    rotate(sin(frameCount * 5) * 30);
+                    burgerImage(0, 10, 40, 20, "bottomBread");
+                    fill(0, 0, 0);
+                    textSize(12);
+                    text("TIMER / 4", 0, 1 + sin(frameCount * 10) * 3);
+                    text("TIMER / 4", 0, 1 + sin(frameCount * 10) * 3);
+                    burgerImage(0, -10, 40, 20, "topBread");
+                    popMatrix();
+                    
+                    break;
+                    
+                case 4:
+                    
+                    pushMatrix();
+                    translate(355, 78);
+                    rotate(onionRotate);
+                    side(0, 0, 30 + sin(frameCount * 7) * 5, 30 + sin(frameCount * 7) * 5, "onionrings");
+                    popMatrix();
+                    
+                    onionRotate += 10;
+                    
+                    break;
+                    
+                case 5:
+                    
+                    strokeWeight(1);
+                    stroke(255, 255, 255);
+                    fill(55, 74, 250);
+                    ellipse(55, 180, 25 + sin(frameCount * 10) * 10, 25 + sin(frameCount * 10) * 10);
+                    
+                    noStroke();
+                    fill(255, 255, 255);
+                    arc(62 + sin(frameCount * 10) * 3, 180, 25 + sin(frameCount * 10) * 10, 25 + sin(frameCount * 10) * 10, 130, 220);
+                    
+                    
+                    fill(0, 0, 0);
+                    
+                    pushMatrix();
+                    rectMode(CENTER);
+                    translate(55, 156);
+                    rotate(ticMarkRotate);
+                    rect(0, 0 - 2, 11, 2);
+                    rect(0, -4 - 2, 11, 2);
+                    rect(0, 4 - 2, 11, 2);
+                    rect(0, 8 - 2, 11, 2);
+                    rotate(45);
+                    rect(0, 0, 20, 2);
+                    rectMode(0);
+                    popMatrix();
+                    
+                    
+                    pushMatrix();
+                    rectMode(CENTER);
+                    translate(55 + 20, 199);
+                    rotate(ticMarkRotate / 2);
+                    rect(0, 0 - 2, 11, 2);
+                    rect(0, -4 - 2, 11, 2);
+                    rect(0, 4 - 2, 11, 2);
+                    rect(0, 8 - 2, 11, 2);
+                    rotate(45);
+                    rect(0, 0, 20, 2);
+                    rectMode(0);
+                    popMatrix();
+                    
+                    pushMatrix();
+                    rectMode(CENTER);
+                    translate(55 - 20, 199);
+                    rotate(-ticMarkRotate / 3);
+                    rect(0, 0 - 2, 11, 2);
+                    rect(0, -4 - 2, 11, 2);
+                    rect(0, 4 - 2, 11, 2);
+                    rect(0, 8 - 2, 11, 2);
+                    rotate(45);
+                    rect(0, 0, 20, 2);
+                    rectMode(0);
+                    popMatrix();
+                    
+                    ticMarkRotate += 7;
+                    
+                    
+                    
+                    break;
+                    
+                
+                case 6:
+                    
+                    pushMatrix();
+                    translate(260 - 150, 160);
+                    rotate(sin(frameCount * 10) * 100);
+                    burgerImage(0, 2, 20, 10, "bottomBread");
+                    burgerImage(0, 0, 20, 10, "meat");
+                    burgerImage(0, -2, 20, 10, "topBread");
+                    popMatrix();
+                    
+                    pushMatrix();
+                    translate(300 - 150, 160);
+                    rotate(-sin(frameCount * 5) * 100);
+                    burgerImage(0, 2, 20, 10, "bottomBread");
+                    burgerImage(0, 0, 20, 10, "meat");
+                    burgerImage(0, -2, 20, 10, "topBread");
+                    popMatrix();
+                    
+                    pushMatrix();
+                    translate(300 - 150, 195);
+                    rotate(sin(frameCount * 7) * 100);
+                    burgerImage(0, 2, 20, 10, "bottomBread");
+                    burgerImage(0, 0, 20, 10, "meat");
+                    burgerImage(0, -2, 20, 10, "topBread");
+                    popMatrix();
+                    
+                    
+                    pushMatrix();
+                    translate(260 - 150, 195);
+                    rotate(sin(frameCount * 5) * 100);
+                    burgerImage(0, 2, 20, 10, "bottomBread");
+                    burgerImage(0, 0, 20, 10, "meat");
+                    burgerImage(0, -2, 20, 10, "topBread");
+                    popMatrix();
+                    
+                    pushMatrix();
+                    translate(280 - 150, 177);
+                    rotate(sin(frameCount * 15) * 100);
+                    burgerImage(0, 2, 20, 10, "bottomBread");
+                    burgerImage(0, 0, 20, 10, "meat");
+                    burgerImage(0, -2, 20, 10, "topBread");
+                    popMatrix();
+                    
+                    break;    
+                    
+                case 7:
+                    
+                    burgerImage(54 + 150, 192, 50, 28, "bottomBread");
+                    burgerImage(54 + 150, 130 + burgerPiece_1, 50, 25, "meat");
+                    burgerImage(54 + 150, 126 + burgerPiece_2, 50, 25, "cheese");
+                    burgerImage(54 + 150, 134 + burgerPiece_3, 50, 23, "topBread");
+                    //burgerPiece_1
+                    
+                    burgerPiece_1 += 3;
+                    
+                    if(burgerPiece_1 >= 59 - 2)
+                    {
+                        burgerPiece_1 = 59 - 2;
+                        burgerPiece_2 += 3;
+                    }
+                    if(burgerPiece_2 >= 56 - 4)
+                    {
+                        burgerPiece_2 = 56 - 4;
+                        burgerPiece_3 += 3;
+                    }
+                    if(burgerPiece_3 >= 50 - 6)
+                    {
+                        burgerPiece_3 = 51 - 6;
+                        burgerPieceTimer += 1;
+                    }
+                    if(burgerPieceTimer >= 20)
+                    {
+                        burgerPiece_1 = 0;
+                        burgerPiece_2 = 0;
+                        burgerPiece_3 = 0;
+                        burgerPieceTimer = 0;
+                    }
+                    
+                    fill(255, 255, 255);
+                    rect(20 + 150, 111, 100, 31);
+                    
+                    break;
+                
+            }
+            
+                break;
+        }
+        
+        if(mouseX >= (40 + achievementsX[i]) * scaleProgramBy && mouseX < (40 + 70 + achievementsX[i]) * scaleProgramBy && mouseY > (40 + achievementsY[i]) * scaleProgramBy && mouseY < (40 + 70 + achievementsY[i]) * scaleProgramBy)
+        {
+            fill(255, 255, 255, 50);
+            rect(40 + achievementsX[i], 40 + achievementsY[i], 70, 70);
+            
+            textSize(20);
+            fill(0, 0, 0);
+            
+            switch(i)
+            {
+                case 0:
+                    text(achievementNames[0] +  "!\nMake your first order.", 200, 270);
+                    break;
+                    
+                case 1:
+                    text(achievementNames[1] + "!\nComplete 5 orders with fries\nin one game.", 200, 270);
+                    break;
+                    
+                case 2:
+                    text(achievementNames[2] + "!\nComplete a 5 layer burger order.", 200, 270);
+                    break;
+                    
+                case 3:
+                    text(achievementNames[3] + "!\nComplete a 4 layer burger\nin a quarter of the time you have.", 200, 270);
+                    break;
+                    
+                case 4:
+                    text(achievementNames[4] + "!\nComplete 10 orders with onion rings\nin one game.", 200, 270);
+                    break;
+                    
+                case 5:
+                    text(achievementNames[5] + "!\nPlay a total of 15 games.", 200, 270);
+                    break;
+                    
+                case 6:
+                    text(achievementNames[6] + "!\nComplete 30 orders in one game.", 200, 270);
+                    break;
+                    
+                case 7:
+                    
+                    text(achievementNames[7] + "!\nComplete 50 orders in one game.", 200, 270);
+                    
+                    break;
+                
+            }
+        }
+    }
+    
+    buttonPage("BACK", 17, 200, 355, 70, "home", 3);
+    
+};
+
+//howTo
+var howToPage = function(){
+    
+    buttonPage("BACK", 17, 200, 355, 70, "home", 2);
+    
+    textSize(50);
+    
+    fill(0, 0, 0);
+    
+    textSize(50);
+    
+    text("?", 200, 30);
+    
+    textSize(17);
+    
+    text("(1). Make the correct burger and side\nfrom the order on the right,\nand progress through bigger and bigger orders.\n(2). But it's not that simple...\nIf you don't want to be fired by the Boss,\nyou'd better be quick!", 200, 200);
+};
+
+//put the game together
+var game = function(){
+    
+    background(255, 255, 255);
+    
+    loadCursorMechanics();
+    
+    textMechanics();
+    
+    //switch game page
+    switch(page)
+    {
+        
+        case "game":
+            
+            gamePage();
+        
+        break;
+        
+        
+        case "home":
+            
+            homePage();
+            
+            break;
+        
+        case "scores":
+        
+            leaderboardPage();
+        
+            break;
+        
+        case "achievements":
+            
+            achievementsPage();
+            
+            break;
+            
+        case "?":
+            
+            howToPage();
+            
+            break;
+    }
+
+
+};
+
+//animate
+draw = function()
+{
+    pushMatrix();
+    scale(scaleProgramBy);
+    
+    mouseClickedStates();
+    
+    //logo
+    if(shade <= 300)
+    {
+        logoPage();
+    }
+    
+    //when logo is done (show game)
+    if(shade > 300)
+    {
+        game();
+    }
+    popMatrix();
+};
