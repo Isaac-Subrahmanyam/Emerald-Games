@@ -1,0 +1,657 @@
+
+
+
+
+
+
+
+
+
+/**
+ * 
+ * SPIRAL
+ * Isaac Emerald
+ * February 12 2018
+ * 
+*/
+
+// Credit to FunnyTV for the idea.
+
+
+
+
+
+
+
+
+
+
+// player stuff "my comments are super creative, I know ;)"
+var player = {
+    Pos: 0,
+    Angle: 0,
+    Death: false,
+    Speed: [1, 1.5]
+};
+
+// spike stuff
+var spike = {
+    Angle: [360, 50, 100, 150, 200, 250, 300],
+    Type: [0, 1, 0, 1, 0, 1, 0],
+    Anim: [0, 0, 0, 0, 0, 0, 0]
+};
+
+var openingSceneAnim = [3000, 1000, 1000, 1000];
+
+var colorScheme = color(43, 179, 6);
+
+var trans = 0, transState = "shrink";
+
+var nextPage = "menu";
+
+var startGame = false;
+
+// score variables
+var score = 0,
+    scoreAnim = 0,
+    best = 0;
+
+// Scene
+var scene = "menu";
+
+//clicked states of mouse
+var
+    clicked = false,
+    
+    mouseClicked = function () {
+        clicked = true;
+        
+        if(!keyIsPressed && scene === "game")
+        {
+            if(!player.Death)
+            {
+                switch(player.Pos)
+                {
+                    case 0:
+                        player.Pos = 1;
+                        break;
+                    case 1:
+                        player.Pos = 0;
+                        break;
+                }
+            }
+        }
+    };
+
+// Smooth Animation for logo
+var SM = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 30];
+
+// particles for player
+var
+    playerParticle = [0, 5, 10, 15, 20, 25, 30, 35],
+    particleY = [0, 0, 0, 0, 0, 0, 0, 0],
+    particleSize = [0, 5, 10, 15, 20, 25, 30, 35];
+
+// player
+var player = function() {
+    
+    for(var i = 0; i < playerParticle.length; ++i)
+    {
+        pushMatrix(); // set matrix
+        translate(250,250); // main pos of particle
+        rotate(playerParticle[i]); // rotate
+        
+        // main particle circle
+        fill(49, 212, 4, 50);
+        ellipse(0, -153 + particleY[i] * 55, particleSize[i], particleSize[i]);
+        popMatrix(); // reset matrix
+        
+        if(particleY[i] === player.Pos)
+        {
+            playerParticle[i] -= 0.5;
+        }
+        
+        particleSize[i] -= 1;
+        
+        if(particleSize[i] <= 0)
+        {
+            particleSize[i] = 30;
+            playerParticle[i] = player.Angle;
+            particleY[i] = player.Pos;
+        }
+    }
+        
+    // main player
+    pushMatrix();
+    translate(250,250);
+    rotate(player.Angle);
+    
+    // player base
+    fill(colorScheme);
+    ellipse(0, -153 + player.Pos * 55, 50, 50);
+    
+    // eyes
+    fill(255, 255, 255);
+    ellipse(17, -153 + player.Pos * 50, 10, 10);
+    ellipse(5, -153 + player.Pos * 50, 10, 10);
+    
+    rect(5, -144 + player.Pos * 29, 13, 6);
+    
+    popMatrix();
+    
+    // keys for player
+    keyPressed = function(){
+        
+        if(!player.Death)
+        {
+            switch(player.Pos)
+            {
+                case 0:
+                    player.Pos = 1;
+                    break;
+                case 1:
+                    player.Pos = 0;
+                    break;
+            }
+        }
+        
+    };
+    
+    // player speed varies based on pos
+    if(!player.Death)
+    {
+        switch(player.Pos)
+        {
+            case 0:
+                player.Angle += player.Speed[0];
+                break;
+            case 1:
+                player.Angle += player.Speed[1];
+                break;
+        }
+    }
+};
+
+// spikes in game
+var spikes = function() {
+    
+    for(var i = 0; i < spike.Angle.length; ++i)
+    {
+        
+        switch(spike.Type[i])
+        {
+            case 0:
+                
+                // top spike
+                pushMatrix();
+                translate(250,250);
+                rotate(-180 + spike.Angle[i]);
+                
+                // shape
+                beginShape();
+                vertex(0, 100 + spike.Anim[i]);
+                vertex(10, 123);
+                vertex(-10, 123);
+                vertex(0, 100 + spike.Anim[i]);
+                endShape();
+                
+                popMatrix();
+                
+                if(
+                player.Pos === 1 &&
+                player.Angle >= spike.Angle[i] - 15 &&
+                player.Angle <= spike.Angle[i] + 15
+                )
+                {
+                    player.Death = true;
+                }
+                break;
+            
+            case 1:
+                
+                pushMatrix(); // set matrix
+                translate(250,250); // pos
+                rotate(-180 + spike.Angle[i]); // rotate
+                
+                // shape
+                beginShape();
+                vertex(0, 100 + 50 - spike.Anim[i]);
+                vertex(10, 75 + 50);
+                vertex(-10, 75 + 50);
+                vertex(0, 100 + 50 - spike.Anim[i]);
+                endShape();
+                
+                popMatrix(); // reset matrix
+                
+                if(player.Pos === 0 &&
+                player.Angle >= spike.Angle[i] - 10 &&
+                player.Angle <= spike.Angle[i] + 10)
+                {
+                    player.Death = true;
+                }
+                break;
+        }
+        
+        // animation for spike
+        spike.Anim[i] -= 1;
+        if(spike.Anim[i] <= 0)
+        {
+            spike.Anim[i] = 0;
+        }
+        
+        // score adds up and reset spike type when pass
+        if(player.Angle >= spike.Angle[i] + 15 &&
+        player.Angle <= spike.Angle[i] + 20 && spike.Anim[i] <= 1 && !player.Death)
+        {
+            spike.Anim[i] = 34;
+            spike.Type[i] = floor(random(0, 2));
+            score ++;
+            scoreAnim += 10;
+        }
+        
+    }
+    
+    
+};
+
+// Rectangle bars for Spiral Logo
+var rectBars = function(x, y, w, h, r) {
+    
+    pushMatrix(); // set matrix
+    translate(x, y); // pos
+    rotate(r); // rotate
+    
+    strokeWeight(3);
+    
+    rect(0, 0, w, h); // main bar
+    
+    popMatrix(); // end matrix
+    
+};
+
+// Spiral logo
+var gameLogo = function(x, y, s) {
+    
+    pushMatrix(); // set matrix
+    translate(x, y); // pos
+    scale(s/100); // scale
+    
+    // S
+    rectBars(76, 49, 10, 42, 45);
+    rectBars(97, 116, 10, 46, 135);
+    rectBars(99, 119, 10, 42, 45);
+    rectBars(86, 59, 21, 10, 45);
+    rectBars(58, 124, 21, 10, 45);
+    
+    // P
+    rectBars(116 + 10, 49, 10, 106);
+    rectBars(166 + 10, 76, 10, 50, 45);
+    rectBars(130 + 10, 55, 10, 35,-45);
+    
+    // I
+    rectBars(182 + 20, 49, 10, 106);
+    
+    // R
+    rectBars(116 + 125, 49, 10, 106);
+    rectBars(166 + 125, 76, 10, 50, 45);
+    rectBars(130 + 125, 55, 10, 35, -45);
+    rectBars(140 + 125, 123, 10, 41, -45);
+    
+    // A
+    rectBars(159 + 158 + 25, 50, 10, 107, 10);
+    rectBars(174 + 158 + 25, 51, 10, 107, -10);
+    rectBars(157 + 158 + 25, 101, 20, 10);
+    
+    // L
+    rectBars(263 + 110 + 30, 49, 10, 106);
+    rectBars(279 + 110 + 30, 145, 26, 10);
+    
+    popMatrix(); // reset matrix
+};
+
+// compile button
+var button = function(x, y, d, page, m, s) {
+    
+    noFill();
+    strokeWeight(d / 12); // weight of stroke
+    
+    if(dist(mouseX, mouseY, x, y) < d / 2) // button collision
+    {
+        fill(255, 255, 255, 100);
+        cursor(HAND);
+        
+        if(clicked)
+        {
+            nextPage = page;
+            
+            transState = "grow";
+            
+            if(page === "game")
+            {
+                // reset
+                spike.Type = [
+                0, 0,
+                floor(random(0, 2)), floor(random(0, 2)), 
+                floor(random(0, 2)), floor(random(0, 2)), 
+                floor(random(0, 2))
+                ];
+                
+                player.Pos = 0;
+                player.Angle = 0;
+                player.Death = false;
+                player.Speed = [1, 1.5];
+                
+                scoreAnim = 0;
+            }
+        }
+    }
+    
+    pushMatrix(); // set matrix for text
+    
+    translate(x, y); // pos
+    
+    rotate(-45); // rotate
+    
+    if(dist(mouseX, mouseY, x, y) < d / 2)
+    {
+        rotate(sin(frameCount * 5) * 5);
+    }
+    
+    // size of text and colors
+    textSize(s);
+    fill(255, 255, 255);
+    
+    // text shade
+    text(m, 0, 0);
+    text(m, 0, 0 - s / 14);
+    text(m, 0, 0 + s / 14);
+    text(m, 0 - s / 14, 0 - s / 14);
+    text(m, 0 - s / 14, 0 + s / 14);
+    text(m, 0 + s / 14, 0 - s / 14);
+    text(m, 0 + s / 14, 0 + s / 14);
+    text(m, 0 + s / 14, 0);
+    text(m, 0 - s / 14, 0);
+    
+    // main text and color
+    fill(colorScheme);
+    text(m, 0, 0);
+    
+    popMatrix(); // reset matrix
+    
+    // cool button split graphcs
+    strokeCap(SQUARE);
+    noFill();
+    stroke(255, 255, 255);
+    arc(x, y, d, d, 90 + 45, 180 + 90 + 45);
+    stroke(colorScheme);
+    arc(x, y, d, d, 90 + 45 + 180, 180 + 90 + 45 + 181);
+    
+    noStroke();
+    
+};
+
+// set program fonts and text allign
+var PROGRAM_CONSTANTS = function() {
+    
+    textFont(createFont("Tahoma Bold"));
+    textAlign(CENTER, CENTER);
+    cursor(ARROW);
+    
+};
+
+// pages
+var
+    menu = function() {
+        
+        openingSceneAnim[0] /= 1.05;
+        openingSceneAnim[1] /= 1.1;
+        openingSceneAnim[2] /= 1.1;
+        openingSceneAnim[3] /= 1.05;
+        
+        
+        // main player
+        pushMatrix();
+        noStroke();
+        translate(623 + openingSceneAnim[3],476 + openingSceneAnim[3]);
+        scale(1.8);
+        rotate(-45);
+        
+        // player base
+        fill(colorScheme);
+        ellipse(0, -153, 50, 50);
+        
+        // eyes
+        fill(255, 255, 255);
+        ellipse(17, -153, 5, 5);
+        ellipse(5, -153, 5, 5);
+    
+        rect(7, -144, 9, 2);
+        
+        // menu particles
+        strokeWeight(3);
+        stroke(43, 179, 6);
+        fill(43, 179, 6, 50);
+        translate(16, -1);
+        rotate(6);
+        for(var i = 0; i < 6; ++i)
+        {
+            rotate(-11);
+            ellipse(-46, -162 - i * 13, 30 - i * 5, 30 - i * 5);
+        }
+        
+        // menu circle
+        stroke(colorScheme);
+        strokeWeight(3);
+        translate(60, 21);
+        rotate(-30);
+        noFill();
+        ellipse(26, -119, 128, 226);
+        
+        noStroke();
+        
+        popMatrix();
+        
+        // split screen
+        pushMatrix();
+        rectMode(CENTER);
+        rotate(-45);
+        fill(colorScheme);
+        rect(openingSceneAnim[0], 159, 722, 392);
+        rectMode(0);
+        popMatrix();
+        
+        // the game
+        pushMatrix();
+        rotate(-45);
+        stroke(255, 255, 255);
+        fill(255, 255, 255);
+        gameLogo(-226 + openingSceneAnim[1], 122, 93);
+        popMatrix();
+        
+        if(!startGame)
+        {
+            // play button
+            button(268 + openingSceneAnim[2], 236 - openingSceneAnim[2], 106, "game", "PLAY", 33);
+            button(185 + 10 + openingSceneAnim[2], 278 + 30 - openingSceneAnim[2], 60, "how", "HOW", 18);
+        }
+        
+        if(startGame)
+        {
+            // play button
+            button(221 + openingSceneAnim[2], 282 - openingSceneAnim[2], 106, "game", "PLAY", 33);
+            button(134 + 10 + openingSceneAnim[2], 329 + 30 - openingSceneAnim[2], 60, "how", "HOW", 18);
+            
+            // score stats
+            textSize(30);
+            pushMatrix();
+            translate(250, 250);
+            rotate(-45);
+            fill(255, 255, 255);
+            text("SCORE " + score, 130 + openingSceneAnim[2] * 2, -17);
+            fill(colorScheme);
+            text("TOP " + best, 130 + openingSceneAnim[2] * 2, 17);
+            popMatrix();
+            
+            if(best < score)
+            {
+                best = score;
+            }
+        }
+    },
+    
+    how = function() {
+        
+        fill(colorScheme);
+        text("1) Press Any Key or Click\nto switch from\ninside and outside the circle!\n\n2) Avoid the spikes!\n\nThe larger the score,\nthe harder it gets! >:D", 250, 261);
+        
+        // back
+        button(461, 461, 60, "menu", "BACK", 18);
+        
+        // cool how screen object
+        pushMatrix();
+        translate(-74, -70);
+        scale(1.3);
+        stroke(colorScheme);
+        spikes();
+        ellipse(250, 250, 250, 250);
+        popMatrix();
+    
+    },
+    
+    game = function() {
+        
+        startGame = true;
+        
+        textSize(25);
+        
+        stroke(colorScheme);
+        
+        strokeCap(ROUND);
+        strokeWeight(4);
+        
+        noFill();
+        ellipse(250, 250, 250, 250);
+        
+        // call player
+        player();
+        
+        // call spikes
+        spikes();
+
+        // make game harder once score is > 10
+        if(score >= 10)
+        {
+            player.Speed[0] += 0.0005;
+            player.Speed[1] += 0.0005;
+        }
+        
+        if(score >= 30)
+        {
+            player.Speed[0] += 0.000015;
+            player.Speed[1] += 0.000015;
+        }
+        
+        if(score >= 80)
+        {
+            player.Speed[0] += 0.000015;
+            player.Speed[1] += 0.000015;
+        }
+        
+        if(score >= 100)
+        {
+            player.Speed[0] += 0.000015;
+            player.Speed[1] += 0.000015;
+        }
+        
+        // speed limits for game hardness
+        if(player.Speed[0] >= 2)
+        {
+            player.Speed[0] = 2;
+        }
+        
+        if(player.Speed[1] >= 2.7)
+        {
+            player.Speed[1] = 2.7;
+        }
+        
+        // reset angle once 360
+        if(player.Angle >= 360)
+        {
+            player.Angle = 0;
+            
+            if(!player.Death)
+            {
+                score ++;
+                scoreAnim += 10;
+            }
+        }
+        
+        // cool animation once scored
+        scoreAnim -= 1;
+        if(scoreAnim <= 0)
+        {
+            scoreAnim = 0;
+        }
+        
+        stroke(49, 212, 4, 100);
+        
+        // circle
+        fill(45, 199, 2, 50);
+        ellipse(250, 250, 70 + scoreAnim, 70 + scoreAnim);
+        
+        // score
+        fill(colorScheme);
+        text(score, 250, 250);
+        
+        if(player.Death)
+        {
+            nextPage = "menu";
+            transState = "grow";
+        }
+    };
+
+draw = function() {
+    
+    PROGRAM_CONSTANTS();
+    
+    background(255, 255, 255);
+    
+    if(scene === "menu") {
+        menu();
+    }
+    if(scene === "how") {
+        how();
+    }
+    if(scene === "game") {
+        game();
+    }
+    
+    clicked = false;
+    
+    if(transState === "shrink")
+    {
+        trans /= 1.2;
+    }
+    
+    if(transState === "grow")
+    {
+        trans += 70;
+    }
+    
+    if(trans >= 800)
+    {
+        transState = "shrink";
+        scene = nextPage;
+        
+        if(nextPage === "game")
+        {
+            score = 0;
+            openingSceneAnim = [3000, 1000, 1000, 1000];
+        }
+    }
+    
+    fill(colorScheme);
+    ellipse(250, 250, trans, trans);
+};
+
+
