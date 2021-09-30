@@ -1,0 +1,2747 @@
+var SAVE_CODE = ""; //PASTE YOUR SAVE CODE HERE IN BETWEEN THE ""
+
+/**
+
+    PUZZLE BALL SORT
+    
+    @CREDITS
+        + ISAAC EMERALD
+        + PlatformerKing
+        + NitOwl07
+        + Willard
+        + Xacer
+        - Based on Puzzle Ball Sort by Spica Game Studio and Social Gaming
+        
+    @INSTRUCTIONS
+        + Click any tube to move the ball to another tube
+        + A colored ball can be placed on a ball of the same color
+        + A colored ball can also be placed in an empty tube
+        + Max balls that can be placed in a tube is 4
+        + Sort all the balls so that each tube is filled with the same color
+    
+    @SPECIAL_CREDITS
+        + Thanks to Cavan/Loyalty for helping beta test the game and finding bugs!
+        + TectonicHorizon for colorblind mode
+
+**/
+
+////////////// COLORBLIND MODE //////////////
+var colorBlind = false;
+// ^ set this to true if you are color blind
+/////////////////////////////////////////////
+
+
+
+
+
+
+// stop oh noes
+(function() {return this;})().LoopProtector.prototype.leave = function() {};
+
+// set up smooth
+smooth();
+
+// set up better object constructor
+Object.constructor.prototype.new= function () {
+    var obj = Object.create(this.prototype);
+    this.apply(obj, arguments);
+    return obj;
+};
+
+// load font
+var font_inc = createFont("Ink Free Bold", "Times Italic");
+var font_tahoma = createFont("Tahoma Bold");
+
+/** Collaborators and their Links **/
+var collabMembers = {
+    'ISAAC EMERALD': 'www.khanacademy.org/profile/IsaacEmerald/projects',
+    'PlatformerKing': 'www.khanacademy.org/profile/PlatformerKing/projects',
+    'NitOwl007': 'www.khanacademy.org/profile/OnlyOwl1/projects',
+    'Willard': 'www.khanacademy.org/profile/willllard/projects',
+    'Xacer': 'https://www.khanacademy.org/profile/xacer/projects',
+}; //Check out their projects!
+
+/** Declare Local Variables **/
+var moves = [], unMoves = [];
+var levelMap;
+var scene = "menu",
+    animComplete = 300,
+    levelsCompleted = [], 
+    highestLevelCompleted = [], 
+    levelPage = 0,
+    level = 0,
+    colors = 'green.red.blue.pink.grey.orange.aqua.purple.olive'.split('.'),
+    colorValues = {
+        'green': color(96, 213, 122),
+        'red': color(197, 41, 33),
+        'blue': color(6, 57, 176),
+        'pink': color(234, 93, 118),
+        'grey': color(98, 98, 97),
+        'orange': color(231, 140, 63),
+        'aqua': color(85, 162, 230),
+        'purple': color(113, 42, 144),
+        'olive': color(106, 132, 20),
+    },
+    colorblindValues = {
+        'green': color(0, 255, 128),
+        'red': color(168, 6, 0),
+        'blue': color(0, 81, 255),
+        'pink': color(255, 0, 47),
+        'grey': color(247, 247, 247),
+        'orange': color(255, 157, 0),
+        'aqua': color(0, 230, 255),
+        'purple': color(166, 17, 235),
+        'olive': color(170, 207, 37),
+    };
+var startAnim = [-600, 600, 600, 600, 600];
+
+/** Confetti Animation  **/
+var confetti = [];
+var Confetti = function(el) {
+    this.x = random(el.x, el.x + el.w);
+    this.y = el.y + 20;
+    this.z = random(0, 1);
+    this.r = 0;
+    this.flip = 0;
+    
+    this.color = colors[floor(random(colors.length))];
+    
+    this.xVel = random(-3, 3);
+    this.yVel = random(-20, -10);
+    this.rVel = random(-3, 3);
+    this.flipVel = random(-3, 3);
+    this.gravity = random(0.5, 1);
+};
+Confetti.new = function(el) {
+    var obj = Object.create(Confetti.prototype);
+    Confetti.apply(obj, arguments);
+    return obj;
+};
+Confetti.prototype.update = function() {
+    this.x += this.xVel;
+    this.y += this.yVel;
+    this.r += this.rVel;
+    this.flip += this.flipVel;
+    this.yVel += this.gravity;
+};
+Confetti.prototype.display = function() {
+    this.update();
+    pushMatrix();
+    translate(this.x, this.y);
+    rotate(this.r);
+    noStroke();
+    fill(colorValues[this.color]);
+    rect(0, 0, 15 * sin(this.flip), 10 * cos(this.flip * 3));
+    popMatrix();
+};
+
+/** Function for Declaring Main Colors in game **/
+var colorPiece = function(change, x, y, pieceState){
+    
+    fill(255, 255, 255);
+    
+    fill(colorBlind ? colorblindValues[change] : colorValues[change]);
+    
+    
+    if(pieceState)
+    {
+        noStroke();
+        ellipse(x, y, 35, 35);
+        
+        fill(0, 0, 0, 20);
+        ellipse(x, y, 25, 25);
+        
+        if (colorBlind) {
+            strokeWeight(5);
+            stroke(0);
+            var a = Object.keys(colorValues).indexOf(change) * 40;
+            
+            line(
+                x - cos(a) * 5, 
+                y - sin(a) * 5, 
+                x + cos(a) * 5, 
+                y + sin(a) * 5);
+            
+        }
+    }
+};
+
+/** Clicked State **/
+var clicked = false;
+mouseClicked = function(){
+    clicked = true;
+};
+
+/** Main Tube Function **/
+var picked = false, pickedColor = "green", pickedHolder = null;
+var ballHolder = function(colors){
+    this.x = 0;  this.y = 0;
+    this.w = 43;  this.h = 150;
+    this.colors = colors;
+    this.anim = false;
+    this.completed = false;
+    this.animY = 0;
+    this.dispBall = colors.length;
+    this.trans = false;
+};
+ballHolder.new = function(colors) {
+    var obj = Object.create(ballHolder.prototype);
+    ballHolder.apply(obj, arguments);
+    return obj;
+};
+
+/** Automatically Organize Tube Positions for a more Professional Look **/
+var calcPos = function(num, max, spacingX, spacingY) {
+    var positions = [];
+    for(var i = 0; i < num; i++) {
+        positions.push({
+            x: (width / 2) +
+            ((i % max) *
+            spacingX) -
+            ((max - 1) *
+            spacingX) / 2 +
+            (floor(i / max) >= floor(num/max) ?
+            (max) *
+            spacingX / 2 -
+            ((num % max) *
+            spacingX / 2)
+            : 0),
+            y: floor(i / max) * spacingY
+        });
+    }
+    return positions;
+};
+
+/** Encode User's Save String by Xacer **/
+function encode (saveString) {
+    var nums = [];
+    for (var i = 0; i < 10; i ++) {
+        var num = 0;
+        for (var j = 0; j < 10; j ++) {
+            num |= saveString[i * 10 + j] << j;
+        }
+        nums[i] = num;
+    }
+    return nums.join(".");
+}
+function decode (code) {
+    var nums = code.split(".");
+    var saveString = [];
+    for (var i = 0; i < 10; i ++) {
+        var num = nums[i];
+        for (var j = 0; j < 10; j ++) {
+            saveString[i * 10 + j] = num >> j & 1;
+        }
+    }
+    return saveString;
+}
+
+/** Levels **/
+var createLevels = function() {
+    levelMap = [
+    {
+        maxPerRow: 2,
+        bringDown: 118,
+        holders: [
+            ballHolder.new("orange".split(".")),
+            ballHolder.new("orange.orange.orange".split(".")),
+        ],
+    }, // level 1
+    {
+        maxPerRow: 3,
+        bringDown: 118,
+        holders: [
+            ballHolder.new("blue.orange.blue.orange".split(".")),
+            ballHolder.new("orange.blue.orange.blue".split(".")),
+            ballHolder.new([]),
+        ],
+    }, // level 2
+    {
+        maxPerRow: 5,
+        bringDown: 118,
+        holders: [
+            ballHolder.new("blue.orange.red.blue".split(".")),
+            ballHolder.new("orange.orange.red.blue".split(".")),
+            ballHolder.new("red.blue.orange.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 3
+    {
+        maxPerRow: 5,
+        bringDown: 118,
+        holders: [
+            ballHolder.new("blue.red.orange.orange".split(".")),
+            ballHolder.new("blue.red.blue.red".split(".")),
+            ballHolder.new("orange.blue.red.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 4
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.orange.blue.pink".split(".")),
+            ballHolder.new("orange.green.blue.pink".split(".")),
+            ballHolder.new("pink.red.orange.red".split(".")),
+            ballHolder.new("orange.pink.red.blue".split(".")),
+            ballHolder.new("green.green.red.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 5
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.green.green.green".split(".")),
+            ballHolder.new("orange.red.pink.green".split(".")),
+            ballHolder.new("pink.orange.red.orange".split(".")),
+            ballHolder.new("blue.pink.orange.pink".split(".")),
+            ballHolder.new("blue.blue.blue.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 6
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.orange.red.orange".split(".")),
+            ballHolder.new("blue.blue.red.orange".split(".")),
+            ballHolder.new("pink.pink.blue.orange".split(".")),
+            ballHolder.new("green.pink.red.blue".split(".")),
+            ballHolder.new("green.red.green.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 7
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.orange.green.blue".split(".")),
+            ballHolder.new("orange.pink.pink.orange".split(".")),
+            ballHolder.new("pink.red.blue.red".split(".")),
+            ballHolder.new("blue.red.green.pink".split(".")),
+            ballHolder.new("blue.green.red.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 8
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("pink.red.blue.pink".split(".")),
+            ballHolder.new("red.green.green.orange".split(".")),
+            ballHolder.new("red.orange.orange.pink".split(".")),
+            ballHolder.new("pink.red.green.blue".split(".")),
+            ballHolder.new("green.orange.blue.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 9
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("pink.blue.green.blue".split(".")),
+            ballHolder.new("orange.grey.pink.red".split(".")),
+            ballHolder.new("blue.aqua.aqua.green".split(".")),
+            ballHolder.new("pink.orange.orange.green".split(".")),
+            ballHolder.new("grey.grey.green.red".split(".")),
+            ballHolder.new("blue.red.aqua.aqua".split(".")),
+            ballHolder.new("red.pink.orange.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 10
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.pink.blue.aqua".split(".")),
+            ballHolder.new("pink.pink.green.aqua".split(".")),
+            ballHolder.new("orange.orange.grey.orange".split(".")),
+            ballHolder.new("aqua.red.pink.orange".split(".")),
+            ballHolder.new("blue.green.red.grey".split(".")),
+            ballHolder.new("grey.blue.red.red".split(".")),
+            ballHolder.new("grey.aqua.green.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 11
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.pink.green.green".split(".")),
+            ballHolder.new("orange.blue.pink.blue".split(".")),
+            ballHolder.new("blue.orange.red.green".split(".")),
+            ballHolder.new("orange.green.red.pink".split(".")),
+            ballHolder.new("red.orange.red.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 12
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.pink.green.red".split(".")),
+            ballHolder.new("orange.green.green.aqua".split(".")),
+            ballHolder.new("pink.grey.orange.red".split(".")),
+            ballHolder.new("green.red.blue.aqua".split(".")),
+            ballHolder.new("aqua.pink.grey.aqua".split(".")),
+            ballHolder.new("pink.orange.blue.grey".split(".")),
+            ballHolder.new("grey.red.blue.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 13
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.blue.blue.blue".split(".")),
+            ballHolder.new("blue.grey.pink.orange".split(".")),
+            ballHolder.new("grey.orange.grey.green".split(".")),
+            ballHolder.new("red.orange.green.pink".split(".")),
+            ballHolder.new("red.aqua.pink.red".split(".")),
+            ballHolder.new("orange.aqua.green.aqua".split(".")),
+            ballHolder.new("pink.green.aqua.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 14
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.green.green.orange".split(".")),
+            ballHolder.new("pink.blue.red.pink".split(".")),
+            ballHolder.new("pink.blue.pink.orange".split(".")),
+            ballHolder.new("red.red.orange.blue".split(".")),
+            ballHolder.new("orange.green.red.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 15
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.pink.pink.red".split(".")),
+            ballHolder.new("aqua.red.blue.red".split(".")),
+            ballHolder.new("orange.green.orange.orange".split(".")),
+            ballHolder.new("grey.blue.green.grey".split(".")),
+            ballHolder.new("green.aqua.grey.orange".split(".")),
+            ballHolder.new("aqua.grey.pink.aqua".split(".")),
+            ballHolder.new("pink.blue.blue.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 16
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.grey.blue.aqua".split(".")),
+            ballHolder.new("pink.blue.red.green".split(".")),
+            ballHolder.new("blue.pink.green.blue".split(".")),
+            ballHolder.new("aqua.red.grey.orange".split(".")),
+            ballHolder.new("green.orange.aqua.green".split(".")),
+            ballHolder.new("red.pink.orange.red".split(".")),
+            ballHolder.new("orange.pink.grey.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 17
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.orange.blue.red".split(".")),
+            ballHolder.new("orange.pink.red.green".split(".")),
+            ballHolder.new("orange.blue.red.green".split(".")),
+            ballHolder.new("pink.blue.blue.green".split(".")),
+            ballHolder.new("pink.pink.red.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 18
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.red.pink.pink".split(".")),
+            ballHolder.new("green.aqua.pink.aqua".split(".")),
+            ballHolder.new("blue.orange.grey.grey".split(".")),
+            ballHolder.new("orange.pink.green.grey".split(".")),
+            ballHolder.new("blue.green.aqua.red".split(".")),
+            ballHolder.new("blue.blue.aqua.grey".split(".")),
+            ballHolder.new("orange.orange.red.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 19
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.blue.orange.pink".split(".")),
+            ballHolder.new("orange.pink.aqua.pink".split(".")),
+            ballHolder.new("grey.red.grey.green".split(".")),
+            ballHolder.new("red.green.aqua.grey".split(".")),
+            ballHolder.new("blue.blue.aqua.green".split(".")),
+            ballHolder.new("grey.orange.red.aqua".split(".")),
+            ballHolder.new("green.red.orange.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 20
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.red.red.blue".split(".")),
+            ballHolder.new("pink.green.red.orange".split(".")),
+            ballHolder.new("blue.blue.green.red".split(".")),
+            ballHolder.new("green.orange.pink.blue".split(".")),
+            ballHolder.new("orange.pink.green.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 21
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.aqua.blue.green".split(".")),
+            ballHolder.new("grey.red.orange.pink".split(".")),
+            ballHolder.new("red.green.orange.blue".split(".")),
+            ballHolder.new("grey.blue.red.pink".split(".")),
+            ballHolder.new("grey.orange.pink.pink".split(".")),
+            ballHolder.new("green.aqua.blue.aqua".split(".")),
+            ballHolder.new("green.grey.red.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 22
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.red.pink.orange".split(".")),
+            ballHolder.new("pink.red.blue.aqua".split(".")),
+            ballHolder.new("orange.grey.orange.aqua".split(".")),
+            ballHolder.new("pink.green.blue.aqua".split(".")),
+            ballHolder.new("pink.grey.red.aqua".split(".")),
+            ballHolder.new("grey.green.green.red".split(".")),
+            ballHolder.new("blue.blue.orange.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 23
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.blue.blue.blue".split(".")),
+            ballHolder.new("green.green.orange.orange".split(".")),
+            ballHolder.new("green.red.pink.orange".split(".")),
+            ballHolder.new("red.green.orange.pink".split(".")),
+            ballHolder.new("pink.red.pink.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 24
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.blue.grey.pink".split(".")),
+            ballHolder.new("aqua.red.grey.pink".split(".")),
+            ballHolder.new("red.red.green.blue".split(".")),
+            ballHolder.new("green.aqua.aqua.orange".split(".")),
+            ballHolder.new("green.orange.grey.orange".split(".")),
+            ballHolder.new("orange.pink.grey.red".split(".")),
+            ballHolder.new("blue.aqua.pink.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 25
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.red.aqua.aqua".split(".")),
+            ballHolder.new("green.pink.pink.green".split(".")),
+            ballHolder.new("grey.blue.orange.green".split(".")),
+            ballHolder.new("pink.blue.grey.red".split(".")),
+            ballHolder.new("orange.grey.pink.green".split(".")),
+            ballHolder.new("red.red.orange.aqua".split(".")),
+            ballHolder.new("aqua.blue.blue.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 26
+    {
+        maxPerRow: 4,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.orange.red.pink".split(".")),
+            ballHolder.new("red.green.green.blue".split(".")),
+            ballHolder.new("orange.red.pink.pink".split(".")),
+            ballHolder.new("pink.blue.blue.green".split(".")),
+            ballHolder.new("blue.red.green.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 27
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.grey.aqua.blue".split(".")),
+            ballHolder.new("pink.pink.red.pink".split(".")),
+            ballHolder.new("orange.grey.green.grey".split(".")),
+            ballHolder.new("green.blue.pink.red".split(".")),
+            ballHolder.new("blue.blue.aqua.grey".split(".")),
+            ballHolder.new("red.orange.orange.aqua".split(".")),
+            ballHolder.new("aqua.green.green.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 28
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.aqua.pink.orange".split(".")),
+            ballHolder.new("aqua.green.green.pink".split(".")),
+            ballHolder.new("blue.orange.blue.orange".split(".")),
+            ballHolder.new("pink.aqua.green.blue".split(".")),
+            ballHolder.new("grey.red.green.blue".split(".")),
+            ballHolder.new("aqua.grey.grey.red".split(".")),
+            ballHolder.new("red.orange.red.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 29
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.pink.pink.pink".split(".")),
+            ballHolder.new("blue.blue.aqua.green".split(".")),
+            ballHolder.new("orange.red.blue.pink".split(".")),
+            ballHolder.new("red.grey.orange.green".split(".")),
+            ballHolder.new("red.grey.aqua.grey".split(".")),
+            ballHolder.new("blue.aqua.green.aqua".split(".")),
+            ballHolder.new("grey.red.orange.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 30
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.green.pink.purple".split(".")),
+            ballHolder.new("aqua.purple.olive.blue".split(".")),
+            ballHolder.new("blue.grey.green.orange".split(".")),
+            ballHolder.new("pink.orange.orange.aqua".split(".")),
+            ballHolder.new("grey.red.red.pink".split(".")),
+            ballHolder.new("blue.orange.olive.green".split(".")),
+            ballHolder.new("green.red.purple.aqua".split(".")),
+            ballHolder.new("grey.olive.red.olive".split(".")),
+            ballHolder.new("pink.aqua.grey.purple".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 31
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.orange.pink.orange".split(".")),
+            ballHolder.new("orange.blue.purple.grey".split(".")),
+            ballHolder.new("purple.grey.red.pink".split(".")),
+            ballHolder.new("aqua.olive.grey.red".split(".")),
+            ballHolder.new("green.blue.red.olive".split(".")),
+            ballHolder.new("grey.pink.olive.red".split(".")),
+            ballHolder.new("aqua.green.orange.green".split(".")),
+            ballHolder.new("blue.aqua.aqua.purple".split(".")),
+            ballHolder.new("olive.purple.pink.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 32
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.green.green.red".split(".")),
+            ballHolder.new("aqua.blue.orange.pink".split(".")),
+            ballHolder.new("grey.grey.pink.blue".split(".")),
+            ballHolder.new("aqua.green.aqua.orange".split(".")),
+            ballHolder.new("green.orange.aqua.blue".split(".")),
+            ballHolder.new("pink.grey.grey.red".split(".")),
+            ballHolder.new("pink.blue.orange.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 33
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("purple.red.blue.olive".split(".")),
+            ballHolder.new("grey.blue.orange.orange".split(".")),
+            ballHolder.new("grey.green.grey.green".split(".")),
+            ballHolder.new("purple.olive.aqua.purple".split(".")),
+            ballHolder.new("aqua.red.red.aqua".split(".")),
+            ballHolder.new("blue.pink.grey.pink".split(".")),
+            ballHolder.new("orange.red.pink.blue".split(".")),
+            ballHolder.new("orange.pink.aqua.olive".split(".")),
+            ballHolder.new("olive.green.purple.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 34
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.pink.red.pink".split(".")),
+            ballHolder.new("blue.green.pink.purple".split(".")),
+            ballHolder.new("aqua.purple.olive.blue".split(".")),
+            ballHolder.new("aqua.orange.olive.red".split(".")),
+            ballHolder.new("aqua.orange.red.grey".split(".")),
+            ballHolder.new("grey.orange.purple.olive".split(".")),
+            ballHolder.new("blue.aqua.purple.orange".split(".")),
+            ballHolder.new("olive.red.blue.pink".split(".")),
+            ballHolder.new("green.grey.green.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 35
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.red.grey.blue".split(".")),
+            ballHolder.new("green.red.blue.green".split(".")),
+            ballHolder.new("green.blue.aqua.pink".split(".")),
+            ballHolder.new("red.red.green.pink".split(".")),
+            ballHolder.new("grey.aqua.orange.pink".split(".")),
+            ballHolder.new("grey.orange.pink.aqua".split(".")),
+            ballHolder.new("orange.orange.blue.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 36
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.green.blue.olive".split(".")),
+            ballHolder.new("grey.purple.green.green".split(".")),
+            ballHolder.new("orange.grey.red.pink".split(".")),
+            ballHolder.new("aqua.aqua.purple.olive".split(".")),
+            ballHolder.new("olive.blue.red.aqua".split(".")),
+            ballHolder.new("red.blue.orange.red".split(".")),
+            ballHolder.new("pink.purple.aqua.grey".split(".")),
+            ballHolder.new("pink.orange.orange.olive".split(".")),
+            ballHolder.new("green.pink.purple.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 37
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.aqua.olive.aqua".split(".")),
+            ballHolder.new("blue.red.olive.purple".split(".")),
+            ballHolder.new("grey.purple.blue.blue".split(".")),
+            ballHolder.new("red.pink.orange.green".split(".")),
+            ballHolder.new("grey.green.pink.red".split(".")),
+            ballHolder.new("orange.green.green.olive".split(".")),
+            ballHolder.new("olive.grey.purple.red".split(".")),
+            ballHolder.new("purple.grey.pink.orange".split(".")),
+            ballHolder.new("orange.aqua.aqua.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 38
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.aqua.pink.green".split(".")),
+            ballHolder.new("red.orange.grey.pink".split(".")),
+            ballHolder.new("aqua.blue.blue.orange".split(".")),
+            ballHolder.new("pink.orange.aqua.red".split(".")),
+            ballHolder.new("pink.blue.green.orange".split(".")),
+            ballHolder.new("grey.green.aqua.red".split(".")),
+            ballHolder.new("green.grey.red.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 39
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("olive.pink.grey.orange".split(".")),
+            ballHolder.new("orange.green.aqua.purple".split(".")),
+            ballHolder.new("pink.olive.blue.green".split(".")),
+            ballHolder.new("pink.aqua.aqua.grey".split(".")),
+            ballHolder.new("blue.olive.pink.blue".split(".")),
+            ballHolder.new("red.purple.blue.red".split(".")),
+            ballHolder.new("aqua.green.purple.grey".split(".")),
+            ballHolder.new("grey.green.red.olive".split(".")),
+            ballHolder.new("orange.red.orange.purple".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 40
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.olive.purple.pink".split(".")),
+            ballHolder.new("purple.green.blue.red".split(".")),
+            ballHolder.new("blue.green.aqua.blue".split(".")),
+            ballHolder.new("orange.red.red.aqua".split(".")),
+            ballHolder.new("pink.purple.grey.purple".split(".")),
+            ballHolder.new("olive.blue.aqua.grey".split(".")),
+            ballHolder.new("grey.orange.olive.green".split(".")),
+            ballHolder.new("red.pink.olive.pink".split(".")),
+            ballHolder.new("aqua.green.grey.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 41
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("pink.orange.green.red".split(".")),
+            ballHolder.new("orange.aqua.blue.pink".split(".")),
+            ballHolder.new("orange.grey.green.pink".split(".")),
+            ballHolder.new("pink.grey.red.green".split(".")),
+            ballHolder.new("aqua.grey.grey.aqua".split(".")),
+            ballHolder.new("green.red.blue.orange".split(".")),
+            ballHolder.new("blue.aqua.red.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 42
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.orange.green.aqua".split(".")),
+            ballHolder.new("pink.purple.grey.olive".split(".")),
+            ballHolder.new("aqua.grey.green.pink".split(".")),
+            ballHolder.new("olive.orange.orange.green".split(".")),
+            ballHolder.new("red.orange.purple.red".split(".")),
+            ballHolder.new("pink.blue.purple.purple".split(".")),
+            ballHolder.new("olive.aqua.blue.grey".split(".")),
+            ballHolder.new("blue.red.aqua.pink".split(".")),
+            ballHolder.new("grey.blue.olive.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 43
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.pink.aqua.olive".split(".")),
+            ballHolder.new("pink.aqua.aqua.blue".split(".")),
+            ballHolder.new("red.orange.red.red".split(".")),
+            ballHolder.new("grey.purple.grey.olive".split(".")),
+            ballHolder.new("aqua.pink.olive.green".split(".")),
+            ballHolder.new("purple.purple.orange.green".split(".")),
+            ballHolder.new("red.orange.grey.olive".split(".")),
+            ballHolder.new("green.blue.blue.orange".split(".")),
+            ballHolder.new("blue.pink.purple.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 44
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.green.grey.green".split(".")),
+            ballHolder.new("pink.red.orange.blue".split(".")),
+            ballHolder.new("blue.orange.grey.green".split(".")),
+            ballHolder.new("pink.blue.aqua.blue".split(".")),
+            ballHolder.new("red.red.pink.aqua".split(".")),
+            ballHolder.new("orange.orange.grey.red".split(".")),
+            ballHolder.new("green.grey.pink.aqua".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 45
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.purple.green.orange".split(".")),
+            ballHolder.new("olive.aqua.blue.grey".split(".")),
+            ballHolder.new("orange.olive.blue.aqua".split(".")),
+            ballHolder.new("green.grey.olive.red".split(".")),
+            ballHolder.new("purple.green.purple.pink".split(".")),
+            ballHolder.new("pink.aqua.red.purple".split(".")),
+            ballHolder.new("pink.aqua.red.pink".split(".")),
+            ballHolder.new("green.grey.orange.olive".split(".")),
+            ballHolder.new("red.orange.blue.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 46
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.purple.blue.olive".split(".")),
+            ballHolder.new("olive.orange.red.blue".split(".")),
+            ballHolder.new("aqua.olive.grey.pink".split(".")),
+            ballHolder.new("pink.green.red.orange".split(".")),
+            ballHolder.new("aqua.aqua.green.orange".split(".")),
+            ballHolder.new("grey.grey.orange.purple".split(".")),
+            ballHolder.new("green.blue.blue.red".split(".")),
+            ballHolder.new("olive.aqua.pink.purple".split(".")),
+            ballHolder.new("grey.red.purple.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 47
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.red.green.orange".split(".")),
+            ballHolder.new("aqua.green.blue.blue".split(".")),
+            ballHolder.new("grey.orange.red.aqua".split(".")),
+            ballHolder.new("green.pink.pink.blue".split(".")),
+            ballHolder.new("pink.red.grey.orange".split(".")),
+            ballHolder.new("red.grey.aqua.orange".split(".")),
+            ballHolder.new("blue.green.grey.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 48
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.aqua.red.pink".split(".")),
+            ballHolder.new("blue.blue.blue.green".split(".")),
+            ballHolder.new("blue.red.orange.green".split(".")),
+            ballHolder.new("orange.red.orange.aqua".split(".")),
+            ballHolder.new("aqua.pink.grey.grey".split(".")),
+            ballHolder.new("olive.olive.purple.orange".split(".")),
+            ballHolder.new("grey.olive.green.aqua".split(".")),
+            ballHolder.new("olive.pink.pink.purple".split(".")),
+            ballHolder.new("purple.purple.red.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 49
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.purple.green.orange".split(".")),
+            ballHolder.new("red.pink.pink.pink".split(".")),
+            ballHolder.new("aqua.green.purple.green".split(".")),
+            ballHolder.new("blue.aqua.orange.grey".split(".")),
+            ballHolder.new("grey.aqua.purple.blue".split(".")),
+            ballHolder.new("blue.aqua.olive.pink".split(".")),
+            ballHolder.new("orange.red.purple.green".split(".")),
+            ballHolder.new("red.olive.grey.olive".split(".")),
+            ballHolder.new("red.blue.orange.olive".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 50
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.pink.orange.green".split(".")),
+            ballHolder.new("pink.red.green.aqua".split(".")),
+            ballHolder.new("red.aqua.pink.aqua".split(".")),
+            ballHolder.new("orange.blue.grey.green".split(".")),
+            ballHolder.new("orange.grey.orange.red".split(".")),
+            ballHolder.new("grey.grey.blue.red".split(".")),
+            ballHolder.new("aqua.pink.green.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 51
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.pink.pink.green".split(".")),
+            ballHolder.new("aqua.aqua.grey.blue".split(".")),
+            ballHolder.new("olive.purple.grey.grey".split(".")),
+            ballHolder.new("red.blue.olive.aqua".split(".")),
+            ballHolder.new("blue.red.orange.green".split(".")),
+            ballHolder.new("green.purple.olive.green".split(".")),
+            ballHolder.new("red.orange.purple.purple".split(".")),
+            ballHolder.new("blue.orange.aqua.orange".split(".")),
+            ballHolder.new("pink.grey.pink.olive".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 52
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.olive.green.blue".split(".")),
+            ballHolder.new("green.grey.aqua.purple".split(".")),
+            ballHolder.new("green.pink.purple.purple".split(".")),
+            ballHolder.new("grey.aqua.aqua.olive".split(".")),
+            ballHolder.new("pink.blue.grey.blue".split(".")),
+            ballHolder.new("red.grey.red.red".split(".")),
+            ballHolder.new("red.pink.purple.orange".split(".")),
+            ballHolder.new("olive.orange.blue.pink".split(".")),
+            ballHolder.new("olive.orange.orange.aqua".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 53
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.green.blue.green".split(".")),
+            ballHolder.new("green.blue.red.orange".split(".")),
+            ballHolder.new("pink.grey.grey.blue".split(".")),
+            ballHolder.new("orange.aqua.green.pink".split(".")),
+            ballHolder.new("red.pink.blue.grey".split(".")),
+            ballHolder.new("orange.aqua.pink.orange".split(".")),
+            ballHolder.new("red.red.aqua.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 54
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.red.blue.red".split(".")),
+            ballHolder.new("purple.blue.orange.blue".split(".")),
+            ballHolder.new("aqua.aqua.green.pink".split(".")),
+            ballHolder.new("aqua.grey.pink.green".split(".")),
+            ballHolder.new("red.red.olive.purple".split(".")),
+            ballHolder.new("grey.pink.olive.grey".split(".")),
+            ballHolder.new("purple.blue.orange.purple".split(".")),
+            ballHolder.new("green.olive.orange.pink".split(".")),
+            ballHolder.new("olive.aqua.green.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 55
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.pink.aqua.orange".split(".")),
+            ballHolder.new("grey.purple.red.pink".split(".")),
+            ballHolder.new("pink.olive.green.blue".split(".")),
+            ballHolder.new("green.blue.blue.orange".split(".")),
+            ballHolder.new("purple.aqua.orange.grey".split(".")),
+            ballHolder.new("grey.purple.aqua.olive".split(".")),
+            ballHolder.new("aqua.pink.grey.red".split(".")),
+            ballHolder.new("orange.green.olive.purple".split(".")),
+            ballHolder.new("green.olive.blue.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 56
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.pink.green.grey".split(".")),
+            ballHolder.new("pink.aqua.red.blue".split(".")),
+            ballHolder.new("blue.blue.orange.red".split(".")),
+            ballHolder.new("orange.green.pink.orange".split(".")),
+            ballHolder.new("green.green.red.orange".split(".")),
+            ballHolder.new("red.grey.aqua.aqua".split(".")),
+            ballHolder.new("grey.blue.aqua.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 57
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("olive.blue.blue.purple".split(".")),
+            ballHolder.new("red.pink.purple.grey".split(".")),
+            ballHolder.new("green.aqua.red.grey".split(".")),
+            ballHolder.new("aqua.pink.red.pink".split(".")),
+            ballHolder.new("green.blue.orange.olive".split(".")),
+            ballHolder.new("green.orange.olive.purple".split(".")),
+            ballHolder.new("orange.blue.grey.grey".split(".")),
+            ballHolder.new("purple.red.pink.orange".split(".")),
+            ballHolder.new("green.olive.aqua.aqua".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 58
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.aqua.olive.grey".split(".")),
+            ballHolder.new("green.olive.aqua.blue".split(".")),
+            ballHolder.new("olive.red.purple.aqua".split(".")),
+            ballHolder.new("red.orange.red.orange".split(".")),
+            ballHolder.new("grey.grey.green.pink".split(".")),
+            ballHolder.new("purple.pink.aqua.blue".split(".")),
+            ballHolder.new("blue.green.olive.green".split(".")),
+            ballHolder.new("pink.blue.grey.pink".split(".")),
+            ballHolder.new("orange.purple.red.purple".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 59
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.blue.red.green".split(".")),
+            ballHolder.new("green.green.pink.green".split(".")),
+            ballHolder.new("aqua.blue.pink.orange".split(".")),
+            ballHolder.new("grey.aqua.grey.red".split(".")),
+            ballHolder.new("blue.aqua.pink.red".split(".")),
+            ballHolder.new("aqua.orange.blue.grey".split(".")),
+            ballHolder.new("pink.orange.orange.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 60
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.green.green.olive".split(".")),
+            ballHolder.new("orange.olive.grey.aqua".split(".")),
+            ballHolder.new("blue.pink.green.olive".split(".")),
+            ballHolder.new("grey.red.green.aqua".split(".")),
+            ballHolder.new("orange.orange.blue.purple".split(".")),
+            ballHolder.new("aqua.purple.purple.grey".split(".")),
+            ballHolder.new("red.red.olive.blue".split(".")),
+            ballHolder.new("red.purple.aqua.pink".split(".")),
+            ballHolder.new("orange.pink.grey.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 61
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("purple.olive.green.orange".split(".")),
+            ballHolder.new("red.purple.olive.purple".split(".")),
+            ballHolder.new("red.red.orange.green".split(".")),
+            ballHolder.new("olive.pink.aqua.purple".split(".")),
+            ballHolder.new("red.pink.blue.green".split(".")),
+            ballHolder.new("olive.blue.grey.grey".split(".")),
+            ballHolder.new("pink.aqua.blue.orange".split(".")),
+            ballHolder.new("aqua.grey.blue.orange".split(".")),
+            ballHolder.new("aqua.grey.pink.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 62
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.orange.blue.pink".split(".")),
+            ballHolder.new("grey.blue.red.grey".split(".")),
+            ballHolder.new("aqua.aqua.grey.green".split(".")),
+            ballHolder.new("aqua.red.blue.red".split(".")),
+            ballHolder.new("pink.grey.aqua.pink".split(".")),
+            ballHolder.new("blue.green.pink.red".split(".")),
+            ballHolder.new("orange.orange.orange.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 63
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.grey.pink.pink".split(".")),
+            ballHolder.new("purple.olive.orange.red".split(".")),
+            ballHolder.new("olive.grey.red.green".split(".")),
+            ballHolder.new("orange.purple.red.olive".split(".")),
+            ballHolder.new("blue.olive.purple.pink".split(".")),
+            ballHolder.new("aqua.blue.purple.blue".split(".")),
+            ballHolder.new("aqua.pink.green.green".split(".")),
+            ballHolder.new("aqua.green.blue.orange".split(".")),
+            ballHolder.new("aqua.red.grey.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 64
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.green.orange.pink".split(".")),
+            ballHolder.new("green.blue.blue.grey".split(".")),
+            ballHolder.new("pink.aqua.red.purple".split(".")),
+            ballHolder.new("olive.red.grey.green".split(".")),
+            ballHolder.new("grey.pink.olive.orange".split(".")),
+            ballHolder.new("purple.purple.aqua.olive".split(".")),
+            ballHolder.new("grey.aqua.red.red".split(".")),
+            ballHolder.new("orange.pink.olive.purple".split(".")),
+            ballHolder.new("blue.aqua.green.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 65
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.pink.aqua.red".split(".")),
+            ballHolder.new("grey.pink.aqua.blue".split(".")),
+            ballHolder.new("orange.green.pink.red".split(".")),
+            ballHolder.new("grey.green.blue.aqua".split(".")),
+            ballHolder.new("aqua.blue.orange.green".split(".")),
+            ballHolder.new("pink.red.orange.orange".split(".")),
+            ballHolder.new("green.grey.blue.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 66
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.olive.red.grey".split(".")),
+            ballHolder.new("pink.green.olive.blue".split(".")),
+            ballHolder.new("pink.red.olive.aqua".split(".")),
+            ballHolder.new("red.grey.orange.orange".split(".")),
+            ballHolder.new("pink.green.red.purple".split(".")),
+            ballHolder.new("purple.green.grey.blue".split(".")),
+            ballHolder.new("orange.purple.aqua.grey".split(".")),
+            ballHolder.new("orange.olive.pink.green".split(".")),
+            ballHolder.new("blue.blue.purple.aqua".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 67
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("pink.orange.pink.green".split(".")),
+            ballHolder.new("aqua.aqua.red.olive".split(".")),
+            ballHolder.new("purple.blue.pink.olive".split(".")),
+            ballHolder.new("red.aqua.purple.blue".split(".")),
+            ballHolder.new("orange.red.red.blue".split(".")),
+            ballHolder.new("grey.purple.grey.green".split(".")),
+            ballHolder.new("blue.olive.olive.green".split(".")),
+            ballHolder.new("pink.orange.grey.orange".split(".")),
+            ballHolder.new("grey.green.aqua.purple".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 68
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.orange.pink.blue".split(".")),
+            ballHolder.new("pink.orange.orange.green".split(".")),
+            ballHolder.new("blue.grey.grey.green".split(".")),
+            ballHolder.new("green.pink.aqua.pink".split(".")),
+            ballHolder.new("grey.blue.green.red".split(".")),
+            ballHolder.new("aqua.aqua.red.red".split(".")),
+            ballHolder.new("blue.aqua.grey.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 69
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.red.pink.aqua".split(".")),
+            ballHolder.new("blue.blue.aqua.green".split(".")),
+            ballHolder.new("blue.pink.aqua.grey".split(".")),
+            ballHolder.new("pink.purple.purple.aqua".split(".")),
+            ballHolder.new("green.olive.olive.orange".split(".")),
+            ballHolder.new("purple.purple.blue.olive".split(".")),
+            ballHolder.new("pink.green.orange.red".split(".")),
+            ballHolder.new("red.grey.grey.orange".split(".")),
+            ballHolder.new("grey.orange.olive.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 70
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.grey.green.grey".split(".")),
+            ballHolder.new("purple.orange.purple.blue".split(".")),
+            ballHolder.new("olive.pink.purple.pink".split(".")),
+            ballHolder.new("orange.orange.red.blue".split(".")),
+            ballHolder.new("blue.blue.olive.olive".split(".")),
+            ballHolder.new("green.aqua.aqua.pink".split(".")),
+            ballHolder.new("green.orange.purple.grey".split(".")),
+            ballHolder.new("grey.aqua.red.olive".split(".")),
+            ballHolder.new("red.pink.aqua.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 71
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.grey.pink.orange".split(".")),
+            ballHolder.new("orange.aqua.grey.pink".split(".")),
+            ballHolder.new("green.orange.blue.green".split(".")),
+            ballHolder.new("blue.aqua.red.blue".split(".")),
+            ballHolder.new("aqua.red.grey.green".split(".")),
+            ballHolder.new("blue.pink.pink.orange".split(".")),
+            ballHolder.new("aqua.green.red.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 72
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.blue.olive.pink".split(".")),
+            ballHolder.new("grey.orange.purple.red".split(".")),
+            ballHolder.new("red.green.grey.green".split(".")),
+            ballHolder.new("blue.blue.green.pink".split(".")),
+            ballHolder.new("orange.olive.red.aqua".split(".")),
+            ballHolder.new("olive.aqua.grey.aqua".split(".")),
+            ballHolder.new("grey.purple.red.purple".split(".")),
+            ballHolder.new("aqua.pink.blue.green".split(".")),
+            ballHolder.new("pink.olive.orange.purple".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 73
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.aqua.blue.aqua".split(".")),
+            ballHolder.new("pink.green.olive.orange".split(".")),
+            ballHolder.new("aqua.grey.pink.pink".split(".")),
+            ballHolder.new("olive.green.purple.blue".split(".")),
+            ballHolder.new("aqua.olive.grey.red".split(".")),
+            ballHolder.new("green.purple.grey.pink".split(".")),
+            ballHolder.new("orange.olive.purple.red".split(".")),
+            ballHolder.new("blue.red.green.orange".split(".")),
+            ballHolder.new("purple.red.grey.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 74
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("grey.pink.aqua.blue".split(".")),
+            ballHolder.new("aqua.orange.green.green".split(".")),
+            ballHolder.new("aqua.red.blue.pink".split(".")),
+            ballHolder.new("grey.green.green.orange".split(".")),
+            ballHolder.new("orange.grey.aqua.blue".split(".")),
+            ballHolder.new("grey.blue.orange.red".split(".")),
+            ballHolder.new("red.pink.pink.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 75
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("pink.green.green.aqua".split(".")),
+            ballHolder.new("purple.purple.blue.aqua".split(".")),
+            ballHolder.new("grey.red.aqua.olive".split(".")),
+            ballHolder.new("green.purple.aqua.grey".split(".")),
+            ballHolder.new("grey.red.pink.olive".split(".")),
+            ballHolder.new("blue.red.red.olive".split(".")),
+            ballHolder.new("blue.grey.pink.orange".split(".")),
+            ballHolder.new("orange.orange.pink.orange".split(".")),
+            ballHolder.new("olive.purple.blue.green".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 76
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.grey.aqua.blue".split(".")),
+            ballHolder.new("grey.red.green.blue".split(".")),
+            ballHolder.new("orange.olive.green.green".split(".")),
+            ballHolder.new("pink.olive.red.olive".split(".")),
+            ballHolder.new("purple.orange.pink.pink".split(".")),
+            ballHolder.new("aqua.orange.orange.grey".split(".")),
+            ballHolder.new("red.red.blue.aqua".split(".")),
+            ballHolder.new("green.olive.purple.purple".split(".")),
+            ballHolder.new("pink.blue.purple.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 77
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.orange.grey.aqua".split(".")),
+            ballHolder.new("green.blue.grey.blue".split(".")),
+            ballHolder.new("orange.aqua.pink.pink".split(".")),
+            ballHolder.new("green.blue.green.aqua".split(".")),
+            ballHolder.new("red.pink.orange.red".split(".")),
+            ballHolder.new("aqua.green.red.orange".split(".")),
+            ballHolder.new("grey.red.pink.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 78
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("purple.aqua.purple.red".split(".")),
+            ballHolder.new("purple.green.blue.red".split(".")),
+            ballHolder.new("blue.blue.olive.grey".split(".")),
+            ballHolder.new("orange.grey.aqua.orange".split(".")),
+            ballHolder.new("purple.aqua.pink.red".split(".")),
+            ballHolder.new("olive.orange.pink.pink".split(".")),
+            ballHolder.new("olive.orange.green.olive".split(".")),
+            ballHolder.new("pink.aqua.grey.green".split(".")),
+            ballHolder.new("green.grey.red.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 79
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.purple.grey.purple".split(".")),
+            ballHolder.new("purple.aqua.aqua.green".split(".")),
+            ballHolder.new("green.green.grey.red".split(".")),
+            ballHolder.new("blue.grey.blue.red".split(".")),
+            ballHolder.new("orange.purple.pink.pink".split(".")),
+            ballHolder.new("aqua.olive.blue.blue".split(".")),
+            ballHolder.new("aqua.red.pink.orange".split(".")),
+            ballHolder.new("grey.green.red.orange".split(".")),
+            ballHolder.new("olive.olive.olive.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 80
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.red.green.orange".split(".")),
+            ballHolder.new("orange.aqua.aqua.green".split(".")),
+            ballHolder.new("blue.blue.red.orange".split(".")),
+            ballHolder.new("aqua.orange.pink.aqua".split(".")),
+            ballHolder.new("grey.grey.blue.grey".split(".")),
+            ballHolder.new("grey.red.green.pink".split(".")),
+            ballHolder.new("pink.blue.green.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 81
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("olive.olive.olive.aqua".split(".")),
+            ballHolder.new("red.purple.orange.grey".split(".")),
+            ballHolder.new("aqua.blue.purple.green".split(".")),
+            ballHolder.new("red.purple.purple.green".split(".")),
+            ballHolder.new("green.blue.pink.red".split(".")),
+            ballHolder.new("blue.pink.aqua.pink".split(".")),
+            ballHolder.new("olive.orange.grey.green".split(".")),
+            ballHolder.new("grey.red.blue.orange".split(".")),
+            ballHolder.new("orange.aqua.pink.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 82
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("purple.grey.olive.aqua".split(".")),
+            ballHolder.new("green.aqua.red.purple".split(".")),
+            ballHolder.new("grey.olive.blue.red".split(".")),
+            ballHolder.new("red.pink.grey.aqua".split(".")),
+            ballHolder.new("olive.pink.purple.olive".split(".")),
+            ballHolder.new("orange.grey.red.blue".split(".")),
+            ballHolder.new("orange.pink.green.pink".split(".")),
+            ballHolder.new("blue.blue.green.green".split(".")),
+            ballHolder.new("aqua.purple.orange.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 83
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.aqua.red.green".split(".")),
+            ballHolder.new("grey.pink.orange.red".split(".")),
+            ballHolder.new("pink.blue.pink.green".split(".")),
+            ballHolder.new("red.red.grey.pink".split(".")),
+            ballHolder.new("grey.aqua.blue.green".split(".")),
+            ballHolder.new("green.grey.aqua.orange".split(".")),
+            ballHolder.new("orange.blue.aqua.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 84
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.green.red.pink".split(".")),
+            ballHolder.new("blue.blue.aqua.pink".split(".")),
+            ballHolder.new("red.purple.green.aqua".split(".")),
+            ballHolder.new("pink.grey.orange.grey".split(".")),
+            ballHolder.new("aqua.grey.olive.pink".split(".")),
+            ballHolder.new("red.orange.green.grey".split(".")),
+            ballHolder.new("red.blue.purple.orange".split(".")),
+            ballHolder.new("blue.purple.olive.purple".split(".")),
+            ballHolder.new("aqua.green.olive.olive".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 85
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.blue.pink.purple".split(".")),
+            ballHolder.new("pink.red.olive.olive".split(".")),
+            ballHolder.new("orange.grey.green.purple".split(".")),
+            ballHolder.new("grey.aqua.blue.red".split(".")),
+            ballHolder.new("red.grey.green.orange".split(".")),
+            ballHolder.new("orange.pink.red.purple".split(".")),
+            ballHolder.new("pink.green.olive.aqua".split(".")),
+            ballHolder.new("green.olive.purple.orange".split(".")),
+            ballHolder.new("blue.grey.blue.aqua".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 86
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.pink.blue.red".split(".")),
+            ballHolder.new("grey.blue.grey.pink".split(".")),
+            ballHolder.new("aqua.pink.green.blue".split(".")),
+            ballHolder.new("green.orange.orange.aqua".split(".")),
+            ballHolder.new("aqua.grey.red.red".split(".")),
+            ballHolder.new("orange.green.red.pink".split(".")),
+            ballHolder.new("green.orange.aqua.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 87
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("pink.aqua.red.orange".split(".")),
+            ballHolder.new("olive.orange.purple.aqua".split(".")),
+            ballHolder.new("pink.olive.grey.aqua".split(".")),
+            ballHolder.new("olive.purple.grey.blue".split(".")),
+            ballHolder.new("red.green.orange.purple".split(".")),
+            ballHolder.new("grey.green.olive.blue".split(".")),
+            ballHolder.new("aqua.red.red.purple".split(".")),
+            ballHolder.new("pink.green.grey.orange".split(".")),
+            ballHolder.new("blue.pink.green.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 88
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.orange.olive.pink".split(".")),
+            ballHolder.new("purple.blue.grey.olive".split(".")),
+            ballHolder.new("aqua.grey.olive.pink".split(".")),
+            ballHolder.new("red.green.aqua.green".split(".")),
+            ballHolder.new("purple.purple.orange.blue".split(".")),
+            ballHolder.new("olive.blue.pink.aqua".split(".")),
+            ballHolder.new("grey.green.orange.blue".split(".")),
+            ballHolder.new("purple.pink.red.green".split(".")),
+            ballHolder.new("grey.aqua.red.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 89
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.orange.red.pink".split(".")),
+            ballHolder.new("blue.blue.aqua.pink".split(".")),
+            ballHolder.new("aqua.green.orange.grey".split(".")),
+            ballHolder.new("grey.red.orange.aqua".split(".")),
+            ballHolder.new("green.aqua.pink.green".split(".")),
+            ballHolder.new("red.blue.green.orange".split(".")),
+            ballHolder.new("blue.grey.grey.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 90
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.red.blue.red".split(".")),
+            ballHolder.new("red.olive.pink.orange".split(".")),
+            ballHolder.new("grey.aqua.grey.red".split(".")),
+            ballHolder.new("olive.green.green.aqua".split(".")),
+            ballHolder.new("pink.olive.orange.purple".split(".")),
+            ballHolder.new("purple.purple.aqua.blue".split(".")),
+            ballHolder.new("orange.pink.pink.green".split(".")),
+            ballHolder.new("olive.blue.purple.green".split(".")),
+            ballHolder.new("grey.blue.aqua.grey".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 91
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("orange.grey.red.green".split(".")),
+            ballHolder.new("pink.pink.aqua.grey".split(".")),
+            ballHolder.new("purple.orange.orange.grey".split(".")),
+            ballHolder.new("aqua.green.blue.red".split(".")),
+            ballHolder.new("purple.blue.green.purple".split(".")),
+            ballHolder.new("blue.olive.pink.grey".split(".")),
+            ballHolder.new("blue.aqua.red.olive".split(".")),
+            ballHolder.new("olive.orange.aqua.purple".split(".")),
+            ballHolder.new("red.green.pink.olive".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 92
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("red.pink.pink.red".split(".")),
+            ballHolder.new("red.grey.green.green".split(".")),
+            ballHolder.new("aqua.orange.aqua.red".split(".")),
+            ballHolder.new("pink.green.blue.blue".split(".")),
+            ballHolder.new("blue.orange.grey.grey".split(".")),
+            ballHolder.new("green.grey.orange.pink".split(".")),
+            ballHolder.new("aqua.aqua.orange.blue".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 93
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("olive.orange.green.blue".split(".")),
+            ballHolder.new("purple.green.red.blue".split(".")),
+            ballHolder.new("aqua.purple.red.olive".split(".")),
+            ballHolder.new("aqua.red.pink.purple".split(".")),
+            ballHolder.new("aqua.pink.olive.blue".split(".")),
+            ballHolder.new("grey.green.grey.purple".split(".")),
+            ballHolder.new("olive.pink.aqua.orange".split(".")),
+            ballHolder.new("blue.grey.green.orange".split(".")),
+            ballHolder.new("red.orange.grey.pink".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 94
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("purple.red.grey.orange".split(".")),
+            ballHolder.new("purple.green.aqua.orange".split(".")),
+            ballHolder.new("red.grey.green.aqua".split(".")),
+            ballHolder.new("blue.olive.grey.red".split(".")),
+            ballHolder.new("blue.blue.orange.pink".split(".")),
+            ballHolder.new("blue.red.purple.pink".split(".")),
+            ballHolder.new("olive.grey.pink.olive".split(".")),
+            ballHolder.new("olive.aqua.orange.green".split(".")),
+            ballHolder.new("purple.pink.green.aqua".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 95
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("green.pink.green.blue".split(".")),
+            ballHolder.new("orange.orange.red.green".split(".")),
+            ballHolder.new("grey.red.grey.orange".split(".")),
+            ballHolder.new("pink.aqua.blue.grey".split(".")),
+            ballHolder.new("pink.blue.grey.aqua".split(".")),
+            ballHolder.new("orange.pink.red.aqua".split(".")),
+            ballHolder.new("red.green.blue.aqua".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 96
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("olive.green.pink.purple".split(".")),
+            ballHolder.new("grey.grey.pink.blue".split(".")),
+            ballHolder.new("olive.orange.purple.red".split(".")),
+            ballHolder.new("grey.blue.aqua.blue".split(".")),
+            ballHolder.new("blue.aqua.green.red".split(".")),
+            ballHolder.new("pink.red.orange.aqua".split(".")),
+            ballHolder.new("aqua.green.orange.red".split(".")),
+            ballHolder.new("green.pink.grey.olive".split(".")),
+            ballHolder.new("purple.olive.purple.orange".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 97
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("blue.green.olive.grey".split(".")),
+            ballHolder.new("aqua.grey.pink.purple".split(".")),
+            ballHolder.new("green.purple.purple.aqua".split(".")),
+            ballHolder.new("purple.olive.green.pink".split(".")),
+            ballHolder.new("aqua.orange.blue.olive".split(".")),
+            ballHolder.new("blue.aqua.grey.pink".split(".")),
+            ballHolder.new("grey.orange.olive.blue".split(".")),
+            ballHolder.new("orange.red.red.orange".split(".")),
+            ballHolder.new("pink.red.green.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 98
+    {
+        maxPerRow: 5,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("aqua.blue.grey.aqua".split(".")),
+            ballHolder.new("pink.green.red.orange".split(".")),
+            ballHolder.new("grey.pink.aqua.green".split(".")),
+            ballHolder.new("orange.grey.aqua.orange".split(".")),
+            ballHolder.new("orange.blue.red.green".split(".")),
+            ballHolder.new("red.blue.green.pink".split(".")),
+            ballHolder.new("grey.pink.blue.red".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 99
+    {
+        maxPerRow: 6,
+        bringDown: 0,
+        holders: [
+            ballHolder.new("pink.orange.purple.green".split(".")),
+            ballHolder.new("aqua.grey.aqua.pink".split(".")),
+            ballHolder.new("blue.pink.orange.green".split(".")),
+            ballHolder.new("pink.olive.red.red".split(".")),
+            ballHolder.new("red.purple.grey.red".split(".")),
+            ballHolder.new("olive.olive.grey.grey".split(".")),
+            ballHolder.new("blue.aqua.blue.green".split(".")),
+            ballHolder.new("purple.orange.blue.orange".split(".")),
+            ballHolder.new("green.purple.olive.aqua".split(".")),
+            ballHolder.new([]),
+            ballHolder.new([]),
+        ],
+    }, // level 100
+
+    
+];
+};
+createLevels();
+
+/** If user hasn't completed level, make it false **/
+for(var i = 1; i < levelMap.length; i++) {
+    highestLevelCompleted[i] = false;
+}
+
+/** Cool Ball Transitions **/
+var trans = [];
+var TransitionPiece = function(fromX, fromY, toX, toY, c, id, id2) {
+    this.x = fromX;
+    this.y = fromY;
+    this.toX = toX;
+    this.toY = toY;
+    this.color = c;
+    this.id = id;
+    this.id2 = id2;
+    this.kil = false;
+    this.level = 0;
+};
+TransitionPiece.new = function(fromX, fromY, toX, toY, c, id, id2) {
+    var obj = Object.create(TransitionPiece.prototype);
+    TransitionPiece.apply(obj, arguments);
+    return obj;
+};
+TransitionPiece.prototype.update = function() {
+    if (this.level < 2) {
+        if (this.y >= levelMap[level].holders[this.id].y - 24) {
+            this.y += ((levelMap[level].holders[this.id].y - 24) - this.y) / 6;
+        }
+        if (dist(this.y, 0, levelMap[level].holders[this.id].y - 24, 0) <= 3 || this.y < levelMap[level].holders[this.id].y - 24) {
+            this.level = 1;
+        }
+    }
+    if (this.level >= 1) {
+        this.x += (this.toX - this.x) / 6;
+        if (dist(this.x, 0, this.toX, 0) <= 3) {
+            this.level = 2;
+        }
+    }
+    if (this.level >= 2) {
+        this.y += (this.toY - this.y) / 6;
+    }
+    
+    if (dist(this.x, this.y, this.toX, this.toY) <= 0.5 && !this.kil) {
+        levelMap[level].holders[this.id].dispBall ++;
+        this.kil = true;
+        levelMap[level].holders[this.id].trans = false;
+    }
+};
+TransitionPiece.prototype.display = function() {
+    this.update();
+    colorPiece(this.color, this.x, this.y, true);
+};
+
+/** Detect if user has won level **/
+var compare = function(a) {
+    
+    if ((a[0] === a[0] && a[1] === a[0] &&
+        a[2] === a[0] && a[3] === a[0] && 
+        a.length === 4) || a.length === 0)
+    { return true; }
+    
+    return false;
+};
+
+/** Tube Prototypes**/
+ballHolder.prototype.draw = function() {
+    
+    // ball holder base
+    noStroke();
+    fill(255, 255, 255);
+    rect(this.x, this.y, this.w, this.h, 200);
+    rect(this.x, this.y, this.w, this.h - 50);
+    rect(this.x - 10, this.y - 3, this.w + 20, this.h - 132, 100);
+    fill(255, 255, 255, 100);
+    rect(this.x - 2, this.y, this.w + 4, this.h + 2, 200);
+    rect(this.x - 12, this.y - 5, this.w + 24, this.h - 127, 100);
+    fill(0, 0, 0);
+    rect(this.x + 2, this.y, this.w - 4, this.h - 2, 200);
+    rect(this.x + 2, this.y + 2, this.w - 4, this.h - 50);
+    rect(this.x - 8, this.y - 1, this.w + 16, this.h - 136, 100);
+    
+    // highlight holder if mouse is over
+    if(mouseX >= this.x && mouseX <= this.x + this.w &&
+       mouseY >= this.y && mouseY <= this.y + this.h)
+    {
+        fill(31, 31, 31);
+        rect(this.x + 2, this.y, this.w - 4, this.h - 2, 200);
+        rect(this.x + 2, this.y + 2, this.w - 4, this.h - 50);
+        rect(this.x - 8, this.y - 1, this.w + 16, this.h - 136, 100);
+    }
+    
+    // colored balls
+    fill(255, 255, 255);
+    for(var i = 0; i < this.colors.length; i ++)
+    {
+        // change color
+        if (this.dispBall > i) {
+            colorPiece(this.colors[i], this.x + this.w / 2, this.y + 127 - i * 36.5, true);
+        }
+    }
+    
+};
+ballHolder.prototype.update = function(id) {
+    
+    // Main Holder
+    var holders = levelMap[level].holders;
+    
+    if(mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.y && mouseY <= this.y + this.h)
+    {
+        var endColor = this.colors[this.colors.length - 1];
+        
+        if(clicked && !picked && this.colors.length > 0 && !compare(this.colors) && !this.trans)
+        {
+            
+            pickedColor = this.colors.pop();
+            this.dispBall --;
+            pickedHolder = this;
+            picked = true;
+            this.animY = this.y + 127 - this.colors.length * 36.5;
+            this.anim = true;
+        }
+        else if(clicked && picked && (endColor === pickedColor || this === pickedHolder || this.colors.length === 0) && this.colors.length !== 4)
+        {
+            this.trans = true;
+            trans.push(TransitionPiece.new(pickedHolder.x + pickedHolder.w / 2, pickedHolder.y - 24, this.x + this.w / 2, this.y + 127 - this.colors.length * 36.5, pickedColor, levelMap[level].holders.indexOf(this), levelMap[level].holders.indexOf(pickedHolder)));
+            this.colors.push(pickedColor);
+            picked = false;
+            if (this !== pickedHolder) {
+                moves.push({
+                    from: holders.indexOf(pickedHolder),
+                    to: holders.indexOf(this),
+                });
+                unMoves = [];
+            }
+            for (var i = 0; i < holders.length; i++)
+            {
+                holders[i].anim = false;
+            }
+        }
+        else if (clicked && picked && ((endColor !== pickedColor) || this.colors.length >= 3) && !pickedHolder.trans && !this.trans && !this.completed)
+        {
+            levelMap[level].holders[levelMap[level].holders.indexOf(pickedHolder)].trans = true;
+            
+            var transData = {
+                x: pickedHolder.x + pickedHolder.w / 2,
+                y: pickedHolder.y - 24,
+                toX: pickedHolder.x + this.w / 2,
+                toY: pickedHolder.y + 127 - pickedHolder.colors.length * 36.5,
+                c: pickedColor,
+                e1: levelMap[level].holders.indexOf(pickedHolder),
+                e2: levelMap[level].holders.indexOf(pickedHolder)
+            };
+            
+            trans.push(TransitionPiece.new(transData.x, transData.y, transData.toX, transData.toY, transData.c, transData.e1, transData.e2));
+            var pickedIndex = levelMap[level].holders.indexOf(pickedHolder);
+            levelMap[level].holders[pickedIndex].colors.push(pickedColor); 
+            levelMap[level].holders[pickedIndex].anim = false;
+            pickedHolder = this;
+            pickedColor = this.colors.pop();
+            this.dispBall --;
+            this.animY = this.y + 127 - this.colors.length * 36.5;
+            levelMap[level].holders[levelMap[level].holders.indexOf(pickedHolder)].trans = true;
+            this.trans = false;
+            this.anim = true;
+        }
+    }
+    
+    if(this.anim)
+    {
+        this.animY += ((this.y - 24) - this.animY) / 6;
+        colorPiece(pickedColor, this.x + this.w / 2, this.animY, true);
+    }
+};
+
+/** Buttons **/
+var Button = function(x, y, w, h, m, s, sceneChange, col, type) {
+    
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.m = m;
+    this.om = m;
+    this.s = s;
+    this.anim = 5;
+    this.sceneChange = sceneChange;
+    this.col = col;
+    this.type = type;
+};
+Button.prototype.draw = function() {
+    
+    var holders = levelMap[level].holders;
+    noStroke();
+    
+    // mouse coll
+    this.locked = !highestLevelCompleted[max(this.sceneChange - 1, 0)];
+    if (this.sceneChange === 0) { // If this is the button for lvl 1...
+        this.locked = false; // unlock that button
+    }
+    if (this.type !== 'lvl') {
+        this.locked = false;
+    }
+    if(mouseX >= this.x && mouseX <= this.x + this.w &&
+    mouseY >= this.y && mouseY <= this.y + this.h && (!this.locked))
+    {
+        cursor(HAND);
+        this.anim /= 1.2;
+        if(clicked)
+        {
+            switch(this.type)
+            {
+                case "s":
+                    scene = this.sceneChange;
+                    break;
+                case "l":
+                    trans = [];
+                    level ++;
+                    moves = [];
+                    unMoves = [];
+                    break;
+                case "u":
+                    if (moves.length > 0) {
+                        if (picked) {
+                            var pickedIndex = levelMap[level].holders.indexOf(pickedHolder);
+                            levelMap[level].holders[pickedIndex].colors.push(pickedColor);
+                            levelMap[level].holders[pickedIndex].dispBall ++;
+                            levelMap[level].holders[pickedIndex].anim = false;
+                            picked = false;
+                            pickedHolder = null;
+                        }
+                        var moveOn = moves.pop();
+                        unMoves.push(moveOn);
+                        holders[moveOn.from].colors.push(holders[moveOn.to].colors.pop());
+                        holders[moveOn.from].dispBall ++;
+                        holders[moveOn.to].dispBall --;
+                        trans = [];
+                    }
+                    break;
+                case "r":
+                    if (unMoves.length > 0) {
+                        if (picked) {
+                            var pickedIndex = levelMap[level].holders.indexOf(pickedHolder);
+                            levelMap[level].holders[pickedIndex].colors.push(pickedColor);
+                            levelMap[level].holders[pickedIndex].dispBall ++;
+                            levelMap[level].holders[pickedIndex].anim = false;
+                            picked = false;
+                            pickedHolder = null;
+                        }
+                        var moveOn = unMoves.pop();
+                        moves.push(moveOn);
+                        holders[moveOn.to].colors.push(holders[moveOn.from].colors.pop());
+                        holders[moveOn.to].dispBall ++;
+                        holders[moveOn.from].dispBall --;
+                        trans = [];
+                    }
+                    break;
+                case "re":
+                    if (picked)
+                    {
+                        var pickedIndex = levelMap[level].holders.indexOf(pickedHolder);
+                        levelMap[level].holders[pickedIndex].colors.push(pickedColor);
+                        levelMap[level].holders[pickedIndex].dispBall ++;
+                        levelMap[level].holders[pickedIndex].anim = false;
+                        picked = false;
+                        pickedHolder = null;
+                    }
+                    trans = [];
+                    createLevels();
+                    moves = [];
+                    unMoves = [];
+                    break;
+                case "lvl":
+                    level = this.sceneChange;
+                    createLevels();
+                    scene = "game";
+                    trans = [];
+                    moves = [];
+                    unMoves = [];
+                    break;
+                case "lvlPage":
+                    levelPage += (this.sceneChange === 0 ? 1 : -1);
+                    break;
+                case "save": //{
+                    println('Paste this code into the SAVE_CODE variable at the top of this program.');
+                    println(encode(highestLevelCompleted));
+                //}
+            }
+        }
+    } else
+    {
+        this.m = this.om;
+        if(this.anim <= 5)
+        {
+            this.anim += 1;
+        }
+    }
+    
+    // button
+    colorPiece(this.col);
+    rect(this.x, this.y + 5, this.w, this.h - 5, 2);
+    fill(0, 0, 0, 100);
+    rect(this.x, this.y + 5, this.w, this.h - 5, 2);
+    colorPiece(this.col);
+    rect(this.x, this.y - this.anim, this.w, this.h, 5);
+    
+    fill(13, 13, 13);
+    switch(this.sceneChange)
+    {
+        case "game":
+            
+            pushMatrix();
+            translate(this.x + 10, this.y - this.anim);
+            beginShape();
+            vertex(this.w / 2.7, this.h / 3.9);
+            vertex(this.w / 2.7, this.h / 1.35);
+            vertex(this.w / 1.7, this.h / 2);
+            endShape();
+            popMatrix();
+            
+            break;
+            
+        case "credits":
+            
+            stroke(13, 13, 13);
+            strokeWeight(5);
+            noFill();
+            ellipse(this.x + this.w / 2, this.y + this.h / 2 - this.anim, this.h / 1.9, this.h / 1.9);
+            noStroke();
+            
+            break;
+            
+        case "select":
+            
+            pushMatrix();
+            translate(this.x + 21, this.y - this.anim - 6);
+            rect(20, 20, 20, 20);
+            rect(46, 20, 20, 20);
+            rect(73, 20, 20, 20);
+            translate(0, 27);
+            rect(20, 20, 20, 20);
+            rect(46, 20, 20, 20);
+            rect(73, 20, 20, 20);
+            popMatrix();
+            
+            break;
+
+        case "menu":
+            
+            noFill();
+            pushMatrix();
+            if(this.w >= 50)
+            {
+                translate(this.x + 37, this.y - this.anim);
+                strokeWeight(5);
+                scale(0.5, 1);
+            } else
+            {
+                translate(this.x, this.y - this.anim + 5);
+                scale(1.0, 0.7);
+                strokeWeight(3);
+            }
+            stroke(13, 13, 13);
+            rect(this.w / 4, this.h / 2.2, this.w / 2, this.h / 2.5);
+            
+            line(this.w / 6, this.h / 2.1, this.w / 1.2, this.h / 2.1);
+            line(this.w / 1.2, this.h / 2.2, this.w / 2, this.h / 10);
+            line(this.w / 5.4, this.h / 2.2, this.w / 2, this.h / 10);
+            popMatrix();
+            
+            noStroke();
+            
+            break;
+            
+        case "u":
+            
+            stroke(13, 13, 13);
+            strokeWeight(3);
+            noFill();
+            arc(this.x + this.w / 2, this.y + (this.h / 2) - this.anim + 5, this.h / 1.9, this.h / 1.9, -90, 0);
+            noStroke();
+            fill(0, 0, 0);
+            arc(this.x + this.w / 2 - 10, this.y + (this.h / 2) - this.anim - 5.5, this.h / 1.9, this.h / 1.9, -40, 40);
+            break;
+            
+        case "r":
+            stroke(13, 13, 13);
+            strokeWeight(3);
+            noFill();
+            arc(this.x + this.w / 2, this.y + (this.h / 2) - this.anim + 5, this.h / 1.9, this.h / 1.9, -90 - 90, -90);
+            noStroke();
+            fill(0, 0, 0);
+            arc(this.x + this.w / 2 + 10, this.y + (this.h / 2) - this.anim - 5.5, this.h / 1.9, this.h / 1.9, -40 - 180, 40 - 180);
+            break;
+            
+        case "re":
+            stroke(13, 13, 13);
+            strokeWeight(3);
+            noFill();
+            arc(this.x + this.w / 2, this.y + (this.h / 2) - this.anim, this.h / 1.9, this.h / 1.9, -385, -90);
+            noStroke();
+            fill(0, 0, 0);
+            arc(this.x + this.w / 2 + 10, this.y + (this.h / 2) - this.anim - 10, this.h / 1.9, this.h / 1.9, -40 - 180, 40 - 180);
+            break;
+    }
+    
+    // text
+    textSize(this.s);
+    fill(0, 0, 0);
+    if (!this.locked) {
+        text(this.m, this.x + this.w / 2, this.y + this.h / 2 - this.anim);
+    } else {
+        //-this.anim
+        noStroke();
+        fill(0);
+        rect(this.x + (this.w / 2) - 10, this.y + 14, 20, 17);
+        noFill();
+        strokeWeight(3);
+        stroke(0);
+        ellipse(this.x + this.w / 2, this.y + 14, 12, 12);
+        colorPiece(this.col);
+        noStroke();
+        rect(this.x + (this.w / 2) - 1, this.y + 18, 2, 9);
+        ellipse(this.x + (this.w / 2), this.y + 20, 5, 5);
+    }
+    
+};
+
+/** Restart/Undo/Redo/Home Buttons **/
+//{
+var nextLevel = new Button (250, 551, 100, 41, ">>>", 29, "", "green", "l");
+var restart = new Button (60, 20, 40, 41, "", 18, "re", "orange", "re");
+var undo = new Button (500, 20, 40, 41, "", 18, "u", "orange", "u");
+var redo = new Button (545, 20, 40, 41, "", 18, "r", "orange", "r");
+var home = new Button (15, 20, 40, 41, "", 26, "menu", "orange", "s");
+//}
+
+/** Function for Detecting if User Won **/
+var checkContainers = function(){
+    
+    var holders = levelMap[level].holders;
+    levelsCompleted[level] = true;
+    
+    for (var i = 0; i < holders.length; i++) {
+        if(!compare(holders[i].colors))
+        {
+            levelsCompleted[level] = false;
+        } else {
+            if (!holders[i].completed && holders[i].colors.length >= 1 && holders[i].dispBall >= holders[i].colors.length) {
+                holders[i].completed = true;
+                highestLevelCompleted[level] = true;
+                for(var j = 0; j < 80; j++) {
+                    confetti.push(Confetti.new(holders[i]));
+                }
+                
+            }
+        }
+    }
+    
+    if(levelsCompleted[level])
+    {
+        textSize(47);
+        colorPiece("green");
+        text("LEVEL " + (level + 1) + " COMPLETE!", 300, 520 + animComplete / 2);
+        fill(0, 0, 0, 100);
+        text("LEVEL " + (level + 1) + " COMPLETE!", 300, 520 + animComplete / 2);
+        colorPiece("green");
+        text("LEVEL " + (level + 1) + " COMPLETE!", 300, 516 + animComplete / 2);
+        
+        nextLevel.y = 551 + animComplete;
+        nextLevel.draw();
+        
+        animComplete /= 1.1;
+    } else
+    {
+        animComplete = 300;
+    }
+    
+};
+
+/** Main Game Backdrop by NitOwl **/
+//{
+randomSeed(9);
+var rainbowWidth = 29;
+var sun = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    ellipse(139, 108, 83, 83);
+    
+    for(var i = 0; i < 12; i++) {
+        pushMatrix();
+        
+        translate(140, 108);
+        rotate(30 * i);
+        arc(5, 0, 143, 29, 307, 416);
+        
+        popMatrix();
+    }
+    
+    return get();
+    
+    
+})();
+var umbrella = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    arc(135, 95, 91, 92, 180, 363);
+    
+    arc(102, 96, 23, 12, 174, 368);
+    arc(125, 95, 23, 12, 174, 368);
+    arc(147, 96, 23, 12, 174, 368);
+    arc(170, 96, 23, 13, 174, 368);
+    
+    strokeWeight(7);
+    line(135, 135, 135, 93);
+    arc(129, 136, 13, 13, 355, 537);
+    
+    
+    return get();
+    
+    
+    
+})();
+var heart = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    bezier(138, 114, 97, 69, 65, 144, 151, 176);
+    bezier(137, 114, 172, 52, 221, 144, 136, 184);
+    
+    return get();
+    
+})();
+var mapImg = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    quad(133, 63, 107, 40, 102, 153, 130, 176);
+    quad(134, 63, 165, 44, 158, 155, 130, 174);
+    quad(195, 63, 165, 44, 158, 155, 190, 174);
+    quad(195, 63, 229, 44, 227, 155, 190, 174);
+    
+    bezier(117, 90, 198, 130, 212, 142, 180, 79);
+    
+    ellipse(180, 80, 16, 20);
+    
+    line(194, 143, 170, 118);
+
+    
+    return get();
+    
+})();
+var textBox = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    
+    rect(47, 57, 183, 120, 208);
+    triangle(131, 177, 164, 204, 163, 178);
+    
+    fill(40, 38, 40);
+    textAlign(CENTER);
+    textFont(font_inc, 67);
+    text('Hello', 135, 136);
+
+    
+    return get();
+    
+})();
+var rainbow = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    for(var i = 3; i < 8; i++) {
+        arc(138, 145, rainbowWidth * i, rainbowWidth * i - 20, 180, 360);
+    }
+    
+    arc(74, 166, 55, 36, 200, 439);
+    arc(40, 164, 43, 30, 80, 318);
+    arc(53, 179, 54, 34, -17, 179);    
+    
+    arc(233, 166, 55, 36, 200, 439);
+    arc(201, 164, 43, 30, 80, 318);
+    arc(215, 179, 54, 34, -17, 179);
+    
+    return get();
+    
+})();
+var musicalNote = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    line(139, 78, 139, 142);
+    
+    bezier(139, 77, 138, 97, 152, 82, 157, 112);
+
+    pushMatrix();
+    translate(133, 142);
+        rotate(38);
+        fill(40, 38, 40);
+        ellipse(0, 0, 11, 16);
+    popMatrix();
+    
+
+    return get();
+    
+    
+})();
+var airballoon = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    ellipse(139, 76, 83, 83);
+    arc(140, 151, 56, 39, 218, 322);
+    
+    rect(117, 139, 44, 15, 5);
+    
+    line(100, 90, 118, 139);
+    line(178, 90, 160, 139);
+    
+    bezier(131, 36, 105, 56, 121, 117, 132, 139);
+    bezier(152, 36, 172, 56, 160, 117, 148, 139);
+
+    
+    return get();
+    
+    
+})();
+var airplane = (function() {
+    
+    background(0, 0);
+    
+    strokeWeight(4);
+    stroke(40, 38, 40);
+    noFill();
+    
+    triangle(110, 102, 165, 84, 91, 83);
+    triangle(118, 100, 165, 87, 125, 112);
+
+    beginShape();
+    vertex(102, 101);
+    bezierVertex(79, 108, 106, 146, 118, 128);
+    bezierVertex(120, 110, 85, 145, 135, 138);
+    endShape();
+    
+    return get();
+    
+    
+})();
+//}
+//{
+background(13, 13, 13);
+
+image(sun, -15, 3, 300, 300);
+image(umbrella, 60, -19, 500, 500);
+image(heart, -18, 106, 290, 290);
+
+image(heart, 28, 435, 197, 188);
+
+image(mapImg, 76, 107, 315, 304);
+
+image(musicalNote, 91, 133, 493, 302);
+
+
+image(textBox, -2, 221, 339, 339);
+
+pushMatrix();
+    translate(144, 244);
+    rotate(7);
+    image(rainbow, 0, 0, 307, 226);
+popMatrix();
+
+image(musicalNote, -3, 128, 365, 306);
+
+image(airballoon, 121, 320, 378, 400);
+image(airplane, -5, 443, 430, 430);
+
+var imageArray =    [
+    get(13, 15, 86, 83),
+    get(122, 11, 96, 97),
+    get(26, 131, 75, 83),
+    get(122, 119, 101, 98),
+    get(16, 249, 126, 88),
+    get(139, 259, 131, 78),
+    get(173, 337, 77, 97),
+    get(49, 460, 75, 83)
+];
+
+background(13, 13, 13);
+
+for (var j = 0; j < 16; j++) {
+    for (var i = 0; i < 17; i++) {
+        for(var k = 14; k < random(81, 178); k++) {
+            pushMatrix();
+                translate(i * 58, j * 60);
+                image(imageArray[(j + k) % imageArray.length], 0, 0, 63, 63);
+            popMatrix();
+        }
+    }
+}
+
+
+var gameBackgroundHalf = gameBackgroundHalf || get();
+
+image(gameBackgroundHalf, 0, 0, 470, 470);
+image(gameBackgroundHalf, 366, 0, 470, 470);
+image(gameBackgroundHalf, -65, 469, 470, 470);
+image(gameBackgroundHalf, 209, 423, 470, 470);
+
+var gameBackground = gameBackground || get();
+//}
+var completeBG = function(){
+    
+    image(gameBackground, 0, 0);
+};
+
+/** Draw all the levels and the prototypes **/
+var drawLevels = function() {
+    
+    // two modes: ultimate, or levels
+    var holders = levelMap[level].holders;
+    
+    for(var i = confetti.length - 1; i > -1; i--) {
+        confetti[i].display();
+        if (confetti[i].y >= height * 2) {
+            confetti.splice(i, 1);
+        }
+    }
+    
+    for(var i in holders)
+    {
+        // calculate potisions of tubes
+        var pos;
+        pos = calcPos(holders.length, levelMap[level].maxPerRow, 82, 206);
+        holders[i].y = pos[i].y + 107 + levelMap[level].bringDown;
+        holders[i].x = pos[i].x - 25;
+        
+        // draw and update tubes 
+        holders[i].draw();
+        holders[i].update(i);
+    }
+    
+    for(var i = trans.length - 1; i > -1; i--) {
+        trans[i].display();
+        if (trans[i].kil) {
+            trans.splice(i, 1);
+        }
+    }
+    
+    restart.draw();
+    undo.draw();
+    redo.draw();
+    home.draw();
+        
+    fill(255, 255, 255, 100);
+    text("LEVEL " + (level + 1), 300, 42);
+    fill(255, 255, 255);
+    text("LEVEL " + (level + 1), 300, 38);
+    
+    // check containers to see if user wins
+    checkContainers();
+};
+
+/** Decode Save Code **/
+if (SAVE_CODE.length > 0) {
+    highestLevelCompleted = decode(SAVE_CODE);
+}
+
+/** Play/LevelSelect/Credits/Back/Save Buttons & Menu Tubes **/
+//{
+var Play = new Button (200, 394, 200, 100, "", 53, "game", "red", "s");
+var LevelSelect = new Button (410, 419 + 40, 153, 75, "", 26, "select", "green", "s");
+var Creds = new Button (35, 419 + 40, 153, 75, "C", 26, "credits", "blue", "s");
+var Back = new Button (20, 535, 153, 50, "", 26, "menu", "pink", "s");
+var saveButton = new Button (200, 510, 200, 50, "Save Progress", 26, "", "pink", "save");
+var menuHolder1 = ballHolder.new (["red", "green", "blue", "pink"]);
+var menuHolder2 = ballHolder.new (["pink", "blue", "green", "red"]);
+//}
+
+/** Level Select Page Buttons **/
+//{
+var levelButtons = [];
+var lvlNext = new Button(432, 428, 75, 50, ">", 20, 0, colors[6], "lvlPage");
+var lvlBack = new Button(96, 428, 75, 50, "<", 20, 1, colors[5], "lvlPage");
+//}
+
+/** Draw 100 Level Select Buttons **/
+var c = calcPos(levelMap.length, 5, 90, 70);
+for(var i = 0; i < levelMap.length; i++) {
+    levelButtons.push(new Button(c[i % 25].x - 25, 70 + c[i % 25].y, 50, 50, i + 1, 30, i, colors[floor((i % 25) / 5)], 'lvl'));
+}
+
+/** Draw Entire Program **/
+draw = function () {
+    
+    // setup main layouts and fonts
+    completeBG();
+    textAlign(CENTER, CENTER);
+    textFont(font_tahoma);
+    cursor(ARROW);
+    
+    // setup main scenes
+    switch(scene)
+    {
+        case "menu": //{
+        
+            textSize(13);
+            colorPiece("pink");
+            text("Isaac Emerald   PlatformerKing  Willard  NitOwl007", 250, 56 + startAnim[0] * 2);
+            fill(0, 0, 0, 30);
+            text("Isaac Emerald   PlatformerKing  Willard  NitOwl007", 250, 56 + startAnim[0]* 2);
+            colorPiece("pink");
+            text("Isaac Emerald   PlatformerKing  Willard  NitOwl007", 250, 55 + startAnim[0] * 2);
+            
+            textSize(73.4);
+            fill(50, 121, 184);
+            text("PUZZLE", 279, 95 + startAnim[0]);
+            fill(85, 162, 230);
+            text("PUZZLE", 284, 95 + startAnim[0]);
+            fill(74, 176, 96);
+            text("SORT", 354, 241.3 + startAnim[0]);
+            fill(96, 213, 122);
+            text("SORT", 358.9, 241.3 + startAnim[0]);
+            textSize(127.8);
+            fill(145, 37, 34);
+            text("BALL", 305, 167 + startAnim[0]);
+            fill(197, 41, 33);
+            text("BALL", 300, 167 + startAnim[0]);
+            
+            menuHolder1.x = 86;
+            menuHolder1.y = 73 + startAnim[0] / 2;
+            menuHolder2.x = 473;
+            menuHolder2.y = 118 + startAnim[0] / 2;
+            
+            startAnim[0] /= 1.1;
+            
+            if(startAnim[0] >= -50)
+            {
+               startAnim[1] /= 1.1; 
+            }
+            if(startAnim[1] <= 300)
+            {
+               startAnim[2] /= 1.1; 
+            }
+            if(startAnim[2] <= 300)
+            {
+               startAnim[3] /= 1.1; 
+            }
+            if(startAnim[3] <= 300)
+            {
+               startAnim[4] /= 1.1; 
+            }
+            
+            menuHolder1.draw();
+            menuHolder2.draw();
+            
+            Play.y = 394 + startAnim[1];
+            Play.draw();
+            
+            LevelSelect.y = 419 + 40 + startAnim[2];
+            LevelSelect.draw();
+            
+            Creds.y = 419 + 40 + startAnim[3];
+            Creds.draw();
+            
+            saveButton.y = 510 + startAnim[4];
+            saveButton.draw();
+            
+            break;
+            //}
+        case "game": //{
+            drawLevels();
+            break;
+            //}
+        case "select": //{
+            Back.draw();
+            for(var i = levelPage * 25; i < min((levelPage * 25) + 25, levelMap.length); i++) {
+                levelButtons[i].draw();
+            }
+           
+            if (levelPage < floor(levelMap.length / 25) - 1) {
+                lvlNext.draw();
+            }
+            if (levelPage > 0) {
+                lvlBack.draw();
+            }
+            
+            break;
+            //}
+        case "credits": //{
+            textSize(28);
+            colorPiece("aqua");
+            text("THIS GAME WAS BROUGHT TO YOU BY", 305, 122);
+            var j = 0;
+            var collabColors = 'green.orange.pink.grey.olive'.split('.');
+            for(var i in collabMembers) {
+                colorPiece(collabColors[j]);
+                text(i, 305, 194 + j * 66);
+                if (mouseY > 161 + j * 66 && mouseY < 161 + (j + 1) * 66) {
+                    fill(0, 0, 0, 50);
+                    text(i, 305, 194 + j * 66);
+                    cursor('pointer');
+                    if (clicked) {
+                        _clearLogs();
+                        println(collabMembers[i]);
+                    }
+                }
+                j ++;
+            }
+            Back.draw();
+            break;
+            //}
+    }
+
+    clicked = false;
+};
