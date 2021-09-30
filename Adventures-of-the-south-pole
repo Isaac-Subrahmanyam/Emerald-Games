@@ -1,0 +1,2282 @@
+
+
+
+
+
+
+
+/**
+
+ADVENTURES OF THE SOUTH POLE
+@Authors: ISAAC EMERALD AND CHESTER BANKS ©2020
+
+
+DESCRIPTION
+    The Anti-Santa squad took Santa all the way to the dirty South Pole!
+    How will he deliver his presents on time? 
+    Navigate your way through their base, and bring Santa home to the North Pole!
+    
+CONTROLS
+    Arrow keys or WASD to move around.
+    The rest should be pretty self explanatory.
+
+SPECIAL CREDITS:
+    Thank you SpaceRanger (@SpaceRanger01) and Voldemort (@Shubham271) for help with levels!
+    Thank you Xacer (@xacer) for helping me make a more efficient object constructor!
+
+**/
+
+
+
+
+
+
+// set up smooth
+smooth();
+
+// set up better object constructor
+Object.constructor.prototype.new= function () {
+    var obj = Object.create(this.prototype);
+    this.apply(obj, arguments);
+    return obj;
+};
+
+
+//return get(0, 0, 600, 600);
+var images = {
+    
+    'mountain1': function (){
+
+        noStroke();
+        fill(142, 177, 204, 100);
+        beginShape();
+        vertex(0, 500);
+        vertex(0, 600);
+        vertex(600, 600);
+        vertex(600, 500);
+        bezierVertex(148, 367, 510, 6, 0, 500);
+        endShape(CLOSE);
+        
+        fill(228, 235, 240, 100);
+        beginShape();
+        vertex(199, 312);
+        bezierVertex(230, 371, 279, 288, 356, 329);
+        bezierVertex(316, 272, 323, 190, 199, 312);
+        
+        endShape(CLOSE);
+        
+        fill(0, 0, 0, 20);
+        beginShape();
+        vertex(0, 500);
+        vertex(0, 600);
+        vertex(355, 600);
+        vertex(393, 500);
+        bezierVertex(148, 375, 510, 6, 0, 500);
+        endShape(CLOSE);
+            
+        return get(0, 0, 600, 600);
+    },
+    
+    'mountain2': function (){
+        
+        noStroke();
+        
+        fill(142, 177, 204);
+        beginShape();
+        vertex(0, 500);
+        vertex(0, 600);
+        vertex(600, 600);
+        vertex(600, 500);
+        bezierVertex(148, 367, 510, 6, 0, 500);
+        endShape(CLOSE);
+        
+        fill(228, 235, 240);
+        beginShape();
+        vertex(199, 312);
+        bezierVertex(230, 371, 279, 288, 356, 329);
+        bezierVertex(316, 272, 323, 190, 199, 312);
+        
+        endShape(CLOSE);
+        
+        fill(0, 0, 0, 20);
+        beginShape();
+        vertex(0, 500);
+        vertex(0, 600);
+        vertex(355, 600);
+        vertex(393, 500);
+        bezierVertex(148, 375, 510, 6, 0, 500);
+        endShape(CLOSE);
+        
+        return get(0, 0, 600, 600);
+    },
+    
+    'lerp': function (){
+        noStroke();
+        for(var i = 0; i < height; i += 20){
+            fill(lerpColor(
+                color(13, 78, 92), color(26, 171, 181), i/height));
+            rect(0, i, width, 20);
+        }
+        
+        return get(0, 0, 600, 600);
+    },
+    
+    'cocoa': function(){
+        
+        pushStyle();
+        noStroke();
+        fill(156, 31, 31);
+        ellipse(563, 431, 386, 552);
+        fill(60, 123, 201);
+        ellipse(35, 479, 297, 552);
+        fill(240, 240, 240, 30);
+        ellipse(489, 431, 224, 483);
+        ellipse(102, 479, 159, 468);
+        
+        fill(230, 190, 120);
+        ellipse(93, 169, 200, 200);
+        fill(255, 247, 219, 100);
+        ellipse(109, 169, 161, 172);
+        
+        fill(255, 215, 189);
+        ellipse(524, 120, 183, 200);
+        fill(255, 241, 232, 100);
+        ellipse(507, 120, 142, 153);
+        
+        fill(230, 43, 43);
+        beginShape();
+        vertex(447, 67); 
+        bezierVertex(498, 93, 600, 120, 611, 110);
+        vertex(600, -50);
+        bezierVertex(447, -22, 447, 67, 447, 67);
+        endShape();
+        
+        noFill();
+        strokeWeight(40);
+        stroke(255);
+        bezier(447, 67, 498, 93, 600, 120, 611, 110);
+        strokeWeight(20);
+        bezier(439, 165, 483, 158, 540, 170, 575, 201);
+        bezier(432, 138, 467, 232, 540, 227, 595, 178);
+        fill(255);
+        beginShape();
+        vertex(432, 138); 
+        bezierVertex(467, 232, 540, 227, 595, 178);
+        bezierVertex(553, 506, 393, 362, 432, 138);
+        endShape();
+        
+        stroke(36, 35, 35);
+        strokeWeight(12);
+        line(471, 132, 470, 118);
+        line(522, 141, 522, 128);
+        line(122, 161, 122, 178);
+        strokeWeight(10);
+        line(171, 152, 171, 171);
+        noFill();
+        strokeWeight(5);
+        bezier(481, 183, 491, 194, 518, 195, 532, 182);
+        stroke(255);
+        bezier(455, 111, 460, 102, 482, 109, 486, 107);
+        bezier(543, 124, 526, 116, 520, 111, 506, 115);
+        
+        fill(255);
+        beginShape();
+        vertex(96, 198);
+        bezierVertex(124, 221, 143, 218, 169, 211);
+        bezierVertex(169, 211, 126, 291, 96, 199);
+        endShape(CLOSE);
+        
+        strokeWeight(30);
+        stroke(255, 215, 189);
+        point(491, 156);
+        
+        // boy
+        noStroke();
+        fill(44, 111, 186);
+        bezier(181, 97, 126, 16, -11, -41, -13, 134);
+        fill(245);
+        ellipse(34, 11, 40, 40);
+        noFill();
+        stroke(3, 30, 59, 100);
+        strokeWeight(9);
+        bezier(112, 602, 134, 547, 141, 401, 110, 306);
+        strokeWeight(40);
+        stroke(55, 87, 176);
+        bezier(172, 97, 126, 123, 52, 131, -3, 134);
+        strokeWeight(49);
+        bezier(144, 285, 87, 277, 52, 345, -59, 165);
+        stroke(204, 90, 122);
+        strokeWeight(54);
+        bezier(682,469, 487, 577, 452, 463, 380, 479);
+        
+        // mug 2
+        pushMatrix();
+        translate(364, 322);
+        rotate(11);
+        scale(-1, 1);
+        
+        noStroke();
+        rectMode(CENTER);
+        fill(235);
+        quad(-60, -60, -53, 60, 53, 60, 60, -60);
+        ellipse(0, 60, 105, 30);
+        ellipse(0, -60, 120, 30);
+        fill(184, 104, 33);
+        ellipse(0, -62, 108, 23);
+        fill(249);
+        rect(-27, -62, 15, 11, 10);
+        rect(-5, -60, 20, 15, 10);
+        rect(22, -64, 16, 10, 10);
+        
+        noFill();
+        stroke(235);
+        strokeWeight(12);
+        bezier(-57, -33, -100, -32, -97, 16, -48, 43);
+        popMatrix();
+        
+        // mug 1
+        pushMatrix();
+        translate(254, 345);
+        rotate(-11);
+        
+        noStroke();
+        rectMode(CENTER);
+        fill(255, 255, 255);
+        quad(-60, -60, -53, 60, 53, 60, 60, -60);
+        ellipse(0, 60, 105, 30);
+        ellipse(0, -60, 120, 30);
+        fill(184, 104, 33);
+        ellipse(0, -62, 108, 23);
+        fill(249);
+        rect(-27, -62, 15, 11, 10);
+        rect(-5, -60, 20, 15, 10);
+        rect(22, -64, 16, 10, 10);
+        
+        noFill();
+        stroke(255, 255, 255);
+        strokeWeight(12);
+        bezier(-57, -33, -100, -32, -97, 16, -48, 43);
+        popMatrix();
+        
+        noStroke();
+        fill(255, 215, 189);
+        ellipse(452, 366, 80, 80);
+        fill(240, 198, 125);
+        ellipse(156, 366, 80, 80);
+        fill(255, 250, 240, 100);
+        ellipse(445, 359, 60, 60);
+        ellipse(163, 361, 60, 60);
+        
+        popStyle();
+        
+        return get(0, 0, 600, 600);
+    },
+    
+    'cocoa1': function(){
+        
+        pushStyle();
+        
+        translate(0, 320);
+        noStroke();
+        fill(156, 31, 31);
+        ellipse(563, 431, 386, 552);
+        fill(60, 123, 201);
+        ellipse(35, 479, 297, 552);
+        fill(240, 240, 240, 30);
+        ellipse(489, 431, 224, 483);
+        ellipse(102, 479, 159, 468);
+        
+        fill(230, 190, 120);
+        ellipse(93, 169, 200, 200);
+        fill(255, 247, 219, 100);
+        ellipse(109, 169, 161, 172);
+        
+        fill(255, 215, 189);
+        ellipse(524, 120, 183, 200);
+        fill(255, 241, 232, 100);
+        ellipse(507, 120, 142, 153);
+        
+        fill(230, 43, 43);
+        beginShape();
+        vertex(447, 67); 
+        bezierVertex(498, 93, 600, 120, 611, 110);
+        vertex(600, -50);
+        bezierVertex(447, -22, 447, 67, 447, 67);
+        endShape();
+        
+        noFill();
+        strokeWeight(40);
+        stroke(255);
+        bezier(447, 67, 498, 93, 600, 120, 611, 110);
+        strokeWeight(20);
+        bezier(439, 165, 483, 158, 540, 170, 575, 201);
+        bezier(432, 138, 467, 232, 540, 227, 595, 178);
+        fill(255);
+        beginShape();
+        vertex(432, 138); 
+        bezierVertex(467, 232, 540, 227, 595, 178);
+        bezierVertex(553, 506, 393, 362, 432, 138);
+        endShape();
+        
+        stroke(36, 35, 35);
+        strokeWeight(12);
+        line(471, 132, 470, 118);
+        line(522, 141, 522, 128);
+        line(122, 161, 122, 178);
+        strokeWeight(10);
+        line(171, 152, 171, 171);
+        noFill();
+        strokeWeight(5);
+        bezier(481, 183, 491, 194, 518, 195, 532, 182);
+        stroke(255);
+        bezier(455, 111, 460, 102, 482, 109, 486, 107);
+        bezier(543, 124, 526, 116, 520, 111, 506, 115);
+        
+        fill(255);
+        beginShape();
+        vertex(96, 198);
+        bezierVertex(124, 221, 143, 218, 169, 211);
+        bezierVertex(169, 211, 126, 291, 96, 199);
+        endShape(CLOSE);
+        
+        strokeWeight(30);
+        stroke(255, 215, 189);
+        point(491, 156);
+        
+        // boy
+        noStroke();
+        fill(44, 111, 186);
+        bezier(181, 97, 126, 16, -11, -41, -13, 134);
+        fill(245);
+        ellipse(34, 11, 40, 40);
+        noFill();
+        stroke(3, 30, 59, 100);
+        strokeWeight(9);
+        bezier(112, 602, 134, 547, 141, 401, 110, 306);
+        strokeWeight(40);
+        stroke(55, 87, 176);
+        bezier(172, 97, 126, 123, 52, 131, -3, 134);
+        strokeWeight(49);
+        bezier(144, 285, 87, 277, 52, 345, -59, 165);
+        stroke(204, 90, 122);
+        strokeWeight(54);
+        bezier(682,469, 487, 577, 452, 463, 380, 479);
+        
+        popStyle();
+        
+        return get(0, 0, 600, 600);
+    },
+};
+
+// load images
+var loadImages = function(){
+    for(var i in images){
+        if (typeof images[i] !== "object") {
+            background(0, 0, 0, 0);
+            images[i] = images[i]();
+        }
+    }
+};
+
+// load font
+var cf = createFont;
+
+// stuff
+var level = 0;
+var camVal = 0;
+var val = 0;
+var camState = false;
+var invState = false;
+var moveInfoState = true;
+var deathTran = 0;
+var particles = { x: [], y: [], s: [], r: [], upAmount: [] };
+var scene = "logo";
+
+/** Key stuff **/
+var keys = [];
+keyPressed = function(){
+    keys[keyCode] = true;
+};
+keyReleased = function(){
+    keys[keyCode] = false;
+};
+
+/** Clicked stuff **/
+var clicked = false;
+mouseClicked = function(){
+    clicked = true;
+};
+
+var pi = Math.PI;
+
+// defining function stuff
+var player = function(x, y, w, h){
+    this.x = x;  this.y = y;
+    this.origy = y;  this.origx = x;
+    this.w = w;  this.h = h;
+    this.s = 2;   this.g = 1;
+    this.CanX = 0; this.CanY = 0;
+};
+var gunner = function(x, y, w, h){
+    this.gunnerState = true;  this.complicated = 0;
+    this.face = "left";
+    this.x = x;  this.y = y;
+    this.origy = y;  this.origx = x;
+    this.w = w;  this.h = h;
+    this.s = 0.7;  this.g = 1;
+};
+var badplayer = function(x, y, w, h, leftBound, rightBound, switcher, speed){
+    this.x = x;  this.y = y;
+    this.w = w;  this.h = h;
+    this.s = speed;  this.g = 1;
+    this.leftBound = leftBound;  this.rightBound = rightBound;
+    this.switcher = switcher;
+};
+var curv = function(x1 ,y1 ,x2 , y2, c) {
+    this.x1 = x1;  this.y1 = y1;
+    this.x2 = x2;  this.y2 = y2;
+    this.c = c;
+};
+var bad = function(x1 ,y1 ,x2 , y2, c) {
+    this.x1 = x1;  this.y1 = y1;
+    this.x2 = x2;  this.y2 = y2;
+    this.c = c;
+};
+var portal = function(x, y, w, h){
+    this.particles = { x: [], y: [], s: [], r: [], upAmount: [] };
+    this.x = x;  this.y = y;
+    this.w = w;  this.h = h;
+};
+var Cannon = function(cannonX, cannonY){
+    
+    // connon positon
+    this.cannonX = cannonX;  this.cannonY = cannonY;
+    this.origCanX = cannonX;  this.origCanY = cannonY;
+    this.bulletX = 0;  this.bulletY = 0;
+    this.vectorX = 0;  this.vectorY = 0;
+    this.length = 0;
+    this.bulletDisplacement = 0;  this.bulletSize = 7;
+    this.shootTime = 0;  this.shootState = false;
+    this.cannonAnimState = false;  this.cannonAnim = 0;
+    this.cannonAnimX = 0;  this.cannonAnimY = 0;
+};
+var Invin = function(x, y, b){
+    this.x = x;  this.y = y;
+    this.b = b;  this.w = 15;
+    this.h = 35;
+};
+var letter = function(x, y, txt, r){
+    this.x = x; this.paperX = this.x;
+    this.y = y; this.paperY = this.y;
+    this.origy = y;  this.origx = x;
+    this.txt = txt;
+    this.r = r;
+    this.paperSz = 0.2;
+    this.paperRot = -360;
+    this.over = false;
+};
+
+// map stuff & reset stuff
+var scoutMap = [0, 0];
+var levelMap = [
+    {
+        player: player.new(20, 247, 5, 20),
+        Canvas: 400,
+        cannons: [],
+        gunners: [],
+        curves: [curv.new(-1, 274, 405, 263, 54)],
+        bad: [],
+        portal: portal.new(330, 245, 33, 34),
+        badplayer: [],
+        invin: [],
+        letters: [letter.new(199, 303, "Hey kid! I left these magic letters behind to serve as a guide for you!", -11)],
+    }, // 0
+    {
+        player: player.new(20, 284, 5, 20),
+        Canvas: 821,
+        cannons: [],
+        gunners: [],
+        curves: [curv.new(-1, 297, 223, 247, 54), curv.new(223, 247, 464, 297, 0), curv.new(112, 184, 356, 184, -18), curv.new(351, 272, 464, 296, -86), curv.new(3, 99, 112, 184, 10), curv.new(88, 126, 472, 37, 10), curv.new(473, 62, 562, 65, 10), curv.new(546, 132, 633, 134, 10)],
+        bad: [bad.new(254, 253, 264, 255, -8)],
+        portal: portal.new(574, 105, 33, 34),
+        badplayer: [],
+        invin: [],
+        letters: [
+        letter.new(163, 280, "I need your help!  The Anti-Santa squad has finally done it! They finally captured me!", -39),
+        letter.new(163, 158, "Christmas is tommorow!\nHow will I deliver my presents?", -10),
+        letter.new(519, 55, "I need you to navigate your way through their base, and save me before it is too late!", 0)],
+    }, //1
+    {
+        player: player.new(20, 44, 5, 20),
+        Canvas: 933,
+        cannons: [],
+        gunners: [gunner.new(233, 178, 5, 20), gunner.new(359, 178, 5, 20)],
+        curves: [curv.new(-1, 87, 405, 263, 54),
+        curv.new(406, 263, 572, 183, 54),
+        curv.new(573, 183, 937, 183, 0)],
+        bad: [bad.new(396, 262, 405, 262, -7)],
+        portal: portal.new(877, 147, 33, 34),
+        badplayer: [],
+        invin: [],
+        letters: [
+        letter.new(58, 115, "The base is filled with angry elves. They were always too lazy in my shop... I had to fire them...", 39)]
+    }, // 2
+    {
+        player: player.new(20, 30, 5, 20),
+        Canvas: 700,
+        cannons: [Cannon.new(76, 200),],
+        gunners: [],
+        curves: [curv.new(-1, 41, 108, 94, 54), curv.new(53, 224, 266, 194, 54), curv.new(266, 194, 425, 194, 54), curv.new(425, 194, 534, 309, 0), curv.new(510, 234, 609, 197, 0), curv.new(610, 197, 743, 197, 54)],
+        bad: [bad.new(337, 246, 353, 245, -8)],
+        portal: portal.new(661, 214, 33, 34),
+        badplayer: [badplayer.new(495, 234, 20, 20, 430, 530, "right", 0.5)],
+        invin: [],
+        letters: [
+        letter.new(63, 107, "Instead of building toys like good little elves, they built firing devices!! Evil as evil elves come...", 0), letter.new(395, 203, "They also built these evil little green toys! Evil elves, why must you be so evil?", -41)]
+    }, // 3
+    {
+        player: player.new(20, 284, 5, 20),
+        Canvas: 1180,
+        cannons: [Cannon.new(940, 200)],
+        gunners: [gunner.new(676, 67, 5, 20)],
+        curves: [curv.new(-1, 297, 405, 225, 0),
+        curv.new(400, 307, 544, 150, 0),
+        curv.new(544, 150, 803, 143, -18),
+        curv.new(803, 143, 1072, 86, 185),
+        curv.new(1072, 87, 1184, 143, 20)],
+        bad: [],
+        portal: portal.new(1141, 102, 33, 34),
+        badplayer: [badplayer.new(500, 175, 20, 20, 380, 520, "right", 1)],
+        invin: [],
+        letters: [
+        letter.new(207, 244, "Please, for the sake of Christmas, save me...\nAnd good luck!!!", -10),]
+    }, // 4
+    {
+        player: player.new(20, 136, 5, 20),
+        Canvas: 567,
+        cannons: [],
+        gunners: [gunner.new(166, 200, 5, 20),gunner.new(313, 73, 5, 20),gunner.new(414, 125, 5, 20),],
+        curves: [curv.new(-1, 179, 231, 233, 0), curv.new(219, 192, 439, 103, 0), curv.new(331, 268, 500, 155, 0), curv.new(302, 346, 500, 308, 0), curv.new(500, 308, 563, 308, 28)],
+        bad: [bad.new(395, 328, 406, 326, -7), bad.new(497, 157, 539, 0, -5), bad.new(224, 230, 231, 232, -23)],
+        portal: portal.new(516, 299, 33, 34),
+        badplayer: [],
+        invin: [],
+        letters: []
+    }, // 5
+    {
+        player: player.new(20, 247, 5, 20),
+        Canvas: 990,
+        cannons: [Cannon.new(551, 228)],
+        gunners: [gunner.new(347, 182, 5, 20), gunner.new(306, 158, 5, 20), gunner.new(270, 134, 5, 20), gunner.new(232, 127, 5, 20)],
+        curves: [curv.new(62, 257, 405, 263, -65), curv.new(-1, 274, 405, 334, 64), curv.new(405, 263, 788, 263, 22), curv.new(789, 263, 1011, 191, -34)],
+        bad: [bad.new(191, 365, 208, 369, -8)],
+        portal: portal.new(952, 148, 33, 34),
+        badplayer: [],
+        invin: [],
+        letters: []
+    }, // 6
+    {
+        player: player.new(20, 24, 5, 20),
+        Canvas: 770,
+        cannons: [Cannon.new(283, 98), Cannon.new(424, 98), Cannon.new(606, 98)],
+        gunners: [gunner.new(513, 337, 5, 20), gunner.new(446, 337, 5, 20), gunner.new(379, 337, 5, 20), gunner.new(315, 337, 5, 20), gunner.new(255, 337, 5, 20)],
+        curves: [curv.new(-1, 78, 223, 81, 0),
+        curv.new(224, 82, 339, 82, 107),
+        curv.new(339, 82, 515, 82, 107),
+        curv.new(515, 82, 722, 82, 107),
+        curv.new(683, 370, 773, 82, 27),
+        curv.new(0, 370, 682, 370, 0)],
+        bad: [],
+        portal: portal.new(9, 327, 33, 34),
+        badplayer: [],
+        invin: [Invin.new(44, 43, "white"),
+        Invin.new(733, 137, "blue"),
+        Invin.new(717, 137, "blue"),
+        Invin.new(701, 137, "blue")],
+        letters: []
+    }, // 7
+    {
+        player: player.new(10, 342, 5, 20),
+        Canvas: 400,
+        cannons: [],
+        gunners: [gunner.new(166, 244, 5, 20)],
+        curves: [curv.new(-1, 389, 346, 382, -38), curv.new(274, 362, 347, 382, -55), curv.new(-1, 286, 268, 298, -18), curv.new(0, 286, 76, 275, -55), curv.new(73, 208, 398, 222, -26), curv.new(274, 191, 398, 221, -55), curv.new(-1, 130, 268, 141, -18), curv.new(0, 130, 76, 119, -55), curv.new(74, 49, 500, 55, -14)],
+        bad: [bad.new(151, 348, 164, 348, -8), bad.new(151, 117, 164, 119, -8)],
+        portal: portal.new(360, 4, 33, 34),
+        badplayer: [badplayer.new(330, 328, 20, 20, 255, 345, "right", 0.5), badplayer.new(330 - 330, 216, 20, 20, 0, 75, "right", 0.5), badplayer.new(330, 125, 20, 20, 255, 380, "right", 1)],
+        invin: [Invin.new(23, 343, "white"), Invin.new(250, 260, "blue")],
+        letters: []
+    }, // 8
+    {
+        player: player.new(20, 17, 5, 20),
+        Canvas: 600,
+        cannons: [Cannon.new(504, 117), Cannon.new(504, 221)],
+        gunners: [gunner.new(251, 314, 5, 20), gunner.new(312, 314, 5, 20)],
+        curves: [curv.new(-1, 65, 421, 65, 0), curv.new(-1 + 150, 163, 421 + 300, 163, 0), curv.new(-1, 254, 421, 254, 0), curv.new(-1 + 150, 340, 421 + 300, 340, 0)],
+        bad: [bad.new(254, 162, 264, 164, -11), bad.new(193, 162, 203, 164, -11), bad.new(193, 253, 203, 254, -11), bad.new(254, 253, 266, 254, -11), bad.new(307, 253, 321, 254, -11), bad.new(371, 253, 385, 254, -11)],
+        portal: portal.new(147, 301, 33, 34),
+        badplayer: [],
+        invin: [Invin.new(44, 28, "white"), Invin.new(425, 302, "blue")],
+        letters: []
+    }, // 9
+    {
+        player: player.new(20, 7, 5, 20),
+        Canvas: 1080,
+        cannons: [Cannon.new(374, 260)],
+        gunners: [gunner.new(905, 105, 5, 20), gunner.new(1005, 258, 5, 20)],
+        curves: [curv.new(376, 170, 617, 170, 0), curv.new(347, 134, 910, 102, -27), curv.new(258, 355, 568, 355, 0), curv.new(-1, 42, 224, 92, -21), curv.new(89, 215, 382, 170, -21), curv.new(-3, 257, 258, 355, 31), curv.new(569, 355, 663, 174, 0), curv.new(856, 210, 1081, 98, 0), curv.new(815, 269, 1086, 307, 0)],
+        bad: [bad.new(254, 175, 272, -5, 0), bad.new(210, 83, 223, 89, -6), bad.new(89, 214, 102, 209, -8),
+        bad.new(256, 356, 267, 355, -11),
+        bad.new(327, 356, 341, 355, -11),
+        bad.new(406, 356, 422, 355, -11),
+        bad.new(504, 356, 522, 355, -11)],
+        portal: portal.new(1022, 262, 33, 34),
+        badplayer: [badplayer.new(49, 234, 20, 20, 0, 150, "right", 1)],
+        invin: [Invin.new(152, 27, "white"), Invin.new(897, 66, "blue")],
+        letters: []
+    }, // 10
+    {
+        player: player.new(20, 47, 5, 20),
+        Canvas: 800,
+        cannons: [Cannon.new(225, 200), Cannon.new(467, 200)],
+        gunners: [gunner.new(225, 100, 5, 20), gunner.new(467, 100, 5, 20), gunner.new(105, 350, 5, 20), gunner.new(345, 350, 5, 20), gunner.new(580, 350, 5, 20)],
+        curves: [curv.new(-1, 143, 209, 149, 95), curv.new(249, 149, 450, 149, 95), curv.new(490, 149, 680, 149, 95), curv.new(209, 149, 249, 149, 0), curv.new(451, 149, 488, 149, 0), curv.new(-1, 390, 650, 390, 0), curv.new(650, 390, 770, 249, 50)],
+        bad: [],
+        portal: portal.new(15, 345, 33, 34),
+        badplayer: [],
+        invin: [],
+        letters: []
+    }, // 11
+    {
+        player: player.new(20, 47, 5, 20),
+        Canvas: 730,
+        cannons: [Cannon.new(187, 199)],
+        gunners: [gunner.new(400, 100, 5, 20)],
+        curves: [curv.new(-1, 96, 215, 114, 92), curv.new(209, 153, 499, 153, 0), curv.new(484, 186, 685, 107, 27), curv.new(617, 306, 737, 152, -49), curv.new(364, 279, 603, 293, -23), curv.new(131, 215, 388, 322, 28), curv.new(385, 340, 498, 322, 28), curv.new(502, 340, 595, 359, -11), curv.new(598, 378, 719, 359, -11)],
+        bad: [bad.new(434, 366, 453, 356, -14), bad.new(530, 340, 544, 343, -8), bad.new(488, 186, 500, 185, -16), bad.new(595, 297, 627, 294, -16), bad.new(645, 365, 628, 368, -9), bad.new(204, 133, 221, 156, -14)],
+        portal: portal.new(709 - 50, 312, 33, 34),
+        badplayer: [badplayer.new(50, 50, 20, 20, 60, 150, 'right', 0.7), badplayer.new(467, 227, 20, 20, 462, 537, 'right', 1)],
+        invin: [],
+        letters: [],
+    }, // 12
+    {
+        player: player.new(20, 47, 5, 20),
+        Canvas: 1200,
+        cannons: [Cannon.new(159, 275), Cannon.new(369, 276)],
+        gunners: [gunner.new(200, 10, 5, 20), gunner.new(300, 10, 5, 20), gunner.new(400, 10, 5, 20), gunner.new(200, 170, 5, 20), gunner.new(300, 170, 5, 20), gunner.new(400, 170, 5, 20), gunner.new(100, 170, 5, 20), gunner.new(625, 170, 5, 20)],
+        
+        curves: [curv.new(-1,90, 450, 105, 0), curv.new(90, 235, 550, 203, 0), curv.new(-1, 370, 901, 380, 0), curv.new(900, 380, 1154, 385, 0), curv.new(718, 378, 900, 379, -10), curv.new(900, 379, 1092, 381, -10)],
+        
+        bad: [bad.new(525, 204, 571, 0, 0)],
+        portal: portal.new(1119, 345, 33, 34),
+        badplayer: [badplayer.new(730, 328, 20, 20, 710, 885, "right", 0.5), badplayer.new(990, 328, 20, 20, 895, 1085, "right", 1.5)],
+        invin: [],
+        letters: [],
+    }, // 13
+    {
+        player: player.new(20, 247, 5, 20),
+        Canvas: 600,
+        cannons: [],
+        gunners: [],
+        curves: [curv.new(-1, 274, 600, 349, -34)],
+        bad: [],
+        portal: portal.new(523, 288, 33, 34),
+        badplayer: [],
+        invin: [],
+        letters: []
+    }, // 14
+    {
+        player: player.new(20, 247, 5, 20),
+        Canvas: 400,
+        cannons: [],
+        gunners: [],
+        curves: [curv.new(-1, 274, 405, 263, 54)],
+        bad: [],
+        portal: portal.new(1330, 245, 33, 34),
+        badplayer: [],
+        invin: [],
+        letters: [],
+    }, // 15
+];
+var reset = function(){
+    
+    deathTran = 150;
+    invState = false;
+    this.face = "";
+    levelMap[level].player.x = levelMap[level].player.origx;
+    levelMap[level].player.y = levelMap[level].player.origy;
+    levelMap[level].player.g = 0;
+    
+    for(var j = 0; j < levelMap[level].gunners.length; j++)
+    {
+        levelMap[level].gunners[j].gunnerState = true;
+    }
+    
+    camVal = 0;
+    
+    for(var i in levelMap[level].gunners)
+    {
+        levelMap[level].gunners[i].x = levelMap[level].gunners[i].origx;
+        levelMap[level].gunners[i].y = levelMap[level].gunners[i].origy;
+    }
+    
+    for(var i in levelMap[level].invin)
+    {
+        levelMap[level].invin[i].x -= val;
+    }
+    
+    for(var i in levelMap[level].cannons)
+    {
+        levelMap[level].cannons[i].cannonX -= val;
+        levelMap[level].cannons[i].bulletX -= val;
+        levelMap[level].cannons[i].cannonAnimX -= val;
+    }
+    
+    for(var i in levelMap[level].bad)
+    {
+        levelMap[level].bad[i].x1 -= val;
+        levelMap[level].bad[i].x2 -= val;
+    }
+    
+    for(var i in levelMap[level].curves)
+    {
+        levelMap[level].curves[i].x1 -= val;
+        levelMap[level].curves[i].x2  -= val;
+    }
+    
+    for(var i in levelMap[level].badplayer)
+    {
+        levelMap[level].badplayer[i].x  -= val;
+        levelMap[level].badplayer[i].leftBound  -= val;
+        levelMap[level].badplayer[i].rightBound  -= val;
+    }
+    
+    for(var i in levelMap[level].letters)
+    {
+        levelMap[level].letters[i].x = levelMap[level].letters[i].origx;
+        levelMap[level].letters[i].y = levelMap[level].letters[i].origy;
+    }
+    
+    levelMap[level].portal.x -= val;
+    
+    val = 0;
+};
+
+//Invincible
+Invin.prototype.update = function() {
+    
+    if(levelMap[level].player.x + levelMap[level].player.w >= this.x && levelMap[level].player.y + levelMap[level].player.h >= this.y - 50 &&
+    levelMap[level].player.x <= this.x + this.w &&
+    levelMap[level].player.y <=  this.y + this.h)
+    {
+        if(this.b === "blue")
+        {
+            invState = false;
+        }
+        
+        if(this.b === "white")
+        {
+            invState = true;
+            levelMap[level].player.CanX = this.x;
+            levelMap[level].player.CanY = this.y;
+        }
+    }
+};
+
+// Cannon stuff
+Cannon.prototype.draw = function() {
+    
+    var AvectorX, AvectorY, Alength;
+
+    //Determine the vector between two points, alowing the pupil to move in circular rotation
+    AvectorX = (levelMap[level].player.x - this.cannonX); //calculates x component of vector
+    AvectorY = (levelMap[level].player.y - this.cannonY); //calculates y component of vector
+    Alength = sqrt((AvectorX * AvectorX) + (AvectorY * AvectorY));
+
+    
+    //calculate the length, by using the Pythagorean Theorem
+    var Adisplacement = 13;
+    
+    //calculate the unit vector
+    AvectorX /= Alength;
+    AvectorY /= Alength;
+    
+    noStroke();
+    
+    // splatter animation
+    if(this.cannonAnimState && this.shootTime <= 10)
+    {
+        noStroke();
+        fill(245, 245, 245, 300 - (this.cannonAnim * 10));
+
+        ellipse(this.cannonAnimX, this.cannonAnimY, this.cannonAnim, this.cannonAnim);
+        ellipse(this.cannonAnimX + 11, this.cannonAnimY - 2, this.cannonAnim / 2, this.cannonAnim / 2);
+        ellipse(this.cannonAnimX - 10, this.cannonAnimY + 4, this.cannonAnim / 3, this.cannonAnim / 3);
+    }
+    
+    fill(232, 232, 232);
+
+    ellipse(this.bulletX, this.bulletY, this.bulletSize, this.bulletSize);
+    
+    pushMatrix();
+    translate(this.cannonX, this.cannonY);
+    angleMode = "degrees";
+    rotate(atan2(levelMap[level].player.y-this.cannonY, levelMap[level].player.x-this.cannonX));
+    strokeWeight(3);
+    stroke(97, 27, 8);
+    line(-5, 0, 13, 15);
+    line(-5, 0, 13, -15);
+    strokeWeight(1);
+    fill(230, 230, 230);
+    stroke(173, 173, 173);
+    ellipse(15, 0, 15, 15);
+    ellipse(0, 0, 25, 25);
+    strokeWeight(3);
+    stroke(45);
+    point(0, 0);
+    point(6, 0);
+    strokeWeight(2);
+    point(15, -2);
+    point(15, 2);
+    line(18, 4, 17, 1);
+    line(18, -4, 17, -1);
+    popMatrix();
+
+    
+    noStroke();
+    
+};
+Cannon.prototype.update = function() {
+    
+    this.shootTime += 0.5;
+    
+    if(this.shootTime <= 30)
+    {
+        this.bulletX = this.cannonX;
+        this.bulletY = this.cannonY;
+    }
+    
+    if(this.shootTime > 30 && !this.shootState)
+    {
+        this.shootState = true;
+        this.vectorX = (levelMap[level].player.x - this.bulletX);
+        this.vectorY = (levelMap[level].player.y - this.bulletY);
+        this.length = sqrt((this.vectorX * this.vectorX) + (this.vectorY * this.vectorY));
+        this.bulletDisplacement = ((this.bulletSize / 2) - 5);
+    }
+    
+    if(this.shootState)
+    {
+        this.bulletX += (this.vectorX - (this.bulletDisplacement / 3.14)) / (this.length / 3.5);
+        this.bulletY += (this.vectorY - (this.bulletDisplacement / 3.14)) / (this.length / 3.5);
+    }
+    
+    if(this.cannonAnimState)
+    {
+        this.cannonAnim += 2;
+        
+        if(this.cannonAnim >= 30)
+        {
+            this.cannonAnim = 0;
+            this.cannonAnimX = this.cannonX;
+            this.cannonAnimY = this.cannonY;
+        }
+    }
+    
+};
+Cannon.prototype.applyColission = function()
+{
+    this.reset = function(){
+        this.cannonAnim = 0;
+        this.cannonAnimX = this.cannonX;
+        this.cannonAnimY = this.cannonY;
+        this.cannonAnimState = true;
+        this.shootState = false;
+        this.cannonAnimX = this.bulletX;
+        this.cannonAnimY = this.bulletY;
+        this.bulletX = this.cannonX;
+        this.bulletY = this.cannonY;
+        this.shootTime = 0;
+    };
+    
+    if(this.shootState)
+    {
+        if(this.bulletX + this.bulletSize > levelMap[level].player.x && this.bulletX < levelMap[level].player.x + levelMap[level].player.w && this.bulletY + this.bulletSize > levelMap[level].player.y && this.bulletY < levelMap[level].player.y + levelMap[level].player.h)
+        {
+            this.reset();
+            reset();
+        }
+        
+        if(this.bulletX < -10 || this.bulletY < -10 || this.bulletX > width + 10 || this.bulletY > levelMap[level].Canvas + camVal)
+        {
+            this.reset();
+        }
+    }
+};
+
+// I don't remember what this was
+var Eye = function(centerX, centerY, eyeSize, pupilSize)
+{
+    noStroke();
+    
+    var vectorX = (levelMap[level].player.x-centerX);
+    var vectorY = (levelMap[level].player.y-centerY);
+    var length = sqrt((vectorX * vectorX) + (vectorY * vectorY));
+    var pupilDisplacement = ((eyeSize / 2) - pupilSize); 
+    vectorX /= length;
+    vectorY /= length;
+    
+    fill(255, 255, 255);
+    
+    noStroke();
+    ellipse(centerX, centerY, eyeSize, eyeSize);  
+
+    if (length >= ((eyeSize / 2) - pupilSize))
+    {
+        fill(0, 0, 0);
+        ellipse(centerX + (vectorX*pupilDisplacement), 
+                centerY + (vectorY*pupilDisplacement), 
+                pupilSize*2, pupilSize*2);
+    }
+    else if(length <= (eyeSize / 2) - pupilSize)
+    {
+        fill(0, 0, 0);
+        ellipse(mouseX, mouseY, pupilSize*2, pupilSize*2);
+    }
+};
+
+// Enemy stuff
+badplayer.prototype.update = function(){
+
+    if(this.x <= this.leftBound) { this.switcher = "right"; }
+    if(this.x >= this.rightBound) { this.switcher = "left"; }
+    
+    if(this.switcher === "left") { this.x -= this.s; }
+    if(this.switcher === "right") { this.x += this.s; }
+    
+    this.y += this.g;
+    
+    this.g += 0.98;
+    
+    if(this.y >= 400)
+    {
+        this.x = this.xorig;
+        this.y = this.yorig;
+    }
+    
+    if(levelMap[level].player.x + levelMap[level].player.w >= this.x && 
+    levelMap[level].player.y + levelMap[level].player.h >= this.y &&
+    levelMap[level].player.x <= this.x + this.w &&
+    levelMap[level].player.y <=  this.y + this.h)
+    {
+        reset();
+    }
+};
+badplayer.prototype.draw = function(){
+    
+    strokeWeight(2);
+    stroke(61, 117, 106);
+    fill(84, 191, 161);
+    
+    ellipse(this.x + this.w / 2, this.y + this.h / 2, this.w * 1.1, this.h * 1.1);
+    //arc(this.x + this.w / 2, this.y + this.h / 2, this.w * 0.7, this.h * 0.7, 30, 144);
+    Eye(this.x + this.w / 2, this.y + this.h / 2.7, this.w * 0.6, this.w * 0.21);
+    
+};
+
+// Player stuff
+player.prototype.update = function(){
+
+
+    if((keys[LEFT] || keys[65]) && !camState) { this.x -= this.s; }
+    if((keys[RIGHT] || keys[68]) && !camState) { this.x += this.s; }
+    
+    this.y += this.g;
+    this.g += 0.55;
+    
+    if(this.y >= 400)
+    {
+        reset();
+    }
+    
+    if(this.x <= 0)
+    {
+       this.x = 0; 
+    }
+    
+    if(this.x >= levelMap[level].Canvas + camVal - this.w)
+    {
+        this.x = levelMap[level].Canvas + camVal - this.w;
+    }
+};
+player.prototype.draw = function() {
+    pushMatrix();
+    translate(this.x, this.y);
+    //scale(6);
+    strokeWeight(1);
+    stroke(237, 164, 112);
+    fill(245, 197, 142);
+    ellipse(this.w / 1.5, 0, this.w * 1.5, this.h / 2.6);
+    stroke(45, 85, 194);
+    fill(80, 121, 235);
+    arc(2.5, -2, this.w * 1.4, this.h / 3, -191, -16);
+    line(-2.5, -1, 6.6, -3);
+    stroke(255, 255, 255);
+    strokeWeight(2);
+    point(1, -6);
+    strokeWeight(2);
+    stroke(25);
+    point(2, 0);
+    point(5, 0);
+    
+    strokeWeight(1);
+    fill(80, 121, 235);
+    stroke(45, 85, 194);
+    if((keys[LEFT] || keys[65])){
+        beginShape();
+        vertex(0, this.h / 4.1);
+        vertex(this.w, this.h / 4.1);
+        vertex(this.w * 1.5, this.h / 4.1 + this.h / 1.3);
+        vertex(this.w * 0.4, this.h / 4.1 + this.h / 1.3);
+        endShape(CLOSE);
+    }
+    
+    else if((keys[RIGHT] || keys[68])) 
+    {
+        beginShape();
+        vertex(0, this.h / 4.1);
+        vertex(this.w, this.h / 4.1);
+        vertex(this.w * 0.7, this.h / 4.1 + this.h / 1.3);
+        vertex(this.w * -0.3, this.h / 4.1 + this.h / 1.3);
+        endShape(CLOSE);    
+    }
+    
+    else
+    {
+        rect(0, this.h / 4.1, this.w, this.h / 1.3);
+    }
+    popMatrix();
+};
+
+// Gunner Stuff
+gunner.prototype.update = function(){
+    
+    if(this.gunnerState && !invState)
+    {
+        
+    this.face = "";
+    
+    if(levelMap[level].player.x + levelMap[level].player.w >= this.x - 140 && levelMap[level].player.x <= this.x + this.w + 140)
+    {
+        if(levelMap[level].player.y + levelMap[level].player.h >= this.y - this.complicated)
+        {
+            if(this.x >= levelMap[level].player.x) { this.x -= this.s; this.face = "left"; }
+            
+            if(this.x <= levelMap[level].player.x) { this.x += this.s; this.face = "right"; }
+        }
+    }
+    
+    if(levelMap[level].player.x + levelMap[level].player.w >= this.x - 20 && levelMap[level].player.x <= this.x + this.w + 20 &&
+    levelMap[level].player.y <=  this.y + this.h && levelMap[level].player.g !== 0)
+    {
+        this.complicated = 0;
+    } else
+    {
+        this.complicated = 100;
+    }
+    
+    if(levelMap[level].player.x + levelMap[level].player.w >= this.x && 
+    levelMap[level].player.y + levelMap[level].player.h >= this.y &&
+    levelMap[level].player.x <= this.x + this.w &&
+    levelMap[level].player.y <=  this.y + this.h)
+    {
+        reset();
+    }
+    
+    this.y += this.g;
+    this.g += 0.55;
+    }
+};
+gunner.prototype.draw = function() {
+    
+    if(this.gunnerState)
+    {
+    pushMatrix();
+    translate(this.x, this.y);
+    strokeWeight(1);
+    stroke(237, 164, 112);
+    fill(245, 197, 142);
+    ellipse(this.w / 1.5, 0, this.w * 1.5, this.h / 2.6);
+    stroke(46, 194, 108);
+    fill(92, 235, 82);
+    arc(2.5, -2, this.w * 1.4, this.h / 3, -191, -16);
+    line(-2.5, -1, 6.6, -3);
+    stroke(255, 255, 255);
+    strokeWeight(2);
+    point(1, -6);
+    strokeWeight(2);
+    stroke(191, 19, 19);
+    point(2, 0);
+    point(5, 0);
+    
+    strokeWeight(1);
+    fill(235, 82, 82);
+    stroke(194, 46, 46);
+    if(this.face === "left"){
+        fill(235, 82, 82);
+        stroke(194, 46, 46);
+        quad(0, this.h / 4.1, this.w, this.h / 4.1, this.w * 1.5, this.h / 4.1 + this.h / 1.3, this.w * 0.4, this.h / 4.1 + this.h / 1.3);
+        stroke(46, 194, 108);
+        fill(92, 235, 82);
+        quad(0, this.h / 4.1, this.w, this.h / 4.1, this.w * 1.1, this.h / 4.1 + this.h / 5, this.w * 0.1, this.h / 4.1 + this.h / 5);
+        pushMatrix();
+        translate(1.1, 8);
+        quad(0, this.h / 4.1, this.w, this.h / 4.1, this.w * 1.1, this.h / 4.1 + this.h / 5, this.w * 0.1, this.h / 4.1 + this.h / 5);
+        popMatrix();
+    }
+    
+    else if(this.face === "right") 
+    {
+        fill(235, 82, 82);
+        stroke(194, 46, 46);
+        quad(0, this.h / 4.1, this.w, this.h / 4.1, this.w * 0.7, this.h / 4.1 + this.h / 1.3, this.w * -0.3, this.h / 4.1 + this.h / 1.3);
+        stroke(46, 194, 108);
+        fill(92, 235, 82);
+        quad(0, this.h / 4.1, this.w, this.h / 4.1, this.w * 0.9, this.h / 4.1 + this.h / 5, this.w * -0.1, this.h / 4.1 + this.h / 5);
+        pushMatrix();
+        translate(-0.9, 8);
+        quad(0, this.h / 4.1, this.w, this.h / 4.1, this.w * 0.9, this.h / 4.1 + this.h / 5, this.w * -0.1, this.h / 4.1 + this.h / 5);
+        popMatrix();
+    }
+    
+    else
+    {
+        rect(0, this.h / 4.1, this.w, this.h / 1.3);
+        stroke(46, 194, 108);
+        fill(92, 235, 82);
+        rect(0, this.h / 4.1, this.w, this.h / 6);
+        rect(0, this.h / 1.5, this.w, this.h / 6);
+    }
+    
+    popMatrix();
+    }
+};
+
+// Curve stuff
+curv.prototype.drawbrown = function(){
+    
+    noFill();
+    
+    if(this.c < 0)
+    {
+        strokeWeight(11);
+        stroke(181, 109, 33);
+        bezier(this.x1 + 5, 5 + this.y1, (this.x1 + this.x2) / 2 + this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 - this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2 - 5, 5 + this.y2);
+    }
+    if(this.c >= 0)
+    {
+        strokeWeight(11);
+        stroke(181, 109, 33);
+        bezier(this.x1, this.y1 + 5, (this.x1 + this.x2) / 2 - this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 + this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, 5 + this.y2);
+    }
+};
+curv.prototype.drawbrownshadow = function(){
+    
+    noFill();
+    
+    if(this.c < 0)
+    {
+        strokeWeight(6);
+        stroke(163, 91, 20);
+        bezier(this.x1 + 5, 5 + this.y1, (this.x1 + this.x2) / 2 + this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 - this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2 - 5, 5 + this.y2);
+    }
+    if(this.c >= 0)
+    {
+        strokeWeight(6);
+        stroke(163, 91, 20);
+        bezier(this.x1, this.y1 + 5, (this.x1 + this.x2) / 2 - this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 + this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, 5 + this.y2);
+    }
+};
+curv.prototype.drawbrownshadow2 = function(){
+    
+    noFill();
+    
+    if(this.c < 0)
+    {
+        strokeWeight(2);
+        stroke(143, 80, 20);
+        bezier(this.x1 + 5, 5 + this.y1, (this.x1 + this.x2) / 2 + this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 - this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2 - 5, 5 + this.y2);
+    }
+    if(this.c >= 0)
+    {
+        strokeWeight(2);
+        stroke(143, 80, 20);
+        bezier(this.x1, this.y1 + 5, (this.x1 + this.x2) / 2 - this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 + this.c / 6.8, 5 + (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, 5 + this.y2);
+    }
+};
+curv.prototype.drawwhite = function(){
+    
+    noFill();
+    
+    if(this.c < 0)
+    {
+        strokeWeight(3);
+        stroke(255, 255, 255);
+        bezier(this.x1, this.y1, (this.x1 + this.x2) / 2 + this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 - this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, this.y2);
+    }
+    if(this.c >= 0)
+    {
+        strokeWeight(3);
+        stroke(255, 255, 255);
+        bezier(this.x1, this.y1, (this.x1 + this.x2) / 2 - this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 + this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, this.y2);
+    }
+};
+curv.prototype.draw = function() {
+    
+    strokeWeight(3);
+    
+    noFill();
+
+    for(var i = 0; i < this.x2 - this.x1; i += 1)
+    {
+        //point(this.x1 + i, this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1));
+        
+        for(var j = 0; j < levelMap[level].badplayer.length; j++)
+        {
+            if(levelMap[level].badplayer[j].x + levelMap[level].badplayer[j].w >= (this.x1 + i) && 
+            levelMap[level].badplayer[j].y + levelMap[level].badplayer[j].h >= this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) &&
+            levelMap[level].badplayer[j].x <= (this.x1 + i) + 2 &&
+            levelMap[level].badplayer[j].y + levelMap[level].badplayer[j].h / 1.5 <=  this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) + 6)
+            {
+                levelMap[level].badplayer[j].y = this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) - levelMap[level].badplayer[j].h;
+                
+                levelMap[level].badplayer[j].g = 0;
+            }
+        }
+        
+        for(var j = 0; j < levelMap[level].gunners.length; j++)
+        {
+            if(levelMap[level].gunners[j].x + levelMap[level].gunners[j].w >= (this.x1 + i) && 
+            levelMap[level].gunners[j].y + levelMap[level].gunners[j].h >= this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) &&
+            levelMap[level].gunners[j].x <= (this.x1 + i) + 2 &&
+            levelMap[level].gunners[j].y + levelMap[level].gunners[j].h / 1.5 <=  this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) + 6)
+            {
+                levelMap[level].gunners[j].y = this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) - levelMap[level].gunners[j].h;
+                
+                levelMap[level].gunners[j].g = 0;
+            }
+        }
+        
+        for(var j = 0; j < levelMap[level].cannons.length; j++)
+        {
+            if(levelMap[level].cannons[j].bulletX + levelMap[level].cannons[j].bulletSize >= (this.x1 + i) && 
+            levelMap[level].cannons[j].bulletY + levelMap[level].cannons[j].bulletSize >= this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) &&
+            levelMap[level].cannons[j].bulletX <= (this.x1 + i) &&
+            levelMap[level].cannons[j].bulletY + levelMap[level].cannons[j].bulletSize <=  this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) + 10)
+            {
+                levelMap[level].cannons[j].reset();
+            }
+        }
+    
+        if(levelMap[level].player.x + levelMap[level].player.w >= (this.x1 + i) && 
+        levelMap[level].player.y + levelMap[level].player.h >= this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) &&
+        levelMap[level].player.x <= (this.x1 + i) + 2 &&
+        levelMap[level].player.y + levelMap[level].player.h / 1.5 <=  this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) + 6)
+        {
+            levelMap[level].player.y = this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) - levelMap[level].player.h;
+            
+            levelMap[level].player.g = 0;
+            
+            if(keys[UP] || keys[32] || keys[87]){
+                levelMap[level].player.g = -7;
+            }
+            
+        }
+        
+        else if(levelMap[level].player.x + levelMap[level].player.w >= (this.x1 + i) && 
+        levelMap[level].player.y + levelMap[level].player.h / 8 >= this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) &&
+        levelMap[level].player.x <= (this.x1 + i) + 2 &&
+        levelMap[level].player.y <=  this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) + 1)
+        {
+            levelMap[level].player.y = this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) + levelMap[level].player.h;
+            
+            levelMap[level].player.g = 0;
+        }
+        
+    }
+    
+    
+};
+bad.prototype.draw = function() {
+    
+    strokeWeight(3);
+    
+    noFill();
+    
+    stroke(255, 0, 0);
+    
+    if(this.c < 0)
+    {
+        strokeWeight(7);
+        stroke(255, 0, 0, 100);
+        bezier(this.x1, this.y1, (this.x1 + this.x2) / 2 + this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 - this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, this.y2);
+        strokeWeight(3);
+        stroke(255, 0, 0);
+        bezier(this.x1, this.y1, (this.x1 + this.x2) / 2 + this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 - this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, this.y2);
+    }
+    if(this.c >= 0)
+    {
+        strokeWeight(7);
+        stroke(255, 0, 0, 100);
+        bezier(this.x1, this.y1, (this.x1 + this.x2) / 2 - this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 + this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, this.y2);
+        strokeWeight(3);
+        stroke(255, 0, 0);
+        bezier(this.x1, this.y1, (this.x1 + this.x2) / 2 - this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, (this.x1 + this.x2) / 2 + this.c / 6.8, (this.y1 + this.y2) / 2 + this.c * 1.33, this.x2, this.y2);
+    }
+    
+    for(var i = 0; i < this.x2 - this.x1; i += 1)
+    {
+        stroke(255, 0, 0);
+        //point(this.x1 + i, this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1));
+        
+        if(levelMap[level].player.x + levelMap[level].player.w >= (this.x1 + i) && 
+        levelMap[level].player.y + levelMap[level].player.h >= this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) &&
+        levelMap[level].player.x <= (this.x1 + i) + 1 &&
+        levelMap[level].player.y + levelMap[level].player.h / 1.5 <=  this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) + 6)
+        {
+            reset();
+        }
+        
+        for(var j = 0; j < levelMap[level].gunners.length; j++)
+        {
+            if(levelMap[level].gunners[j].x + levelMap[level].gunners[j].w >= (this.x1 + i) && 
+            levelMap[level].gunners[j].y + levelMap[level].gunners[j].h >= this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) &&
+            levelMap[level].gunners[j].x <= (this.x1 + i) + 1 &&
+            levelMap[level].gunners[j].y + levelMap[level].gunners[j].h / 1.5 <=  this.y1 + (this.c*sin(pi*(i/((this.x2-this.x1)/57.4)))) + (this.y2 - this.y1)*i/(this.x2 - this.x1) + 6)
+            {
+                levelMap[level].gunners[j].gunnerState = false;
+            }
+        }
+        
+    }
+    
+};
+
+// Portal stuff
+portal.prototype.draw = function() {
+
+    fill(250, 242, 243, 150);
+    
+    noStroke();
+    for(var i = 0; i < this.particles.x.length; ++i)
+    {
+        pushMatrix();
+        translate(this.particles.x[i], this.particles.y[i]);
+        rotate(this.particles.r[i]);
+        ellipse(0, this.particles.upAmount[i], this.particles.s[i], this.particles.s[i]);
+        popMatrix();
+        
+        this.particles.s[i] -= 2;
+        this.particles.upAmount[i] += this.particles.s[i] / 12;
+        
+        if((keys[LEFT] || keys[65]) && camState) { this.particles.x[i] += levelMap[level].player.s; }
+    
+        if((keys[RIGHT] || keys[68]) && camState) { this.particles.x[i] -= levelMap[level].player.s; }
+        
+        if(this.particles.s[i] <= 0)
+        {
+            this.particles.x[i] = this.x + this.w / 2;
+            this.particles.y[i] = this.y + this.h / 2;
+            this.particles.s[i] = random(0, this.w);
+            this.particles.r[i] = random(0, 360);
+            this.particles.upAmount[i] = 0;
+        }
+        
+    }
+    
+    if(this.particles.x.length <= 50)
+    {
+        this.particles.x.push(this.x + this.w / 2);
+        this.particles.y.push(this.y + this.h / 2);
+        this.particles.s.push(random(0, this.w));
+        this.particles.r.push(random(0, 360));
+    }
+    
+    fill(255, 255, 255, 100);
+    ellipse(this.x + this.w / 2, this.y + this.h / 2, this.w/1.1, this.h/1.1);
+    
+    if(levelMap[level].player.x + levelMap[level].player.w >= this.x && 
+    levelMap[level].player.y + levelMap[level].player.h >= this.y &&
+    levelMap[level].player.x <= this.x + this.w &&
+    levelMap[level].player.y <=  this.y + this.h)
+    {
+        reset();
+        level ++;
+    }
+};
+
+// Letters
+letter.prototype.draw = function() {
+    // Paper
+    if(this.paperSz > 0.22){
+        pushMatrix();
+        translate(this.paperX, this.paperY);
+        rotate(this.paperRot);
+        scale(this.paperSz);
+        noStroke();
+        fill(222, 208, 166);
+        triangle(-70, 20, -40, 20, -40, 45);
+        triangle(-70, 45, -40, 20, -40, 45);
+        triangle(70, 20, 40, 20, 40, 45);
+        triangle(70, 45, 40, 20, 40, 45);
+        fill(0, 0, 0, 50);
+        triangle(-50, 35, -40, 20, -40, 45);
+        triangle(50, 35, 40, 20, 40, 45);
+        fill(255, 245, 214, this.paperSz * 255);
+        rect(-50, -35, 100, 70);
+        
+        pushStyle();
+        fill(0);
+        textAlign(LEFT, TOP);
+        textFont(cf("Tahoma"), 9);
+        text(this.txt, -46, -33, 90, 70);
+        fill(227, 25, 25);
+        textFont(cf("Brush Script MT"), 13);
+        text('- Santa', 8, 18);
+        popStyle();
+        popMatrix();
+    }
+    
+    // Envelope
+    pushMatrix();
+    translate(this.x, this.y + sin(frameCount * 2) * 3);
+    rotate(this.r);
+    scale(0.4);
+    
+    noStroke();
+    fill(255);
+    rect(-30, -20, 60, 40, 5);
+    stroke(235, 164, 164);
+    strokeWeight(2);
+    line(-29, -15, 0, 10);
+    line(29, -15, 0, 10);
+    
+    strokeWeight(1);
+    line(-26, 20, -7, 5);
+    line(26, 20, 7, 5);
+    
+    noFill();
+    strokeWeight(2);
+    stroke(201, 26, 26);
+    bezier(3, -11, 10, -20, -15, -11, 0, -7);
+    bezier(0, -7, 18, 3, -11, 1, -4, -4);
+    popMatrix();
+    
+    if(this.over){
+        this.paperX += (320 - this.paperX) / 7;
+        this.paperY += (60 - this.paperY) / 7;
+        this.paperSz += (1 - this.paperSz) / 7;
+        this.paperRot /= 1.2;
+    } else {
+        this.paperX += (this.x - this.paperX) / 7;
+        this.paperY += (this.y - this.paperY) / 7;
+        this.paperSz += (0.2 - this.paperSz) / 7;
+        this.paperRot += (360 - this.paperRot) /  7;
+    }
+    
+    if(levelMap[level].player.x > this.x - 20 && levelMap[level].player.x < this.x + 20 && levelMap[level].player.y + levelMap[level].player.h > this.y - 10 && levelMap[level].player.y < this.y + 20){
+        this.over = true;
+    } else {
+        this.over = false;
+    }
+};
+
+// Draw the levels + cam stuff
+var drawLevels = function(){
+    
+    pushMatrix();
+    translate(scoutMap[0], scoutMap[1]);
+    
+    camStuff:
+    {
+        if(levelMap[level].player.x >= camVal + 200 && levelMap[level].player.x <= camVal + levelMap[level].Canvas - 200)
+        {
+            camState = true;
+        }
+        
+        if(levelMap[level].player.x <= camVal + 200 || levelMap[level].player.x >= camVal + levelMap[level].Canvas - 200)
+        {
+            camState = false;
+        }
+    }
+    
+    if((keys[LEFT] || keys[65]) && camState) { camVal += levelMap[level].player.s; val += levelMap[level].player.s;}
+    
+    if((keys[RIGHT] || keys[68]) && camState) { camVal -= levelMap[level].player.s; val -= levelMap[level].player.s;}
+    
+    for(var i in levelMap[level].cannons)
+    {
+        levelMap[level].cannons[i].update();
+        levelMap[level].cannons[i].draw();
+        levelMap[level].cannons[i].applyColission();
+        
+        if((keys[LEFT] || keys[65]) && camState) { levelMap[level].cannons[i].cannonX += levelMap[level].player.s; levelMap[level].cannons[i].bulletX += levelMap[level].player.s; levelMap[level].cannons[i].cannonAnimX += levelMap[level].player.s; }
+    
+        if((keys[RIGHT] || keys[68]) && camState) { levelMap[level].cannons[i].cannonX -= levelMap[level].player.s; levelMap[level].cannons[i].bulletX -= levelMap[level].player.s; levelMap[level].cannons[i].cannonAnimX -= levelMap[level].player.s; }
+    }
+    
+    for(var i in levelMap[level].bad)
+    {
+        levelMap[level].bad[i].draw();
+        
+        if((keys[LEFT] || keys[65]) && camState) { levelMap[level].bad[i].x1 += levelMap[level].player.s; levelMap[level].bad[i].x2 += levelMap[level].player.s; }
+    
+        if((keys[RIGHT] || keys[68]) && camState) { levelMap[level].bad[i].x1 -= levelMap[level].player.s; levelMap[level].bad[i].x2 -= levelMap[level].player.s; }
+    }
+    
+    for(var i in levelMap[level].curves)
+    {
+        levelMap[level].curves[i].drawbrown();
+    }
+    
+    for(var i in levelMap[level].curves)
+    {
+        levelMap[level].curves[i].drawbrownshadow();
+    }
+    
+    for(var i in levelMap[level].curves)
+    {
+        levelMap[level].curves[i].drawbrownshadow2();
+    }
+    
+    for(var i in levelMap[level].curves)
+    {
+        levelMap[level].curves[i].drawwhite();
+    }
+    
+    for(var i in levelMap[level].curves)
+    {
+        levelMap[level].curves[i].draw();
+        
+        if((keys[LEFT] || keys[65]) && camState) { levelMap[level].curves[i].x1 += levelMap[level].player.s; levelMap[level].curves[i].x2 += levelMap[level].player.s; }
+    
+        if((keys[RIGHT] || keys[68]) && camState) { levelMap[level].curves[i].x1 -= levelMap[level].player.s; levelMap[level].curves[i].x2 -= levelMap[level].player.s; }
+    }
+    
+    for(var i in levelMap[level].badplayer)
+    {
+        levelMap[level].badplayer[i].draw();
+
+        levelMap[level].badplayer[i].update();
+        
+        if((keys[LEFT] || keys[65]) && camState) { levelMap[level].badplayer[i].x += levelMap[level].player.s;levelMap[level].badplayer[i].leftBound += levelMap[level].player.s; levelMap[level].badplayer[i].rightBound += levelMap[level].player.s; }
+    
+        if((keys[RIGHT] || keys[68]) && camState) { levelMap[level].badplayer[i].x -= levelMap[level].player.s; levelMap[level].badplayer[i].leftBound -= levelMap[level].player.s; levelMap[level].badplayer[i].rightBound -= levelMap[level].player.s; }
+    }
+    
+    for(var i in levelMap[level].gunners)
+    {
+        levelMap[level].gunners[i].draw();
+        levelMap[level].gunners[i].update();
+        
+        if((keys[LEFT] || keys[65]) && camState) { levelMap[level].gunners[i].x += levelMap[level].player.s;}
+    
+        if((keys[RIGHT] || keys[68]) && camState) { levelMap[level].gunners[i].x -= levelMap[level].player.s;}
+    }
+    
+    for(var i in levelMap[level].invin)
+    {
+        levelMap[level].invin[i].update();
+        
+        if((keys[LEFT] || keys[65]) && camState) { levelMap[level].invin[i].x += levelMap[level].player.s;}
+    
+        if((keys[RIGHT] || keys[68]) && camState) { levelMap[level].invin[i].x -= levelMap[level].player.s;}
+    }
+    
+    levelMap[level].portal.draw();
+    
+    for(var i in levelMap[level].letters)
+    {
+        levelMap[level].letters[i].draw();
+        
+        if((keys[LEFT] || keys[65]) && camState) { levelMap[level].letters[i].x += levelMap[level].player.s;}
+    
+        if((keys[RIGHT] || keys[68]) && camState) { levelMap[level].letters[i].x -= levelMap[level].player.s;}
+    }
+    
+    levelMap[level].player.draw();
+    levelMap[level].player.update();
+    
+    if((keys[LEFT] || keys[65]) && camState) { levelMap[level].portal.x += levelMap[level].player.s; }
+    
+    if((keys[RIGHT] || keys[68]) && camState) { levelMap[level].portal.x -= levelMap[level].player.s; }
+    
+    popMatrix();
+};
+
+// Animations and background stuff
+var snow = function(w){
+    
+    noStroke();
+    
+    //particles
+    for(var i = 0; i < particles.x.length; ++i)
+    {
+        //fill
+        fill(255, 255, 255, 100);
+        ellipse(particles.x[i], particles.y[i], particles.s[i], particles.s[i]); // circle for particle
+        
+        //particles.s[i] -= 0.4; // size decreases
+        particles.y[i] += particles.s[i]; // particl goes up
+        particles.x[i] -= 0.5;
+        
+        if(particles.y[i] >= 600) // is particle is totally shrunk
+        {
+            //reset particle
+            particles.x[i] = random(0, w);
+            particles.y[i] = -10;
+            particles.s[i] = random(1, 3);
+        }
+        
+    }
+    
+    //appear
+    if(particles.x.length <= 75)
+    {
+        particles.x.push(random(0, w));
+        particles.y.push(random(-600, -10));
+        particles.s.push(random(1, 3));
+        particles.r.push(random(0, 360));
+    }
+    
+};
+var mountain = function(x, y, sz, opa){
+    pushMatrix();
+    
+    translate(x, y);
+    scale(sz);
+    
+    if(opa === 100)
+    {
+        image(images.mountain1, 0, 0);
+    } else
+    {
+        image(images.mountain2, 0, 0);
+    }
+    
+    popMatrix();
+};
+var tree = function(x, y, w, h){
+    pushMatrix();
+    translate(x, y);
+    scale((w / 50) || 1, (h / 50) || 1);    
+    noFill();
+    stroke(37, 58, 89);
+    strokeWeight(5);
+    bezier(-20, 55, -8, 9, 13, 10, 20, -30);
+    bezier(-11, 30, -8, 9, -30, 10, -26, -30);
+    strokeWeight(3);
+    bezier(2, 8, 9, 9, 6, -17, -8, -30);
+    bezier(-24, -4, -27, -8, -31, -1, -42, -30);
+    stroke(252, 249, 244);
+    strokeWeight(20);
+    point(-8, -34);
+    point(22, -34);
+    point(-28, -34);
+    point(-46, -40);
+    point(7, -40);
+    point(31, -40);
+    point(19, -49);
+    point(1, -49);
+    point(-16, -45);
+    point(-33, -45);
+    point(-22, -52);
+    point(-11, -59);
+    point(6, -59);
+    popMatrix();
+};
+var drawBackgrounds = function(){
+    
+    textAlign(CENTER, CENTER);  
+    background(103, 204, 219);
+    pushMatrix();
+    translate(-200 / ((camVal + levelMap[level].Canvas - 200) / 200), 0);
+    
+    image(images.lerp, 0, 0);
+    
+    noFill();
+    
+    mountain(120, -183, 1.3, 100);
+    mountain(-208, -240, 1.3, 100);
+    mountain(-254, 1, 1);
+    mountain(226, 20, 1);
+    mountain(0, -11, 1);
+    
+    noStroke();
+    pushMatrix();
+    translate(519, 74);
+    scale(0.5);
+    fill(255);
+    beginShape();
+    vertex(-30, -39);
+    bezierVertex(-81, 6, -18, 87, 40, 31);
+    bezierVertex(3, 52, -54, 18, -30, -39);
+    endShape(CLOSE);
+    popMatrix();
+    popMatrix();
+    
+    fill(5, 8, 77, 60);
+    rect(0, 0, 600, 600);
+
+    pushMatrix();
+    translate(scoutMap[0], scoutMap[1]);
+    translate(camVal, 0);
+    
+    snow(levelMap[level].Canvas + 100);
+    
+    switch(level)
+    {
+        case 0:
+            tree(130, 304, -17, 10);
+            tree(247, 307, -11, 8);
+            break;
+            
+        case 1:
+            tree(411, 180, 22, 24);
+            tree(628, 127, 10, 10);
+            break;
+            
+        case 2:
+            tree(665, 171, -10, 10);
+            tree(796, 175, 5, 5);
+            break;
+            
+        case 3:
+            tree(263, 182, -15, 15);
+            tree(429, 182, 15, 15);
+            break;
+            
+        case 4:
+            tree(263, 233, -15, 15);
+            tree(167, 248, -15, 15);
+            tree(1068, 78, -10, 10);
+            tree(800, 134, -10, 10);
+            break;
+            
+        case 6:
+            tree(207, 185, -15, 15);
+            tree(146, 201, -15, 15);
+            tree(80, 235, -15, 15);
+            break;
+     
+        case 7:
+            tree(220, 70, -15, 15);
+            tree(342, 70, 15, 15);
+            tree(511, 70, -15, 15);
+            break;
+     
+        case 8:
+            tree(306, 305, -15, 15);
+            tree(330, 140, -15, 15);
+            tree(40, 217, 15, 15);
+            tree(40, 61, 15, 15);
+            tree(172, 30, 10, 10);
+            break;
+     
+        case 10:
+            tree(160, 175, -15, 15);
+            tree(160, 46, 15, 15);
+            tree(502, 94, 15, 15);
+            tree(561, 85, 15, 15);
+            tree(624, 80, 15, 15);
+            break;
+            
+        case 14:
+            tree(160, 239, 30, 30);
+            tree(335, 255, 30, 30);
+            
+            noStroke();
+            fill(99, 46, 0);
+            rect(500, 275, 10, 50, 10);
+            rect(569, 275, 10, 75, 10);
+            rect(500 - 20, 275, 78 + 40, 10, 10);
+            rect(500 - 10, 268, 78 + 20, 10, 10);
+            rect(500, 259, 78, 10, 10);
+            rect(500 + 10, 250, 78 - 20, 10, 10);
+            rect(500 + 20, 241, 78 - 40, 10, 10);
+            
+            break;
+    
+    }
+    
+    
+    
+    popMatrix();
+};
+
+// Menu
+var Menu = function(){
+    this.pos = [600, 400, 300, 0, -500, -600, 100];
+    
+    this.title = function(x, y){
+        pushMatrix();
+        translate(x, y);
+        strokeCap(SQUARE);
+        noFill();
+        strokeWeight(11);
+        
+        // south
+        line(-224, -25, -199, -25);
+        line(-239, 26, -212, 26);
+        line(-225, -1, -213, -1);
+        arc(-213, 12.5, 30, 27, -90, 90);
+        arc(-223, -13.2, 24, 24, 90, 270);
+        rect(-181, -27, 33, 53, 30);
+        line(-128, -31, -128, 9);
+        line(-95, -31, -95, 9);
+        line(-115, 26, -107, 26);
+        arc(-113, 9, 35, 35, 0, 76);
+        arc(-110, 9, 35, 35, 101, 185);
+        line(-40, -26, -85, -26);
+        line(-63, -26, -63, 31);
+        line(-30, -31, -30, 31);
+        line(-3, 1, -26, 1);
+        line(2, -31, 2, 31);
+        
+        // pole
+        rect(97, -27, 33, 53, 30);
+        line(148, -31, 148, 32);
+        line(187, 27, 144, 27);
+        line(238, 27, 194, 27);
+        line(238, 1, 194, 1);
+        line(238, -25, 194, -25);
+        line(199, -30, 199, 32);
+        line(47, -32, 47, 32);
+        line(51, -26, 69, -26);
+        line(51, 0, 66, 0);
+        arc(65, -13, 30, 26, -90, 90);
+        popMatrix();
+    };
+};
+Menu.prototype.draw = function() {
+    background(103, 204, 219);
+    
+    image(images.lerp, 0, 0);
+    
+    mountain(120, -183 + this.pos[0], 1.3, 100);
+    mountain(-208, -240 + this.pos[0], 1.3, 100);
+    mountain(-254, 1 + this.pos[1], 1);
+    mountain(226, 20 + this.pos[1], 1);
+    mountain(0, -11 + this.pos[1], 1);
+    
+    pushMatrix();
+    translate(0, this.pos[2]);
+    fill(225, 244, 247);
+    beginShape();
+    vertex(0, 500);
+    vertex(0, 600);
+    vertex(600, 600);
+    vertex(600, 500);
+    bezierVertex(365, 417, 300, 590, 0, 500);
+    endShape(CLOSE);
+    
+    fill(252, 252, 252);
+    beginShape();
+    vertex(0, 500);
+    vertex(0, 600);
+    vertex(600, 600);
+    vertex(600, 500);
+    bezierVertex(320, 468, 300, 631, 0, 500);
+    endShape(CLOSE);
+    
+    noStroke();
+    fill(255, 255, 255);
+    beginShape();
+    vertex(0, 500);
+    vertex(0, 600);
+    vertex(600, 600);
+    vertex(600, 563);
+    bezierVertex(320, 468, 300, 631, 0, 542);
+    endShape(CLOSE);
+    popMatrix();
+    
+    noStroke();
+    pushMatrix();
+    translate(519, 74);
+    scale(this.pos[3]);
+    fill(255);
+    beginShape();
+    vertex(-30, -39);
+    bezierVertex(-81, 6, -18, 87, 40, 31);
+    bezierVertex(3, 52, -54, 18, -30, -39);
+    endShape(CLOSE);
+    popMatrix();
+    
+    fill(5, 8, 77, 60);
+    rect(0, 0, 600, 600);
+    
+    // Title
+    textAlign(CENTER, CENTER);
+    fill(255);
+    textFont(cf("Arial Narrow"), 29);
+    text('A D V E N T U R E S   O F   T H E', 300 + this.pos[4], 130 + 50);
+    
+    // south pole
+    stroke(255, 255, 255);
+    this.title(305 + this.pos[5], 185 + 50);
+    stroke(18, 108, 122);
+    this.title(303 + this.pos[5], 183 + 50);
+    stroke(255, 255, 255);
+    this.title(300 + this.pos[5], 180 + 50);
+    
+    fill(142, 177, 204);
+    textSize(15);
+    text('C H E S T E R   B A N K S   x   I S A A C   E M E R A L D   | |   C H R I S T M A S   2 0 2 0', 300, 30 - this.pos[6]);
+    
+    textSize(23);
+    fill(255, 255, 255, 200 + sin(frameCount * 5)*100);
+    text('>  >  >  C L I C K   T O   S T A R T  <  <  <', 300, 280 + this.pos[6] * 20);
+    
+    this.pos[0] /= 1.1;
+    if(this.pos[0] < 100){
+        this.pos[1] /= 1.1;
+    }
+    if(this.pos[1] < 100){
+        this.pos[2] /= 1.1;
+    }
+    if(this.pos[2] < 20){
+        this.pos[3] += (0.5 - this.pos[3]) / 5;
+    }
+    if(this.pos[3] > 0.45){
+        this.pos[4] /= 1.1;
+    }
+    if(this.pos[4] > -100){
+        this.pos[5] /= 1.1;
+    }
+    if(this.pos[5] > -100){
+        this.pos[6] /= 1.1;
+        snow(700);
+    }
+    
+    pushMatrix();
+    translate(0, this.pos[6] * 10);
+    image(images.cocoa1, 0, 0);    
+    popMatrix();
+    
+    if(clicked){
+        scene = "game";
+    }
+};
+var menu = Menu.new();
+
+// Logo
+var Logo = function(){
+    this.cbSz = 0;
+    this.gemSz = 0;
+    this.y = 0;
+    
+    this.txt = "ISAAC EMERALD AND CHESTER BANKS PRESENT...".split("");
+    this.txtSz = [];
+    for(var i = 0; i < this.txt.length; i ++){
+        this.txtSz[i] = 0;
+    }
+    
+    this.logo = function(x, y, sz){
+        var logoColors = [
+            color(255, 255, 255),
+            color(240, 240, 240),
+            color(230, 230, 230),
+            color(214, 214, 214),
+        ];
+        
+        pushMatrix();
+        translate(x, y);
+        scale(sz);
+        noFill();
+        strokeCap(SQUARE);
+        stroke(0, 0, 0, 30);
+        strokeWeight(30);
+        arc(10, 20, 160, 160, 30, 330);
+        strokeWeight(11);
+        // Outer layer
+        stroke(logoColors[0]);
+        arc(0, 0, 200, 200, -85, -30);
+        arc(0, 0, 180, 180, -75, -30);
+        arc(0, 0, 200, 200, -300, -240);
+        arc(0, 0, 180, 180, -285, -250);
+        stroke(logoColors[1]);
+        arc(0, 0, 200, 200, -125, -85);
+        arc(0, 0, 180, 180, -115, -75);
+        arc(0, 0, 200, 200, -200, -160);
+        arc(0, 0, 180, 180, -200, -150);
+        stroke(logoColors[2]);
+        arc(0, 0, 200, 200, -160, -125);
+        arc(0, 0, 180, 180, -150, -116);
+        arc(0, 0, 200, 200, -330, -300);
+        arc(0, 0, 180, 180, -330, -286);
+        stroke(logoColors[3]);
+        arc(0, 0, 200, 200, -240, -200);
+        arc(0, 0, 180, 180, -250, -200);
+        
+        // Inner layer
+        stroke(logoColors[0]);
+        arc(0, 0, 160, 160, -200, -160);
+        arc(0, 0, 140, 140, -200, -150);
+        stroke(logoColors[1]);
+        arc(0, 0, 160, 160, -300, -240);
+        arc(0, 0, 140, 140, -285, -250);
+        stroke(logoColors[2]);
+        arc(0, 0, 160, 160, -240, -200);
+        arc(0, 0, 140, 140, -250, -200);
+        arc(0, 0, 160, 160, -125, -85);
+        arc(0, 0, 140, 140, -115, -75);
+        stroke(logoColors[3]);
+        arc(0, 0, 160, 160, -85, -30);
+        arc(0, 0, 140, 140, -75, -30);
+        arc(0, 0, 160, 160, -330, -300);
+        arc(0, 0, 140, 140, -330, -286);
+        arc(0, 0, 160, 160, -160, -125);
+        arc(0, 0, 140, 140, -150, -116);
+        
+        stroke(0, 0, 0, 50);
+        strokeWeight(20);
+        arc(0, 0, 150, 150, 30, 330);
+        popMatrix();
+    };
+    this.emeraldGem = function(x, y, s){
+        //base
+        noStroke();
+        fill(0, 0, 0, 30);
+        pushMatrix();
+        translate(s / 5, s / 5);
+        beginShape();
+        vertex(x - s, y - s / 2);
+        vertex(x - s / 2, y - s);
+        vertex(x + s / 2, y - s);
+        vertex(x + s, y - s / 2);
+        vertex(x + s, y + s);
+        vertex(x + s / 2, y + s * 1.5);
+        vertex(x - s / 2, y + s * 1.5);
+        vertex(x - s, y + s);
+        vertex(x - s, y - s / 2);
+        endShape();
+        popMatrix();
+        
+        //stroke
+        stroke(255, 255, 255, 35);
+        strokeWeight(s / 25);
+        fill(111, 252, 98);
+        beginShape();
+        vertex(x - s, y - s / 2);
+        vertex(x - s / 2, y - s);
+        vertex(x + s / 2, y - s);
+        vertex(x + s, y - s / 2);
+        vertex(x + s, y + s);
+        vertex(x + s / 2, y + s * 1.5);
+        vertex(x - s / 2, y + s * 1.5);
+        vertex(x - s, y + s);
+        vertex(x - s, y - s / 2);
+        endShape();
+        
+        //1
+        fill(113, 245, 98);
+        noStroke();
+        beginShape();
+        vertex(x - s, y - s / 2);
+        vertex(x - s / 2, y - s);
+        vertex(x - s / 3, y - s / 2);
+        vertex(x - s / 2, y - s / 3);
+        endShape();
+        
+        //2
+        fill(82, 235, 65);
+        beginShape();
+        vertex(x - s / 2, y - s);
+        vertex(x - s / 3, y - s / 2);
+        vertex(x + s / 3, y - s / 2);
+        vertex(x + s / 2, y - s);
+        endShape();
+        
+        //3
+        beginShape();
+        fill(72, 227, 54);
+        vertex(x + s / 2, y - s);
+        vertex(x + s, y - s / 2);
+        vertex(x + s / 2, y - s / 3);
+        vertex(x + s / 3, y - s / 2);
+        endShape();
+        
+        //4
+        fill(67, 217, 48);
+        beginShape();
+        vertex(x + s, y - s / 2);
+        vertex(x + s, y + s);
+        vertex(x + s / 2, y + s / 1.1);
+        vertex(x + s / 2, y - s / 3);
+        endShape();
+        
+        //5
+        fill(57, 207, 37);
+        beginShape();
+        vertex(x + s, y + s);
+        vertex(x + s / 2, y + s * 1.5);
+        vertex(x + s / 3, y + s);
+        vertex(x + s / 2, y + s / 1.2);
+        endShape();
+        
+        //6
+        fill(57, 196, 35);
+        beginShape();
+        vertex(x + s / 3, y + s);
+        vertex(x + s / 2, y + s * 1.5);
+        vertex(x - s / 2, y + s * 1.5);
+        vertex(x - s / 3, y + s);
+        endShape();
+        
+        //7
+        fill(79, 214, 55);
+        beginShape();
+        vertex(x - s, y + s);
+        vertex(x - s / 2, y + s * 1.5);
+        vertex(x - s / 3, y + s);
+        vertex(x - s / 2, y + s / 1.2);
+        endShape();
+        
+        //8
+        fill(96, 240, 67);
+        beginShape();
+        vertex(x - s, y + s);
+        vertex(x - s / 2, y + s / 1.2);
+        vertex(x - s / 2, y - s / 3);
+        vertex(x - s, y - s / 2);
+        endShape();
+        
+        //shade
+        fill(0, 0, 0, 4);
+        beginShape();
+        vertex(x + s / 2.3, y - s / 2.3);
+        vertex(x + s / 2, y - s / 3);
+        vertex(x + s / 2, y + s / 1.2);
+        vertex(x + s / 3, y + s);
+        vertex(x - s / 3, y + s);
+        vertex(x - s / 2.3, y + s / 1.1);
+        endShape();
+        
+        //shade 2
+        fill(0, 0, 0, 5);
+        beginShape();
+        vertex(x + s / 6, y + s);
+        vertex(x + s / 3, y + s);
+        vertex(x + s / 2, y + s / 1.2);
+        vertex(x + s / 2, y + s / 1.5);
+        endShape();
+    
+    };
+};
+Logo.prototype.draw = function() {
+    // Background
+    background(103, 204, 219);
+    image(images.lerp, 0, 0);
+    
+    fill(5, 8, 77, 60);
+    rect(0, 0, 600, 600);
+    
+    pushMatrix();
+    translate(0, this.y);
+    this.logo(300, 320, this.cbSz);
+    this.emeraldGem(300, 310, this.gemSz);
+    
+    this.cbSz += (2.2 - this.cbSz) / 5;
+    if(this.cbSz > 2){
+        this.gemSz += (60 - this.gemSz) / 5;
+    }
+    
+    if(this.gemSz > 50){
+        this.txtSz[0] += (1 - this.txtSz[0]) / 5;
+    }
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textFont(cf("Arial Narrow"), 21);
+    for(var i = 0; i < this.txt.length; i ++){
+        pushMatrix();
+        translate(300, 320);
+        scale(this.txtSz[i]);
+        rotate(-82 + i * 4);
+        text(this.txt[i], 0, -259);
+        popMatrix();
+        
+        if(i > 0){
+            if(this.txtSz[i - 1] > 0.4){
+                this.txtSz[i] += (1 - this.txtSz[i]) / 5;
+            }
+        }
+    }
+    popMatrix();
+    
+    if(this.txtSz[this.txt.length - 1] > 0.9999999 || clicked){
+        this.fadeOut = true;
+    }
+    
+    if(this.fadeOut){
+        this.y += (-600 - this.y) / 10;
+    }
+    if(this.y < -550){
+        scene = "menu";
+    }
+
+};
+var logo = Logo.new();
+
+// draw all of the stuff
+draw = function() {
+    
+    textFont(cf("Tahoma"));
+    background(255, 255, 255);
+    
+    loadImages();
+    
+    switch (scene) {
+        
+        case "logo":
+            logo.draw();
+            break;
+        
+        case "menu":
+            menu.draw();
+            break;
+        
+        case "game":    
+            pushMatrix();
+            scale(1.5);
+            drawBackgrounds();
+            drawLevels();
+            noStroke();
+            fill(255, 255, 255, deathTran);
+            rect(0, 0, 400, 400);
+            popMatrix();
+            
+            if(level >= 15)
+            {
+                background(123, 151, 186);
+                image(images.cocoa, 0, 0);
+                
+                textSize(25);
+                fill(12, 24, 156);
+                text("YOU DID IT!\nYOU SAVED SANTA!\nWAY TO GO!", 300, 52);
+                fill(0, 72, 255);
+                text("YOU DID IT!\nYOU SAVED SANTA!\nWAY TO GO!", 300, 50);
+            }
+            
+            break;
+    
+    }
+    
+    deathTran /= 1.1;
+    
+    clicked = false;
+    
+    //background(255);
+};
+
+
+
